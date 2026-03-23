@@ -1358,7 +1358,7 @@
         engine.pause();
         document.getElementById('icon-play').style.display = 'block';
         document.getElementById('icon-pause').style.display = 'none';
-      } else {
+      } else if (engine._paused) {
         engine.resume();
         document.getElementById('icon-play').style.display = 'none';
         document.getElementById('icon-pause').style.display = 'block';
