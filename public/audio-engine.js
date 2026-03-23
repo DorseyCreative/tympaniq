@@ -538,7 +538,11 @@ class TympanIQEngine {
   pause() {
     if (this.ctx && this.isPlaying) {
       this._pauseOffset += (this.ctx.currentTime - this._sessionStartTime);
-      this.ctx.suspend();
+      // Fade out to avoid click/stutter
+      if (this.masterGain) {
+        this.masterGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.03);
+      }
+      setTimeout(() => this.ctx.suspend(), 50);
       this.isPlaying = false;
       clearInterval(this.sessionTimer);
     }
@@ -546,20 +550,25 @@ class TympanIQEngine {
 
   resume() {
     if (this.ctx && !this.isPlaying) {
-      this.ctx.resume();
-      this.isPlaying = true;
-      this._sessionStartTime = this.ctx.currentTime;
-      this.sessionTimer = setInterval(() => {
-        if (!this.isPlaying) return;
-        const realElapsed = Math.floor(this.ctx.currentTime - this._sessionStartTime + this._pauseOffset);
-        if (realElapsed > this._lastTickElapsed) {
-          this._lastTickElapsed = realElapsed;
-          this.elapsed = realElapsed;
-          const remaining = this.totalDuration - realElapsed;
-          if (this.onTick) this.onTick(remaining, realElapsed, this.totalDuration);
-          if (remaining <= 0) this.stopSession(true);
+      this.ctx.resume().then(() => {
+        // Fade back in
+        if (this.masterGain) {
+          this.masterGain.gain.setTargetAtTime(this.volume, this.ctx.currentTime, 0.05);
         }
-      }, 250);
+        this.isPlaying = true;
+        this._sessionStartTime = this.ctx.currentTime;
+        this.sessionTimer = setInterval(() => {
+          if (!this.isPlaying) return;
+          const realElapsed = Math.floor(this.ctx.currentTime - this._sessionStartTime + this._pauseOffset);
+          if (realElapsed > this._lastTickElapsed) {
+            this._lastTickElapsed = realElapsed;
+            this.elapsed = realElapsed;
+            const remaining = this.totalDuration - realElapsed;
+            if (this.onTick) this.onTick(remaining, realElapsed, this.totalDuration);
+            if (remaining <= 0) this.stopSession(true);
+          }
+        }, 250);
+      });
     }
   }
 

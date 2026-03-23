@@ -572,6 +572,42 @@ html, body {
 }
 
 
+.therapy-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 10px;
+  margin: 10px 0 6px;
+  flex-shrink: 0;
+  animation: therapyFadeIn 0.8s ease;
+}
+@keyframes therapyFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.therapy-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  margin-top: 4px;
+  animation: therapyPulse 2.5s ease-in-out infinite;
+}
+@keyframes therapyPulse {
+  0%, 100% { opacity: 0.4; box-shadow: 0 0 4px rgba(99, 102, 241, 0.2); }
+  50% { opacity: 1; box-shadow: 0 0 10px rgba(99, 102, 241, 0.5); }
+}
+.therapy-text {
+  font-size: 11px;
+  color: rgba(200, 200, 220, 0.7);
+  line-height: 1.5;
+  margin: 0;
+}
+
 .insight-panel-header {
   display: flex;
   align-items: center;
@@ -836,6 +872,7 @@ html, body {
   gap: 16px;
   align-items: center;
   justify-content: center;
+  margin-top: 20px;
 }
 
 /* Legacy horizontal volume — hidden, replaced by vertical */

@@ -11,6 +11,21 @@
   let currentMode = null;
   let previewEngine = null; // for phase preview in settings
 
+  // Phase therapy banners — explain what's physically happening during each phase
+  const phaseTherapy = {
+    'Broadband Enrichment': 'Gentle pink noise is activating your auditory neurons at safe baseline levels, preventing the hypersensitivity that develops from silence after headphone use.',
+    'Alpha Binaural': 'Two slightly different tones are creating a 10 Hz pulse your brain follows — this alpha rhythm relaxes your auditory cortex and reduces the neural hyperactivity behind ear fatigue.',
+    'Mixed Enrichment': 'Pink noise and binaural beats combine to simultaneously soothe and retrain — your acoustic reflex muscles are gently engaging while your auditory cortex calms.',
+    'Theta Binaural': 'A slower 6 Hz binaural beat is guiding your brain into theta rhythm — a deeply restorative state where auditory pathways repair and recalibrate.',
+    'Rest Interval': 'Silence lets your tensor tympani and stapedius muscles fully relax between exercises — like rest sets between reps at the gym.',
+    'Low Frequency Sweep': 'Rising low-frequency tones are gently exercising your stapedius muscle — the tiny muscle that contracts to protect your inner ear from bass.',
+    'Mid Frequency Sweep': 'Mid-range sweeps target the frequencies most affected by headphone use — your acoustic reflex is learning to respond faster in the speech range.',
+    'High Frequency Sweep': 'High-frequency sweeps condition the most delicate hair cells in your cochlea — these are first to fatigue and first to benefit from targeted stimulation.',
+    'Notched Audio Therapy': 'Sound is filtered to remove your specific tinnitus frequency — this trains surrounding neurons to stop overcompensating, reducing phantom ringing over time.',
+    'ACRN Neuromodulation': 'Four tones around your tinnitus frequency fire in randomized patterns — this desynchronizes the overactive neural loop that creates persistent ringing.',
+    'Cool Down': 'Soft decreasing tones are easing your auditory system back to rest — like a cool-down walk after exercise, this prevents reflex rebound.',
+  };
+
   // Research-backed, non-repeating insights per phase.
   // Each has: text (plain language), cite (short label), ref (author/year), url (paper link)
   const phaseInsights = {
@@ -831,6 +846,20 @@
       }
 
       document.getElementById('player-phase-label').textContent = phase.name;
+
+      // Update therapy banner
+      const therapyText = phaseTherapy[phase.name];
+      const banner = document.getElementById('therapy-banner');
+      const bannerText = document.getElementById('therapy-text');
+      if (therapyText && banner && bannerText) {
+        bannerText.textContent = therapyText;
+        banner.style.display = 'flex';
+        banner.style.animation = 'none';
+        banner.offsetHeight; // reflow
+        banner.style.animation = '';
+      } else if (banner) {
+        banner.style.display = 'none';
+      }
 
       // Start auto-rotating insight carousel for this phase
       startInsightRotation(phase.name);
