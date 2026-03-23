@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
   <div id="app">
@@ -104,6 +104,13 @@
           </button>
         </div>
       </header>
+
+      <!-- Trial Banner (non-pro users) -->
+      <div id="trial-banner" class="trial-banner" style="display:none">
+        <span class="trial-banner-label">Free Trial</span>
+        <span class="trial-banner-text" id="trial-banner-text">3 preview sessions remaining</span>
+        <button id="trial-banner-upgrade" class="trial-banner-btn">Upgrade</button>
+      </div>
 
       <!-- Streak Bar -->
       <div class="streak-bar">
@@ -367,6 +374,14 @@
             <span class="sub-badge free">Free Plan</span>
             <p>Unlock Deep Conditioning, notched audio, ACRN, and unlimited sessions.</p>
             <button id="btn-upgrade" class="btn-primary">Upgrade to Pro — $4.99/mo</button>
+            <div class="restore-purchase">
+              <p class="restore-label">Already subscribed?</p>
+              <div class="restore-row">
+                <input type="email" id="restore-email" class="setting-input" placeholder="Enter your email">
+                <button id="btn-restore" class="btn-secondary restore-btn">Restore</button>
+              </div>
+              <p id="restore-msg" class="restore-msg"></p>
+            </div>
           </div>
           <div id="sub-status-pro" class="sub-status" style="display:none">
             <span class="sub-badge pro">Pro Plan</span>
@@ -378,6 +393,80 @@
           <h3>About</h3>
           <p class="about-text">TympanIQ v1.0 — Sonic ear therapy designed for headphone users. Based on peer-reviewed research in acoustic reflex conditioning, tinnitus retraining therapy, and auditory neuroscience.</p>
           <p class="about-text disclaimer-sm">This is not a medical device. It does not diagnose, treat, cure, or prevent any disease. Consult a healthcare professional for hearing concerns.</p>
+        </div>
+
+        <!-- Admin Dashboard (hidden until authenticated) -->
+        <div class="setting-group" id="admin-section" style="display:none">
+          <h3>Admin Dashboard</h3>
+          <div id="admin-gate" class="admin-gate">
+            <input type="password" id="admin-key-input" class="setting-input" placeholder="Admin key">
+            <button id="btn-admin-login" class="btn-primary" style="width:100%;margin-top:8px;padding:12px;font-size:14px;">Sign In</button>
+            <p id="admin-error" class="admin-error" style="display:none">Invalid admin key</p>
+          </div>
+          <div id="admin-dashboard" class="admin-dashboard" style="display:none">
+            <div class="admin-metrics-grid">
+              <div class="admin-metric">
+                <span class="admin-metric-label">MRR</span>
+                <span class="admin-metric-value revenue" id="adm-mrr">—</span>
+              </div>
+              <div class="admin-metric">
+                <span class="admin-metric-label">Total Revenue</span>
+                <span class="admin-metric-value revenue" id="adm-total-rev">—</span>
+                <span class="admin-metric-sub" id="adm-payments"></span>
+              </div>
+              <div class="admin-metric">
+                <span class="admin-metric-label">Active</span>
+                <span class="admin-metric-value" id="adm-active">—</span>
+              </div>
+              <div class="admin-metric">
+                <span class="admin-metric-label">Trialing</span>
+                <span class="admin-metric-value" id="adm-trialing">—</span>
+              </div>
+              <div class="admin-metric">
+                <span class="admin-metric-label">Canceled</span>
+                <span class="admin-metric-value warn" id="adm-canceled">—</span>
+              </div>
+              <div class="admin-metric">
+                <span class="admin-metric-label">Past Due</span>
+                <span class="admin-metric-value warn" id="adm-past-due">—</span>
+              </div>
+            </div>
+
+            <h4 class="admin-sub-heading">Plan Breakdown</h4>
+            <div class="admin-metrics-grid">
+              <div class="admin-metric">
+                <span class="admin-metric-label">Monthly ($4.99/mo)</span>
+                <span class="admin-metric-value" id="adm-monthly">—</span>
+              </div>
+              <div class="admin-metric">
+                <span class="admin-metric-label">Yearly ($29.99/yr)</span>
+                <span class="admin-metric-value" id="adm-yearly">—</span>
+              </div>
+            </div>
+
+            <h4 class="admin-sub-heading">Subscribers</h4>
+            <div class="admin-table-wrap" id="adm-subs-wrap">
+              <div class="admin-loading" id="adm-loading">Loading...</div>
+              <table id="adm-subs-table" style="display:none">
+                <thead>
+                  <tr><th>Email</th><th>Status</th><th>Plan</th><th>Revenue</th></tr>
+                </thead>
+                <tbody id="adm-subs-tbody"></tbody>
+              </table>
+            </div>
+
+            <h4 class="admin-sub-heading">Recent Events</h4>
+            <div class="admin-table-wrap">
+              <table id="adm-events-table" style="display:none">
+                <thead>
+                  <tr><th>Date</th><th>Type</th><th>Customer</th><th>Amount</th></tr>
+                </thead>
+                <tbody id="adm-events-tbody"></tbody>
+              </table>
+            </div>
+
+            <button id="btn-admin-logout" class="btn-secondary" style="width:100%;margin-top:16px;">Log Out Admin</button>
+          </div>
         </div>
       </div>
     </div>
@@ -496,8 +585,8 @@
   </div>
 
   <script src="https://js.stripe.com/v3/" async></script>
-  <script src="audio-engine.js?v=5"></script>
-  <script src="app.js?v=5"></script>
+  <script src="audio-engine.js?v=6"></script>
+  <script src="app.js?v=6"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');

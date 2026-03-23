@@ -826,8 +826,133 @@ select.setting-input { text-align: left; }
 .sub-badge.pro { background: rgba(99, 102, 241, 0.2); color: var(--accent); }
 .sub-status p { font-size: 13px; color: var(--text2); margin-bottom: 12px; }
 .sub-status .btn-primary { margin-top: 0; width: 100%; padding: 12px; font-size: 14px; }
+/* Trial Banner */
+.trial-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+.trial-banner-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.trial-banner-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text2);
+}
+.trial-banner-btn {
+  background: var(--gradient);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.restore-purchase { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); }
+.restore-label { font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+.restore-row { display: flex; gap: 8px; }
+.restore-row .setting-input { flex: 1; margin: 0; padding: 10px 12px; font-size: 14px; }
+.restore-btn { white-space: nowrap; padding: 10px 16px !important; font-size: 13px; }
+.restore-msg { font-size: 12px; margin-top: 8px; min-height: 16px; }
+.restore-msg.success { color: var(--success); }
+.restore-msg.error { color: var(--danger); }
 
 .slider-inline { flex: 1; max-width: 140px; }
+
+/* Admin Dashboard (embedded in settings) */
+.admin-gate { padding: 8px 0; }
+.admin-error { color: var(--danger); font-size: 12px; margin-top: 8px; }
+.admin-dashboard { padding: 8px 0; }
+.admin-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.admin-metric {
+  padding: 14px;
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.admin-metric-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text2);
+}
+.admin-metric-value {
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+.admin-metric-value.revenue { color: var(--success); }
+.admin-metric-value.warn { color: var(--warning); }
+.admin-metric-sub { font-size: 11px; color: var(--text2); }
+.admin-sub-heading {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--accent);
+  margin: 16px 0 8px;
+}
+.admin-table-wrap {
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.admin-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.admin-table-wrap th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text2);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  white-space: nowrap;
+}
+.admin-table-wrap td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  white-space: nowrap;
+}
+.admin-table-wrap tr:last-child td { border-bottom: none; }
+.admin-loading { padding: 20px; text-align: center; color: var(--text2); font-size: 13px; }
+.admin-status {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.admin-status.active { background: rgba(34,197,94,0.15); color: var(--success); }
+.admin-status.trialing { background: rgba(99,102,241,0.15); color: var(--accent); }
+.admin-status.canceled { background: rgba(239,68,68,0.15); color: var(--danger); }
+.admin-status.past_due { background: rgba(245,158,11,0.15); color: var(--warning); }
 
 .music-volume-control { opacity: 0.4; margin-top: -4px; }
 .music-icon { color: var(--accent2); }

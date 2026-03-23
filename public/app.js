@@ -215,7 +215,8 @@
       return `<div class="${cls}"></div>`;
     }).join('');
 
-    // Pro state
+    // Pro vs Trial state
+    const trialBanner = document.getElementById('trial-banner');
     if (state.isPro) {
       const card = document.querySelector('.session-card[data-mode="deep"]');
       card.classList.remove('locked');
@@ -224,6 +225,29 @@
       const btn = card.querySelector('.btn-start');
       btn.textContent = 'Start Session';
       btn.classList.remove('btn-pro');
+
+      // Hide trial banner, reset button text
+      if (trialBanner) trialBanner.style.display = 'none';
+      document.querySelectorAll('.session-card:not([data-mode="deep"]) .btn-start').forEach(b => {
+        b.textContent = 'Start Session';
+      });
+    } else {
+      // Show trial banner
+      const trialCount = store.get('trialCount', 0);
+      const remaining = Math.max(0, 3 - trialCount);
+      if (trialBanner) {
+        trialBanner.style.display = 'flex';
+        const text = document.getElementById('trial-banner-text');
+        if (remaining > 0) {
+          text.textContent = remaining + ' preview session' + (remaining !== 1 ? 's' : '') + ' remaining';
+        } else {
+          text.textContent = 'Trial sessions used — upgrade for full access';
+        }
+      }
+      // Change button text for non-pro
+      document.querySelectorAll('.session-card:not([data-mode="deep"]) .btn-start').forEach(b => {
+        b.textContent = remaining > 0 ? 'Try Free' : 'Upgrade to Start';
+      });
     }
   }
 
@@ -438,11 +462,21 @@
     engine.setVolume(parseInt(document.getElementById('volume-slider').value) / 100);
     engine.startSession(mode, state.settings);
 
-    // Init music player on same audio context
-    musicPlayer.init(engine.ctx);
+    // Init music player on same audio context and preload
+    if (!musicPlayer.ctx) {
+      musicPlayer.init(engine.ctx);
+    }
     musicPlayer.setEnabled(state.settings.musicEnabled !== false);
     musicPlayer.setVolume((state.settings.musicVolume ?? 30) / 100);
-    musicPlayer.preloadAll();
+    musicPlayer.preloadAll().then(() => {
+      // Trigger music for the current phase now that buffers are ready
+      const currentPhase = engine.protocol?.phases?.[0];
+      if (currentPhase && musicPlayer.enabled) {
+        musicPlayer.playForPhase(currentPhase.name, currentPhase.duration, {
+          fadeOutEarly: currentPhase.name === 'Mixed Enrichment' ? 15 : 0
+        });
+      }
+    });
 
     // Sync music volume slider
     document.getElementById('music-volume-slider').value = state.settings.musicVolume ?? 30;
@@ -892,8 +926,9 @@
       musicPlayer.stop();
 
       if (completed) {
-        // Trial finished — mark complete and show paywall
-        store.set('trialCompleted', true);
+        // Trial finished — increment count and show paywall
+        const count = store.get('trialCount', 0) + 1;
+        store.set('trialCount', count);
         showScreen('screen-dashboard');
         updateDashboard();
         setTimeout(() => showPaywall(), 400);
@@ -957,10 +992,18 @@
     }, 1000);
 
     // Start music + visualizer
-    musicPlayer.init(engine.ctx);
+    if (!musicPlayer.ctx) {
+      musicPlayer.init(engine.ctx);
+    }
     musicPlayer.setVolume(state.settings.musicVolume != null ? state.settings.musicVolume / 100 : 0.3);
     musicPlayer.setEnabled(state.settings.musicEnabled !== false);
-    musicPlayer.preloadAll();
+    musicPlayer.preloadAll().then(() => {
+      // Trigger music for first trial phase once loaded
+      const firstPhase = trialProtocol.phases[0];
+      if (firstPhase && musicPlayer.enabled) {
+        musicPlayer.playForPhase(firstPhase.name, firstPhase.duration);
+      }
+    });
 
     analyser = engine.getAnalyserNode();
     startVisualizer();
@@ -1068,12 +1111,15 @@
           showPaywall();
           return;
         }
-        if (!state.isPro && !store.get('trialCompleted', false)) {
-          // Non-pro, hasn't completed trial yet — run trial
-          showSessionReminder('trial');
-        } else if (!state.isPro) {
-          // Already did trial — show paywall
-          showPaywall();
+        if (!state.isPro) {
+          const trialCount = store.get('trialCount', 0);
+          if (trialCount < 3) {
+            // Allow up to 3 trial previews
+            showSessionReminder('trial');
+          } else {
+            // Exhausted trials — paywall only
+            showPaywall();
+          }
         } else {
           showSessionReminder(mode);
         }
@@ -1182,6 +1228,12 @@
     });
 
     document.getElementById('btn-upgrade').addEventListener('click', showPaywall);
+    document.getElementById('trial-banner-upgrade')?.addEventListener('click', showPaywall);
+
+    document.getElementById('btn-restore')?.addEventListener('click', restorePurchase);
+    document.getElementById('restore-email')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') restorePurchase();
+    });
 
     document.getElementById('btn-manage-sub').addEventListener('click', () => {
       // In production, open Stripe customer portal
@@ -1200,6 +1252,150 @@
       // Sync the player slider if visible
       document.getElementById('music-volume-slider').value = e.target.value;
     });
+  }
+
+  // --- Restore Purchase ---
+  async function restorePurchase() {
+    const emailInput = document.getElementById('restore-email');
+    const msg = document.getElementById('restore-msg');
+    const btn = document.getElementById('btn-restore');
+    const email = emailInput.value.trim();
+
+    if (!email || !email.includes('@')) {
+      msg.textContent = 'Enter a valid email';
+      msg.className = 'restore-msg error';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '...';
+    msg.textContent = '';
+
+    try {
+      const res = await fetch('/api/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+
+      if (data.isPro) {
+        state.isPro = true;
+        saveState();
+        msg.textContent = 'Subscription restored!';
+        msg.className = 'restore-msg success';
+        updateDashboard();
+        loadSettings();
+      } else {
+        msg.textContent = 'No active subscription found for this email';
+        msg.className = 'restore-msg error';
+      }
+    } catch {
+      msg.textContent = 'Connection error — try again';
+      msg.className = 'restore-msg error';
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Restore';
+  }
+
+  // --- Admin Dashboard (embedded in settings) ---
+  const ADMIN_SECTION = document.getElementById('admin-section');
+
+  function initAdmin() {
+    // Always show admin section — login gate handles access
+    if (ADMIN_SECTION) ADMIN_SECTION.style.display = 'block';
+
+    const savedKey = sessionStorage.getItem('tiq_admin_key');
+    if (savedKey) {
+      loadAdminDashboard(savedKey);
+    }
+
+    document.getElementById('btn-admin-login')?.addEventListener('click', adminLogin);
+    document.getElementById('admin-key-input')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') adminLogin();
+    });
+    document.getElementById('btn-admin-logout')?.addEventListener('click', () => {
+      sessionStorage.removeItem('tiq_admin_key');
+      document.getElementById('admin-gate').style.display = 'block';
+      document.getElementById('admin-dashboard').style.display = 'none';
+    });
+  }
+
+  async function adminLogin() {
+    const key = document.getElementById('admin-key-input').value.trim();
+    if (!key) return;
+    try {
+      const res = await fetch('/api/admin', { headers: { 'x-admin-key': key } });
+      if (res.ok) {
+        sessionStorage.setItem('tiq_admin_key', key);
+        loadAdminDashboard(key);
+      } else {
+        document.getElementById('admin-error').style.display = 'block';
+      }
+    } catch {
+      document.getElementById('admin-error').textContent = 'Connection error';
+      document.getElementById('admin-error').style.display = 'block';
+    }
+  }
+
+  async function loadAdminDashboard(key) {
+    document.getElementById('admin-gate').style.display = 'none';
+    document.getElementById('admin-dashboard').style.display = 'block';
+    document.getElementById('adm-loading').style.display = 'block';
+
+    try {
+      const res = await fetch('/api/admin', { headers: { 'x-admin-key': key } });
+      const data = await res.json();
+      if (data.error) { console.error('Admin:', data.error); return; }
+
+      document.getElementById('adm-mrr').textContent = '$' + (data.mrr / 100).toFixed(2);
+      document.getElementById('adm-total-rev').textContent = '$' + (data.totalRevenue / 100).toFixed(2);
+      document.getElementById('adm-payments').textContent = data.totalPayments + ' payments';
+      document.getElementById('adm-active').textContent = data.activeCount;
+      document.getElementById('adm-trialing').textContent = data.trialingCount;
+      document.getElementById('adm-canceled').textContent = data.canceledCount;
+      document.getElementById('adm-past-due').textContent = data.pastDueCount;
+      document.getElementById('adm-monthly').textContent = data.monthlyCount;
+      document.getElementById('adm-yearly').textContent = data.yearlyCount;
+
+      // Subscribers table
+      const tbody = document.getElementById('adm-subs-tbody');
+      tbody.innerHTML = (data.subscribers || []).map(sub => {
+        return `<tr>
+          <td>${sub.email}</td>
+          <td><span class="admin-status ${sub.status}">${sub.status}</span></td>
+          <td>${sub.plan}</td>
+          <td>$${(sub.totalPaid / 100).toFixed(2)}</td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text2)">No subscribers yet</td></tr>';
+      document.getElementById('adm-loading').style.display = 'none';
+      document.getElementById('adm-subs-table').style.display = 'table';
+
+      // Events table
+      const evtBody = document.getElementById('adm-events-tbody');
+      const typeMap = {
+        'checkout.session.completed': 'New Sub',
+        'customer.subscription.deleted': 'Canceled',
+        'customer.subscription.updated': 'Updated',
+        'invoice.payment_succeeded': 'Payment',
+        'invoice.payment_failed': 'Failed',
+      };
+      evtBody.innerHTML = (data.recentEvents || []).map(evt => {
+        const d = new Date(evt.created * 1000);
+        const date = `${d.getMonth()+1}/${d.getDate()}`;
+        return `<tr>
+          <td>${date}</td>
+          <td>${typeMap[evt.type] || evt.type}</td>
+          <td>${evt.customerEmail || '—'}</td>
+          <td>${evt.amount ? '$' + (evt.amount / 100).toFixed(2) : '—'}</td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text2)">No events yet</td></tr>';
+      document.getElementById('adm-events-table').style.display = 'table';
+
+    } catch (err) {
+      console.error('Admin load failed:', err);
+    }
   }
 
   // --- Stripe Payment Element ---
@@ -1222,59 +1418,19 @@
       const data = await res.json();
 
       if (data.clientSecret) {
-        // Mount embedded Payment Element
         const stripe = window.Stripe(window.STRIPE_PUBLIC_KEY);
-        const elements = stripe.elements({
-          clientSecret: data.clientSecret,
-          appearance: {
-            theme: 'night',
-            variables: {
-              colorPrimary: '#6366f1',
-              colorBackground: '#1a1a3e',
-              colorText: '#e8e8f0',
-              colorDanger: '#ef4444',
-              fontFamily: 'Inter, sans-serif',
-              borderRadius: '10px'
-            }
-          }
-        });
-
         const container = document.getElementById('stripe-payment-element');
         container.innerHTML = '';
         container.classList.add('loaded');
 
-        const paymentElement = elements.create('payment', {
-          layout: 'tabs',
-          wallets: { applePay: 'auto', googlePay: 'auto' }
+        // Use Stripe Embedded Checkout (matches ui_mode: 'embedded' on backend)
+        const checkout = await stripe.initEmbeddedCheckout({
+          clientSecret: data.clientSecret,
         });
-        paymentElement.mount('#stripe-payment-element');
+        checkout.mount('#stripe-payment-element');
 
-        // Change button to confirm
-        btn.textContent = 'Confirm Payment';
-        btn.disabled = false;
-        btn.onclick = async () => {
-          btn.textContent = 'Processing...';
-          btn.disabled = true;
-
-          const { error, paymentIntent } = await stripe.confirmPayment({
-            elements,
-            confirmParams: { return_url: window.location.origin + '?payment=success' },
-            redirect: 'if_required'
-          });
-
-          if (error) {
-            btn.textContent = 'Try Again';
-            btn.disabled = false;
-          } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-            state.isPro = true;
-            saveState();
-            hidePaywall();
-            updateDashboard();
-            loadSettings();
-            container.innerHTML = '';
-            container.classList.remove('loaded');
-          }
-        };
+        // Hide subscribe button — embedded checkout has its own submit
+        btn.style.display = 'none';
       }
     } catch (err) {
       btn.textContent = originalText;
@@ -1296,6 +1452,7 @@
   function init() {
     checkStripeReturn();
     bindEvents();
+    initAdmin();
     startLandingViz();
 
     // Capture Chrome/Edge install prompt

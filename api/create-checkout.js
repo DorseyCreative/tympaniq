@@ -30,6 +30,7 @@ module.exports = async (req, res) => {
     params.append('line_items[0][price]', priceId);
     params.append('line_items[0][quantity]', '1');
     params.append('subscription_data[trial_period_days]', '7');
+    params.append('subscription_data[metadata][project]', 'tympaniq');
     params.append('ui_mode', 'embedded');
     params.append('return_url', `${origin}?payment=success&session_id={CHECKOUT_SESSION_ID}`);
 
