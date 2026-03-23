@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
   <div id="app">
@@ -245,19 +245,31 @@
         </div>
       </div>
 
-      <!-- Insight Ticker — pinned to bottom of player -->
-      <div class="insight-bar" id="phase-explainer">
-        <div class="insight-inner">
-          <p class="insight-text" id="phase-explain-text"></p>
-          <button id="phase-ref-btn" class="insight-ref-btn" title="View source" style="display:none">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          </button>
+      <!-- Insight Panel — bottom half of player -->
+      <div class="insight-panel" id="phase-explainer">
+        <div class="insight-panel-header">
+          <div class="insight-phase-badge" id="insight-phase-badge">
+            <span class="insight-phase-dot"></span>
+            <span class="insight-phase-name" id="insight-phase-name">Broadband Enrichment</span>
+          </div>
+          <div class="insight-progress-dots" id="insight-progress-dots"></div>
         </div>
-        <div id="phase-ref-panel" class="insight-ref-panel">
-          <div class="insight-ref-panel-row">
-            <span class="insight-ref-tag" id="ref-cite"></span>
-            <span class="insight-ref-full" id="ref-full"></span>
-            <a id="ref-link" href="#" class="insight-ref-link" target="_blank" rel="noopener">View Paper</a>
+        <div class="insight-carousel" id="insight-carousel">
+          <div class="insight-slide active" id="insight-slide-a">
+            <p class="insight-body" id="insight-body-a"></p>
+            <div class="insight-citation" id="insight-cite-a">
+              <span class="insight-cite-tag"></span>
+              <span class="insight-cite-ref"></span>
+              <a class="insight-cite-link" href="#" target="_blank" rel="noopener">View Paper</a>
+            </div>
+          </div>
+          <div class="insight-slide" id="insight-slide-b">
+            <p class="insight-body" id="insight-body-b"></p>
+            <div class="insight-citation" id="insight-cite-b">
+              <span class="insight-cite-tag"></span>
+              <span class="insight-cite-ref"></span>
+              <a class="insight-cite-link" href="#" target="_blank" rel="noopener">View Paper</a>
+            </div>
           </div>
         </div>
       </div>
@@ -585,8 +597,8 @@
   </div>
 
   <script src="https://js.stripe.com/v3/" async></script>
-  <script src="audio-engine.js?v=6"></script>
-  <script src="app.js?v=6"></script>
+  <script src="audio-engine.js?v=7"></script>
+  <script src="app.js?v=7"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');

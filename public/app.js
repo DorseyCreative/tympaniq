@@ -77,29 +77,108 @@
     ],
   };
 
-  // Track which insights have been shown to avoid repeats
+  // Insight carousel state
   let shownInsights = {};
+  let insightRotationTimer = null;
+  let currentInsightIdx = 0;
+  let currentInsightPhase = null;
+  let activeSlot = 'a'; // alternates between 'a' and 'b' for crossfade
 
-  function getNextInsight(phaseName) {
+  function getInsightOrder(phaseName) {
+    // Return a shuffled copy of indices for the phase
     const pool = phaseInsights[phaseName];
-    if (!pool || pool.length === 0) return null;
-
-    if (!shownInsights[phaseName]) shownInsights[phaseName] = [];
-
-    // Find unshown insights
-    const available = pool.filter((_, i) => !shownInsights[phaseName].includes(i));
-
-    // If all shown, reset but avoid the last one shown
-    if (available.length === 0) {
-      const lastShown = shownInsights[phaseName][shownInsights[phaseName].length - 1];
-      shownInsights[phaseName] = [lastShown];
-      return getNextInsight(phaseName);
+    if (!pool || pool.length === 0) return [];
+    const indices = pool.map((_, i) => i);
+    // Fisher-Yates shuffle
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
     }
+    return indices;
+  }
 
-    // Pick randomly from available
-    const idx = pool.indexOf(available[Math.floor(Math.random() * available.length)]);
-    shownInsights[phaseName].push(idx);
-    return pool[idx];
+  function buildProgressDots(total) {
+    const container = document.getElementById('insight-progress-dots');
+    container.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement('span');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      container.appendChild(dot);
+    }
+  }
+
+  function updateProgressDots(currentIdx, total) {
+    const dots = document.querySelectorAll('#insight-progress-dots .dot');
+    dots.forEach((dot, i) => {
+      dot.classList.remove('active', 'seen');
+      if (i === currentIdx) dot.classList.add('active');
+      else if (i < currentIdx) dot.classList.add('seen');
+    });
+  }
+
+  function showInsightSlide(insight, idx, total) {
+    const nextSlot = activeSlot === 'a' ? 'b' : 'a';
+    const currentSlide = document.getElementById(`insight-slide-${activeSlot}`);
+    const nextSlide = document.getElementById(`insight-slide-${nextSlot}`);
+
+    // Populate next slide
+    const body = document.getElementById(`insight-body-${nextSlot}`);
+    body.textContent = insight.text;
+
+    const citeEl = document.getElementById(`insight-cite-${nextSlot}`);
+    citeEl.querySelector('.insight-cite-tag').textContent = insight.cite;
+    citeEl.querySelector('.insight-cite-ref').textContent = insight.ref;
+    const link = citeEl.querySelector('.insight-cite-link');
+    link.href = insight.url;
+    link.onclick = (e) => {
+      e.stopPropagation();
+      window.open(insight.url, '_blank', 'noopener');
+      e.preventDefault();
+    };
+
+    // Crossfade: exit current, enter next
+    currentSlide.classList.remove('active');
+    currentSlide.classList.add('exit-up');
+    nextSlide.classList.remove('exit-up');
+    nextSlide.classList.add('active');
+
+    // Clean up exit class after transition
+    setTimeout(() => currentSlide.classList.remove('exit-up'), 800);
+
+    activeSlot = nextSlot;
+    updateProgressDots(idx, total);
+  }
+
+  function startInsightRotation(phaseName) {
+    stopInsightRotation();
+    const pool = phaseInsights[phaseName];
+    if (!pool || pool.length === 0) return;
+
+    currentInsightPhase = phaseName;
+    const order = getInsightOrder(phaseName);
+    currentInsightIdx = 0;
+
+    // Update phase badge
+    document.getElementById('insight-phase-name').textContent = phaseName;
+
+    // Build dots
+    buildProgressDots(order.length);
+
+    // Show first insight immediately
+    showInsightSlide(pool[order[0]], 0, order.length);
+
+    // Rotate every 12 seconds
+    insightRotationTimer = setInterval(() => {
+      currentInsightIdx = (currentInsightIdx + 1) % order.length;
+      showInsightSlide(pool[order[currentInsightIdx]], currentInsightIdx, order.length);
+    }, 12000);
+  }
+
+  function stopInsightRotation() {
+    if (insightRotationTimer) {
+      clearInterval(insightRotationTimer);
+      insightRotationTimer = null;
+    }
   }
 
   // --- Storage ---
@@ -455,6 +534,7 @@
       }
       document.getElementById('icon-play').style.display = 'block';
       document.getElementById('icon-pause').style.display = 'none';
+      stopInsightRotation();
       showScreen('screen-dashboard');
       updateDashboard();
     };
@@ -631,44 +711,9 @@
       }
 
       document.getElementById('player-phase-label').textContent = phase.name;
-      const insight = getNextInsight(phase.name);
-      const container = document.getElementById('phase-explainer');
-      const textEl = document.getElementById('phase-explain-text');
-      const refBtn = document.getElementById('phase-ref-btn');
-      const refPanel = document.getElementById('phase-ref-panel');
 
-      // Close any open ref panel on phase change
-      refPanel.classList.remove('open');
-
-      if (insight) {
-        // Trigger re-animation by cloning text element
-        const newText = textEl.cloneNode(false);
-        newText.textContent = insight.text;
-        newText.id = 'phase-explain-text';
-        newText.className = 'insight-text';
-        newText.addEventListener('click', () => newText.classList.toggle('expanded'));
-        textEl.parentNode.replaceChild(newText, textEl);
-
-        refBtn.style.display = 'flex';
-        refBtn.onclick = (e) => {
-          e.stopPropagation();
-          refPanel.classList.toggle('open');
-        };
-        document.getElementById('ref-cite').textContent = insight.cite;
-        document.getElementById('ref-full').textContent = insight.ref;
-        const refLink = document.getElementById('ref-link');
-        refLink.href = insight.url;
-        refLink.onclick = (e) => {
-          e.stopPropagation();
-          window.open(insight.url, '_blank', 'noopener');
-          e.preventDefault();
-        };
-        container.style.opacity = '1';
-      } else {
-        textEl.textContent = '';
-        refBtn.style.display = 'none';
-        container.style.opacity = '0';
-      }
+      // Start auto-rotating insight carousel for this phase
+      startInsightRotation(phase.name);
     };
 
     engine.onFreqUpdate = (data) => {
@@ -923,6 +968,7 @@
       document.getElementById('icon-play').style.display = 'block';
       document.getElementById('icon-pause').style.display = 'none';
       stopVisualizer();
+      stopInsightRotation();
       musicPlayer.stop();
 
       if (completed) {
@@ -1171,6 +1217,7 @@
       engine.stopSession(false);
       musicPlayer.stop();
       stopVisualizer();
+      stopInsightRotation();
       showScreen('screen-dashboard');
       updateDashboard();
     });
@@ -1178,6 +1225,7 @@
     document.getElementById('btn-back-player').addEventListener('click', () => {
       engine.stopSession(false);
       stopVisualizer();
+      stopInsightRotation();
       showScreen('screen-dashboard');
       updateDashboard();
     });
