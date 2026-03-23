@@ -1264,7 +1264,7 @@
     let onboardStep = 1;
     document.getElementById('btn-onboard-next').addEventListener('click', () => {
       const steps = document.querySelectorAll('.onboard-step');
-      const dots = document.querySelectorAll('.dot');
+      const dots = document.querySelectorAll('.onboard-nav .dot');
       const btn = document.getElementById('btn-onboard-next');
 
       steps[onboardStep - 1].classList.remove('active');
