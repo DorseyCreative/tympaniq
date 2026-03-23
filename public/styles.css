@@ -374,7 +374,10 @@ html, body {
 .stat-label { font-size: 11px; color: var(--text2); margin-top: 4px; }
 
 /* Player */
-#screen-player { background: var(--bg); }
+#screen-player {
+  background: var(--bg);
+  overflow: hidden;
+}
 
 .player-content {
   position: relative;
@@ -382,10 +385,10 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  height: 100%;
-  padding: calc(56px + var(--safe-top)) 24px 0;
-  gap: 12px;
+  justify-content: center;
+  height: 62%;
+  padding: calc(44px + var(--safe-top)) 24px 0;
+  gap: 10px;
 }
 
 /* Hide install banner while player is active */
@@ -495,22 +498,23 @@ html, body {
   height: 38%;
   display: flex;
   flex-direction: column;
-  padding: 0 24px calc(16px + var(--safe-bottom));
+  padding: 0 20px calc(12px + var(--safe-bottom));
   background: linear-gradient(to top,
     rgba(10, 10, 26, 0.98) 0%,
-    rgba(10, 10, 26, 0.95) 60%,
-    rgba(10, 10, 26, 0.7) 85%,
+    rgba(10, 10, 26, 0.96) 70%,
+    rgba(10, 10, 26, 0.6) 90%,
     transparent 100%
   );
   transition: opacity 0.6s ease;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .insight-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 0 12px;
+  padding: 16px 0 8px;
   flex-shrink: 0;
 }
 
@@ -639,13 +643,14 @@ html, body {
 .insight-citation {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
   max-width: 520px;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .insight-cite-tag {
@@ -708,7 +713,7 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   width: 100%;
   max-width: 260px;
 }
@@ -1561,14 +1566,18 @@ select.setting-input { text-align: left; }
 /* Small screens — tighter layout */
 @media (max-height: 700px) {
   .viz-orb {
-    width: min(42vw, 200px);
-    height: min(42vw, 200px);
+    width: min(40vw, 190px);
+    height: min(40vw, 190px);
   }
-  .timer-text { font-size: 36px; margin: 2px 0 4px; }
-  .player-content { gap: 8px; }
-  .insight-panel { height: 36%; }
-  .insight-panel-header { padding: 14px 0 8px; }
-  .insight-body { font-size: 12px; line-height: 1.55; }
+  .timer-text { font-size: 32px; margin: 2px 0 4px; }
+  .player-content { gap: 6px; height: 60%; padding-top: calc(40px + var(--safe-top)); }
+  .insight-panel { height: 40%; }
+  .insight-panel-header { padding: 10px 0 6px; }
+  .insight-body { font-size: 12px; line-height: 1.5; margin-bottom: 8px; }
+  .insight-citation { padding: 6px 10px; }
+  .insight-cite-tag { font-size: 10px; }
+  .insight-cite-ref { font-size: 9px; }
+  .player-controls { gap: 8px; }
 }
 
 /* Desktop */
@@ -1583,12 +1592,12 @@ select.setting-input { text-align: left; }
     margin-bottom: 40px;
   }
   .modal { align-items: center; }
-  .insight-panel { height: 40%; padding: 0 40px calc(16px + var(--safe-bottom)); }
+  .insight-panel { height: 38%; padding: 0 40px calc(16px + var(--safe-bottom)); }
   .insight-body { font-size: 14px; max-width: 600px; }
   .insight-citation { max-width: 600px; }
   .viz-orb {
-    width: min(55vw, 280px);
-    height: min(55vw, 280px);
+    width: min(50vw, 280px);
+    height: min(50vw, 280px);
   }
-  .player-content { padding-bottom: 40%; }
+  .player-content { height: 62%; }
 }
