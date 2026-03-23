@@ -658,7 +658,17 @@
   <script src="app.js?v=12"></script>
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
+      // One-time cache nuke for stale SW (remove after users have updated)
+      if (!localStorage.getItem('tiq_sw_v12')) {
+        caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))));
+        navigator.serviceWorker.getRegistrations().then(regs => {
+          regs.forEach(r => r.unregister());
+        });
+        localStorage.setItem('tiq_sw_v12', '1');
+        setTimeout(() => location.reload(), 500);
+      } else {
+        navigator.serviceWorker.register('sw.js');
+      }
     }
   </script>
 </body>
