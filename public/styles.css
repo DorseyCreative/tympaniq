@@ -670,6 +670,24 @@ html, body {
   background: rgba(99, 102, 241, 0.35);
 }
 
+.insight-pause-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+  margin-left: 8px;
+}
+.insight-pause-btn:active { background: rgba(255, 255, 255, 0.12); }
+.insight-pause-btn svg { width: 12px; height: 12px; }
+
 .insight-carousel {
   position: relative;
   flex: 1;

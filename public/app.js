@@ -95,6 +95,7 @@
   // Insight carousel state
   let shownInsights = {};
   let insightRotationTimer = null;
+  let insightRotationPaused = false;
   let currentInsightIdx = 0;
   let currentInsightPhase = null;
   let activeSlot = 'a'; // alternates between 'a' and 'b' for crossfade
@@ -188,6 +189,11 @@
 
   function startInsightRotation(phaseName) {
     stopInsightRotation();
+    insightRotationPaused = false;
+    const pauseIcon = document.getElementById('insight-pause-icon');
+    const playIcon = document.getElementById('insight-play-icon');
+    if (pauseIcon) pauseIcon.style.display = 'block';
+    if (playIcon) playIcon.style.display = 'none';
     const pool = phaseInsights[phaseName];
     if (!pool || pool.length === 0) return;
 
@@ -266,6 +272,21 @@
     const tapRight = document.getElementById('insight-tap-right');
     if (tapLeft) tapLeft.addEventListener('click', () => advanceInsight(-1, 'right'));
     if (tapRight) tapRight.addEventListener('click', () => advanceInsight(1, 'left'));
+
+    // Pause/play auto-rotation
+    const pauseBtn = document.getElementById('insight-pause-btn');
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', () => {
+        insightRotationPaused = !insightRotationPaused;
+        document.getElementById('insight-pause-icon').style.display = insightRotationPaused ? 'none' : 'block';
+        document.getElementById('insight-play-icon').style.display = insightRotationPaused ? 'block' : 'none';
+        if (insightRotationPaused) {
+          if (insightRotationTimer) { clearInterval(insightRotationTimer); insightRotationTimer = null; }
+        } else {
+          resetInsightTimer();
+        }
+      });
+    }
   }
 
   // --- Storage ---
