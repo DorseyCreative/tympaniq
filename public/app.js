@@ -669,8 +669,8 @@
     musicPlayer.setEnabled(state.settings.musicEnabled !== false);
     musicPlayer.setVolume((state.settings.musicVolume ?? 30) / 100);
     musicPlayer.preloadAll().then(() => {
-      // Trigger music for the current phase now that buffers are ready
-      const currentPhase = engine.protocol?.phases?.[0];
+      // Trigger music for whatever phase is currently active (not necessarily phase 0)
+      const currentPhase = engine.currentPhase;
       if (currentPhase && musicPlayer.enabled) {
         musicPlayer.playForPhase(currentPhase.name, currentPhase.duration, {
           fadeOutEarly: currentPhase.name === 'Mixed Enrichment' ? 15 : 0
@@ -819,13 +819,9 @@
     };
 
     engine.onPhaseChange = (phase) => {
-      // Trigger music for this phase
-      if (musicPlayer.ctx) {
-        const protocol = engine.protocol;
-        const phaseObj = protocol ? protocol.phases.find(p => p === phase) : null;
-        const phaseDuration = phaseObj ? phaseObj.duration : 180;
-
-        // Mixed Enrichment: fade music out 15s early for smooth rest transition
+      // Trigger music for this phase (only if buffers are loaded)
+      if (musicPlayer.ctx && musicPlayer.enabled) {
+        const phaseDuration = phase.duration || 180;
         const fadeOutEarly = phase.name === 'Mixed Enrichment' ? 15 : 0;
         musicPlayer.playForPhase(phase.name, phaseDuration, { fadeOutEarly });
       }
@@ -1120,11 +1116,8 @@
 
     // Start preloading — will trigger music for current phase once ready
     musicPlayer.preloadAll().then(() => {
-      if (musicPlayer.enabled && engine.isPlaying) {
-        const currentPhase = trialProtocol.phases[phaseIndex];
-        if (currentPhase) {
-          musicPlayer.playForPhase(currentPhase.name, currentPhase.duration);
-        }
+      if (musicPlayer.enabled && engine.isPlaying && engine.currentPhase) {
+        musicPlayer.playForPhase(engine.currentPhase.name, engine.currentPhase.duration);
       }
     });
 
