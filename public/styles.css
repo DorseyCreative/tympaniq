@@ -641,6 +641,28 @@ html, body {
   min-height: 0;
 }
 
+.insight-tap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 36px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.25;
+  transition: opacity 0.3s;
+}
+.insight-tap:active { opacity: 0.6; }
+.insight-tap svg {
+  width: 18px;
+  height: 18px;
+  color: rgba(255, 255, 255, 0.7);
+}
+.insight-tap-left { left: 0; }
+.insight-tap-right { right: 0; }
+
 .insight-slide {
   position: absolute;
   inset: 0;
@@ -777,7 +799,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: 32px;
   width: 100%;
 }
 
