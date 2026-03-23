@@ -541,7 +541,6 @@ class TympanIQEngine {
       this._pauseOffset += (this.ctx.currentTime - this._sessionStartTime);
       this.isPlaying = false;
       this._paused = true;
-      clearInterval(this.sessionTimer);
       // Pause the keep-alive stream audio first
       if (this._streamAudio) this._streamAudio.pause();
       // Suspend context — stops all audio processing
@@ -558,22 +557,10 @@ class TympanIQEngine {
         // Restart the keep-alive stream audio
         if (this._streamAudio) this._streamAudio.play().catch(() => {});
         // Fire a tick immediately so UI updates right away
-        const realElapsed = Math.floor(this._pauseOffset);
         if (this.onTick) {
-          const remaining = this.totalDuration - realElapsed;
-          this.onTick(remaining, realElapsed, this.totalDuration);
+          const remaining = this.totalDuration - this.elapsed;
+          this.onTick(remaining, this.elapsed, this.totalDuration);
         }
-        this.sessionTimer = setInterval(() => {
-          if (!this.isPlaying) return;
-          const elapsed = Math.floor(this.ctx.currentTime - this._sessionStartTime + this._pauseOffset);
-          if (elapsed > this._lastTickElapsed) {
-            this._lastTickElapsed = elapsed;
-            this.elapsed = elapsed;
-            const remaining = this.totalDuration - elapsed;
-            if (this.onTick) this.onTick(remaining, elapsed, this.totalDuration);
-            if (remaining <= 0) this.stopSession(true);
-          }
-        }, 250);
       });
     }
   }
