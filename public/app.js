@@ -944,6 +944,24 @@
     engine.init();
     if (engine.ctx.state === 'suspended') engine.ctx.resume();
     engine._startKeepAlive();
+
+    // Init music BEFORE starting phases so onPhaseChange can use it
+    if (!musicPlayer.ctx) {
+      musicPlayer.init(engine.ctx);
+    }
+    musicPlayer.setVolume(state.settings.musicVolume != null ? state.settings.musicVolume / 100 : 0.3);
+    musicPlayer.setEnabled(state.settings.musicEnabled !== false);
+
+    // Start preloading — will trigger music for current phase once ready
+    musicPlayer.preloadAll().then(() => {
+      if (musicPlayer.enabled && engine.isPlaying) {
+        const currentPhase = trialProtocol.phases[phaseIndex];
+        if (currentPhase) {
+          musicPlayer.playForPhase(currentPhase.name, currentPhase.duration);
+        }
+      }
+    });
+
     engine.totalDuration = trialProtocol.totalDuration;
     engine.protocol = trialProtocol;
     engine.elapsed = 0;
@@ -991,20 +1009,6 @@
         startPhase(phaseIndex + 1);
       }
     }, 1000);
-
-    // Start music + visualizer
-    if (!musicPlayer.ctx) {
-      musicPlayer.init(engine.ctx);
-    }
-    musicPlayer.setVolume(state.settings.musicVolume != null ? state.settings.musicVolume / 100 : 0.3);
-    musicPlayer.setEnabled(state.settings.musicEnabled !== false);
-    musicPlayer.preloadAll().then(() => {
-      // Trigger music for first trial phase once loaded
-      const firstPhase = trialProtocol.phases[0];
-      if (firstPhase && musicPlayer.enabled) {
-        musicPlayer.playForPhase(firstPhase.name, firstPhase.duration);
-      }
-    });
 
     analyser = engine.getAnalyserNode();
     startVisualizer();
