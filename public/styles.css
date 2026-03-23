@@ -597,6 +597,8 @@ html, body {
 .insight-slide.active {
   opacity: 1;
   transform: translateY(0);
+}
+#screen-player.active .insight-slide.active {
   pointer-events: auto;
 }
 
