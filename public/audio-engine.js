@@ -35,28 +35,41 @@ class TympanIQEngine {
   }
 
   _keepAlive() {
-    // Create a silent audio element to hold the audio session open on iOS/Android
-    if (this._silentAudio) return;
-    const audio = new Audio();
-    // Tiny silent WAV (44 bytes) base64-encoded, looping
-    audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-    audio.loop = true;
-    audio.volume = 0.01;
-    this._silentAudio = audio;
+    if (this._keepAliveSetup) return;
+    this._keepAliveSetup = true;
 
-    // Also listen for visibility changes to resume AudioContext
+    // Route AudioContext through a MediaStream → <audio> element.
+    // This tricks iOS/Android into treating Web Audio as a media playback session,
+    // preventing suspension when the app goes to background.
+    try {
+      const dest = this.ctx.createMediaStreamDestination();
+      this.masterGain.connect(dest);
+      const audio = new Audio();
+      audio.srcObject = dest.stream;
+      audio.volume = 1;
+      this._streamAudio = audio;
+    } catch (e) {
+      // Fallback: silent audio element
+      const audio = new Audio();
+      audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+      audio.loop = true;
+      audio.volume = 0.01;
+      this._streamAudio = audio;
+    }
+
+    // Resume AudioContext when returning to app
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && this.isPlaying && this.ctx.state === 'suspended') {
-        this.ctx.resume();
+      if (document.visibilityState === 'visible' && this.isPlaying) {
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        if (this._streamAudio) this._streamAudio.play().catch(() => {});
       }
     });
   }
 
   _startKeepAlive() {
-    if (this._silentAudio) {
-      this._silentAudio.play().catch(() => {});
+    if (this._streamAudio) {
+      this._streamAudio.play().catch(() => {});
     }
-    // Set media session metadata so OS shows controls
     if ('mediaSession' in navigator) {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: 'TympanIQ Session',
@@ -68,8 +81,8 @@ class TympanIQEngine {
   }
 
   _stopKeepAlive() {
-    if (this._silentAudio) {
-      this._silentAudio.pause();
+    if (this._streamAudio) {
+      this._streamAudio.pause();
     }
     if ('mediaSession' in navigator) {
       navigator.mediaSession.playbackState = 'none';
