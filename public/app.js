@@ -943,6 +943,7 @@
     // Manually inject the trial protocol and start
     engine.init();
     if (engine.ctx.state === 'suspended') engine.ctx.resume();
+    engine._startKeepAlive();
     engine.totalDuration = trialProtocol.totalDuration;
     engine.protocol = trialProtocol;
     engine.elapsed = 0;

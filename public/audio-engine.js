@@ -29,6 +29,51 @@ class TympanIQEngine {
     this.masterGain = this.ctx.createGain();
     this.masterGain.gain.value = this.volume;
     this.masterGain.connect(this.ctx.destination);
+
+    // Keep audio alive when app loses focus (mobile)
+    this._keepAlive();
+  }
+
+  _keepAlive() {
+    // Create a silent audio element to hold the audio session open on iOS/Android
+    if (this._silentAudio) return;
+    const audio = new Audio();
+    // Tiny silent WAV (44 bytes) base64-encoded, looping
+    audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+    audio.loop = true;
+    audio.volume = 0.01;
+    this._silentAudio = audio;
+
+    // Also listen for visibility changes to resume AudioContext
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && this.isPlaying && this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+    });
+  }
+
+  _startKeepAlive() {
+    if (this._silentAudio) {
+      this._silentAudio.play().catch(() => {});
+    }
+    // Set media session metadata so OS shows controls
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: 'TympanIQ Session',
+        artist: 'Sonic Ear Therapy',
+        album: 'TympanIQ',
+      });
+      navigator.mediaSession.playbackState = 'playing';
+    }
+  }
+
+  _stopKeepAlive() {
+    if (this._silentAudio) {
+      this._silentAudio.pause();
+    }
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'none';
+    }
   }
 
   setVolume(v) {
@@ -406,6 +451,7 @@ class TympanIQEngine {
   startSession(mode, settings) {
     this.init();
     if (this.ctx.state === 'suspended') this.ctx.resume();
+    this._startKeepAlive();
 
     const protocol = this.getProtocol(mode, settings);
     this.totalDuration = protocol.totalDuration;
@@ -486,6 +532,7 @@ class TympanIQEngine {
 
   stopSession(completed = false) {
     this.isPlaying = false;
+    this._stopKeepAlive();
     clearInterval(this.sessionTimer);
     if (this._acrnInterval) clearInterval(this._acrnInterval);
     this.stopAllNodes();
