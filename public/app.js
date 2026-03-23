@@ -1095,7 +1095,10 @@
   }
 
   function showInstallBanner() {
-    if (isInstalledPWA()) return;
+    if (isInstalledPWA()) {
+      document.getElementById('install-banner').style.display = 'none';
+      return;
+    }
     if (store.get('bannerDismissed', false)) return;
     document.getElementById('install-banner').style.display = 'block';
   }

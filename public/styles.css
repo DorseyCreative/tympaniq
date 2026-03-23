@@ -1587,6 +1587,11 @@ select.setting-input { text-align: left; }
 }
 .install-dismiss:hover { opacity: 1; }
 
+/* Hide install banner when running as installed PWA */
+@media (display-mode: standalone) {
+  .install-banner { display: none !important; }
+}
+
 /* Install Banner */
 .install-banner {
   position: fixed;
