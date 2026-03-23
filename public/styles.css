@@ -382,11 +382,14 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   height: 100%;
-  padding: calc(56px + var(--safe-top)) 24px 46%;
-  gap: 20px;
+  padding: calc(56px + var(--safe-top)) 24px 0;
+  gap: 12px;
 }
+
+/* Hide install banner while player is active */
+#screen-player.active ~ #install-banner { display: none !important; }
 
 .back-btn {
   position: absolute;
@@ -409,8 +412,8 @@ html, body {
 /* Unified Viz Orb */
 .viz-orb {
   position: relative;
-  width: min(62vw, 320px);
-  height: min(62vw, 320px);
+  width: min(50vw, 260px);
+  height: min(50vw, 260px);
   flex-shrink: 0;
 }
 .viz-orb canvas {
@@ -471,10 +474,10 @@ html, body {
   color: rgba(232, 232, 240, 0.45);
 }
 .timer-text {
-  font-size: 54px;
+  font-size: 42px;
   font-weight: 200;
   font-variant-numeric: tabular-nums;
-  margin: 6px 0 8px;
+  margin: 4px 0 6px;
   letter-spacing: -1px;
   background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5));
   -webkit-background-clip: text;
@@ -489,7 +492,7 @@ html, body {
   left: 0;
   right: 0;
   z-index: 5;
-  height: 46%;
+  height: 38%;
   display: flex;
   flex-direction: column;
   padding: 0 24px calc(16px + var(--safe-bottom));
@@ -598,12 +601,38 @@ html, body {
   transform: translateY(-20px);
 }
 
+.insight-slide.exit-left {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+
+.insight-slide.enter-right {
+  transform: translateX(40px);
+}
+
+.insight-slide.enter-right.active {
+  transform: translateX(0);
+}
+
+.insight-slide.exit-right {
+  opacity: 0;
+  transform: translateX(40px);
+}
+
+.insight-slide.enter-left {
+  transform: translateX(-40px);
+}
+
+.insight-slide.enter-left.active {
+  transform: translateX(0);
+}
+
 .insight-body {
-  font-size: 14px;
+  font-size: 13px;
   color: rgba(232, 232, 240, 0.82);
-  line-height: 1.7;
+  line-height: 1.65;
   letter-spacing: 0.01em;
-  margin: 0 0 16px;
+  margin: 0 0 12px;
   max-width: 520px;
 }
 
@@ -1529,6 +1558,19 @@ select.setting-input { text-align: left; }
 /* Scrollbar */
 ::-webkit-scrollbar { width: 0; }
 
+/* Small screens — tighter layout */
+@media (max-height: 700px) {
+  .viz-orb {
+    width: min(42vw, 200px);
+    height: min(42vw, 200px);
+  }
+  .timer-text { font-size: 36px; margin: 2px 0 4px; }
+  .player-content { gap: 8px; }
+  .insight-panel { height: 36%; }
+  .insight-panel-header { padding: 14px 0 8px; }
+  .insight-body { font-size: 12px; line-height: 1.55; }
+}
+
 /* Desktop */
 @media (min-width: 600px) {
   .session-cards {
@@ -1541,4 +1583,12 @@ select.setting-input { text-align: left; }
     margin-bottom: 40px;
   }
   .modal { align-items: center; }
+  .insight-panel { height: 40%; padding: 0 40px calc(16px + var(--safe-bottom)); }
+  .insight-body { font-size: 14px; max-width: 600px; }
+  .insight-citation { max-width: 600px; }
+  .viz-orb {
+    width: min(55vw, 280px);
+    height: min(55vw, 280px);
+  }
+  .player-content { padding-bottom: 40%; }
 }

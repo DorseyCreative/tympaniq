@@ -15,65 +15,65 @@
   // Each has: text (plain language), cite (short label), ref (author/year), url (paper link)
   const phaseInsights = {
     'Broadband Enrichment': [
-      { text: "Your ear is surrounded by gentle pink noise right now. Pink noise has more energy in lower frequencies than white noise — it sounds warmer, like steady rain. This keeps your auditory neurons firing at healthy baseline levels instead of going quiet and becoming hypersensitive, which is what happens after hours of AirPods use followed by silence.", cite: "Jastreboff, 2015", ref: "Jastreboff PJ. 25 years of tinnitus retraining therapy. HNO. 2015.", url: "https://pubmed.ncbi.nlm.nih.gov/26669698/" },
-      { text: "Here's something most people don't know: silence can actually be bad for your ears. When your auditory system gets no input, your brain turns up its internal volume — literally increasing neural gain. That's how tinnitus starts for many headphone users. This broadband noise gently tells your brain 'everything's fine, no need to amplify.'", cite: "Norena & Eggermont, 2003", ref: "Norena AJ, Eggermont JJ. Changes in spontaneous neural activity after sound trauma. Hear Res. 2003.", url: "https://pubmed.ncbi.nlm.nih.gov/12573381/" },
-      { text: "Pink noise isn't random — it follows a 1/f power distribution, which means it mirrors patterns found everywhere in nature: ocean waves, wind, heartbeats. Your auditory system evolved around these sounds. After a day sealed off by earbuds, this is like opening a window for your ears.", cite: "Voss & Clarke, 1975", ref: "Voss RF, Clarke J. 1/f noise in music and speech. Nature. 1975.", url: "https://pubmed.ncbi.nlm.nih.gov/1118003/" },
-      { text: "In tinnitus retraining therapy, patients wear broadband noise generators for 6-8 hours daily at low levels. We're using the same principle in a shorter session — keeping your auditory pathway gently active so it doesn't develop the oversensitivity that makes everyday sounds uncomfortable.", cite: "Jastreboff & Jastreboff, 2000", ref: "Jastreboff PJ, Jastreboff MM. Tinnitus Retraining Therapy. Semin Hear. 2000.", url: "https://pubmed.ncbi.nlm.nih.gov/22180699/" },
+      { text: "Your ear is surrounded by gentle pink noise right now. Pink noise has more energy in lower frequencies than white noise — it sounds warmer, like steady rain. This keeps your auditory neurons firing at healthy baseline levels instead of going quiet and becoming hypersensitive, which is what happens after hours of AirPods use followed by silence.", cite: "Jastreboff, 2015", ref: "Jastreboff PJ. 25 years of tinnitus retraining therapy. HNO. 2015.", url: "https://pubmed.ncbi.nlm.nih.gov/25862626/" },
+      { text: "Here's something most people don't know: silence can actually be bad for your ears. When your auditory system gets no input, your brain turns up its internal volume — literally increasing neural gain. That's how tinnitus starts for many headphone users. This broadband noise gently tells your brain 'everything's fine, no need to amplify.'", cite: "Norena & Eggermont, 2003", ref: "Norena AJ, Eggermont JJ. Changes in spontaneous neural activity after sound trauma. Hear Res. 2003.", url: "https://pubmed.ncbi.nlm.nih.gov/13679145/" },
+      { text: "Pink noise isn't random — it follows a 1/f power distribution, which means it mirrors patterns found everywhere in nature: ocean waves, wind, heartbeats. Your auditory system evolved around these sounds. After a day sealed off by earbuds, this is like opening a window for your ears.", cite: "Voss & Clarke, 1975", ref: "Voss RF, Clarke J. 1/f noise in music and speech. Nature. 1975;258:317-318.", url: "https://doi.org/10.1038/258317a0" },
+      { text: "In tinnitus retraining therapy, patients wear broadband noise generators for 6-8 hours daily at low levels. We're using the same principle in a shorter session — keeping your auditory pathway gently active so it doesn't develop the oversensitivity that makes everyday sounds uncomfortable.", cite: "Jastreboff & Jastreboff, 2000", ref: "Jastreboff PJ, Jastreboff MM. Tinnitus Retraining Therapy. Semin Hear. 2000;21(4):295-302.", url: "https://doi.org/10.1055/s-2000-13466" },
       { text: "A clinical study comparing sound therapy options found that white noise and speech noise were patients' most common choices, but pink noise provided the most consistent therapeutic effect across different types of auditory sensitivity. That's why we default to it here.", cite: "Ito, Soma & Ando, 2009", ref: "Ito M, Soma K, Ando R. Association between tinnitus retraining therapy and sound generator selection. Auris Nasus Larynx. 2009.", url: "https://pubmed.ncbi.nlm.nih.gov/19269119/" },
     ],
     'Alpha Binaural': [
-      { text: "Right now, your left ear hears one frequency and your right ear hears another, about 10 Hz apart. Your brain can't help but perceive a pulsing 'beat' at that difference — 10 Hz, right in the alpha brainwave range. This isn't a sound trick; EEG studies confirm your cortical activity actually shifts toward that frequency.", cite: "Garcia-Argibay et al., 2019", ref: "Garcia-Argibay M, Santed MA, Reales JM. Efficacy of binaural auditory beats in cognition, anxiety, and pain. Psychol Res. 2019.", url: "https://pubmed.ncbi.nlm.nih.gov/29508042/" },
-      { text: "Alpha waves (8-13 Hz) are your brain's 'calm but alert' state. A meta-analysis of 22 studies found that 10 Hz binaural beats reliably increased interhemispheric coherence — meaning both sides of your brain synchronize. This matters for your ears because the tensor tympani muscle is partly regulated by anxiety, and calming your brain calms that muscle.", cite: "Garcia-Argibay et al., 2019", ref: "Garcia-Argibay M, Santed MA, Reales JM. Efficacy of binaural auditory beats. Psychol Res. 2019.", url: "https://pubmed.ncbi.nlm.nih.gov/29508042/" },
+      { text: "Right now, your left ear hears one frequency and your right ear hears another, about 10 Hz apart. Your brain can't help but perceive a pulsing 'beat' at that difference — 10 Hz, right in the alpha brainwave range. This isn't a sound trick; EEG studies confirm your cortical activity actually shifts toward that frequency.", cite: "Garcia-Argibay et al., 2019", ref: "Garcia-Argibay M, Santed MA, Reales JM. Efficacy of binaural auditory beats in cognition, anxiety, and pain. Psychol Res. 2019.", url: "https://pubmed.ncbi.nlm.nih.gov/30073406/" },
+      { text: "Alpha waves (8-13 Hz) are your brain's 'calm but alert' state. A meta-analysis of 22 studies found that 10 Hz binaural beats reliably increased interhemispheric coherence — meaning both sides of your brain synchronize. This matters for your ears because the tensor tympani muscle is partly regulated by anxiety, and calming your brain calms that muscle.", cite: "Garcia-Argibay et al., 2019", ref: "Garcia-Argibay M, Santed MA, Reales JM. Efficacy of binaural auditory beats. Psychol Res. 2019.", url: "https://pubmed.ncbi.nlm.nih.gov/30073406/" },
       { text: "Binaural beats require stereo separation to work — each ear must get its own frequency. In-ear devices like AirPods actually do this better than speakers, because there's almost zero crossover between ears. So you're getting a cleaner binaural effect right now than you would from any speaker setup.", cite: "Licklider et al., 1950", ref: "Licklider JCR, Webster JC, Hedlun JM. On the frequency limits of binaural beats. JASA. 1950.", url: "https://doi.org/10.1121/1.1906688" },
-      { text: "We should be honest: binaural beats aren't magic. The effect sizes in research are real but modest. What they consistently do well is reduce anxiety markers — and that's exactly what matters here, because the most common middle ear muscle dysfunction (TTTS) is driven by anxiety lowering the reflex threshold.", cite: "Westcott et al., 2013", ref: "Westcott M. Tonic tensor tympani syndrome in tinnitus and hyperacusis patients. Int Tinnitus J. 2013.", url: "https://pubmed.ncbi.nlm.nih.gov/24995895/" },
+      { text: "We should be honest: binaural beats aren't magic. The effect sizes in research are real but modest. What they consistently do well is reduce anxiety markers — and that's exactly what matters here, because the most common middle ear muscle dysfunction (TTTS) is driven by anxiety lowering the reflex threshold.", cite: "Westcott, 2013", ref: "Westcott M. Tonic tensor tympani syndrome in tinnitus and hyperacusis patients. Int Tinnitus J. 2013.", url: "https://pubmed.ncbi.nlm.nih.gov/23571302/" },
       { text: "The carrier frequency matters. Research shows binaural beat perception works best with carriers between 200 and 900 Hz. We're using a carrier around 440 Hz — right in the sweet spot where your brain most clearly detects the frequency difference between ears.", cite: "Oster, 1973", ref: "Oster G. Auditory beats in the brain. Sci Am. 1973;229(4):94-102.", url: "https://pubmed.ncbi.nlm.nih.gov/4727697/" },
     ],
     'Theta Binaural': [
-      { text: "This slower 6 Hz beat targets theta brainwaves — the state your brain enters during meditation and light sleep. Theta activity is associated with deep relaxation of involuntary muscles, including the tensor tympani. If your ears feel 'tight' after a long day of headphone use, this is designed to release that.", cite: "Jirakittayakorn & Wongsawat, 2017", ref: "Jirakittayakorn N, Wongsawat Y. Brain responses to 6-Hz binaural beat. Int J Neurosci. 2017.", url: "https://pubmed.ncbi.nlm.nih.gov/27251375/" },
-      { text: "Tonic Tensor Tympani Syndrome — where the tiny muscle attached to your eardrum stays clenched — was reframed in 2025 research as a 'middle-ear muscle dysregulation disorder.' It's anxiety-driven: your brain keeps the muscle on guard even when there's no threat. Theta-state relaxation directly addresses that anxiety loop.", cite: "Amjad et al., 2025", ref: "Amjad A, Arshad S, Mahato NK, Ali M. Tonic tensor tympani syndrome: middle-ear muscle dysregulation. 2025.", url: "https://pubmed.ncbi.nlm.nih.gov/" },
-      { text: "Your tensor tympani muscle is controlled by the trigeminal nerve — the same nerve involved in jaw clenching and facial tension. If you grind your teeth or clench your jaw (common in stressed headphone users), that same tension can transfer to your eardrum. Theta-state relaxation helps release the whole circuit.", cite: "Ramirez et al., 2008", ref: "Ramirez LM, Sandoval GP, Ballesteros LE. Tensor tympani and temporomandibular disorder. Med Oral Patol Oral Cir Bucal. 2008.", url: "https://pubmed.ncbi.nlm.nih.gov/18449119/" },
+      { text: "This slower 6 Hz beat targets theta brainwaves — the state your brain enters during meditation and light sleep. Theta activity is associated with deep relaxation of involuntary muscles, including the tensor tympani. If your ears feel 'tight' after a long day of headphone use, this is designed to release that.", cite: "Jirakittayakorn & Wongsawat, 2017", ref: "Jirakittayakorn N, Wongsawat Y. Brain responses to 6-Hz binaural beat. Int J Neurosci. 2017.", url: "https://pubmed.ncbi.nlm.nih.gov/28701912/" },
+      { text: "Tonic Tensor Tympani Syndrome — where the tiny muscle attached to your eardrum stays clenched — was identified as a 'middle-ear muscle dysregulation disorder.' It's anxiety-driven: your brain keeps the muscle on guard even when there's no threat. Theta-state relaxation directly addresses that anxiety loop.", cite: "Amjad et al., 2025", ref: "Amjad A, Arshad S, Mahato NK, Ali M. Tonic tensor tympani syndrome: middle-ear muscle dysregulation. 2025.", url: "https://pubmed.ncbi.nlm.nih.gov/41497050/" },
+      { text: "Your tensor tympani muscle is controlled by the trigeminal nerve — the same nerve involved in jaw clenching and facial tension. If you grind your teeth or clench your jaw (common in stressed headphone users), that same tension can transfer to your eardrum. Theta-state relaxation helps release the whole circuit.", cite: "Ramirez et al., 2007", ref: "Ramirez LM, Sandoval GP, Ballesteros LE. Temporomandibular disorders, otologic symptoms and the tensor tympani. Acta Otorrinolaringol Esp. 2007.", url: "https://pubmed.ncbi.nlm.nih.gov/17322813/" },
     ],
     'Rest Interval': [
-      { text: "This silence is intentional and important. In animal studies, the acoustic reflex — the contraction of your ear-protecting muscles — showed measurable fatigue during continuous 2-hour noise exposure at 95 dB. Recovery happened only during quiet intervals. We're giving your muscles that recovery window.", cite: "Gerhardt, Melnick & Ferraro, 1980", ref: "Gerhardt KJ, Melnick W, Ferraro JA. Reflex decay in chinchillas during prolonged noise. PMID:7390064. 1980.", url: "https://pubmed.ncbi.nlm.nih.gov/7390064/" },
-      { text: "Your stapedius muscle — the smallest skeletal muscle in your body at just 6mm — contracts reflexively to protect your inner ear from loud sounds. But like any muscle, it fatigues. An 8-hour study showed progressive decay in contraction strength with continuous stimulation. These rest breaks prevent that fatigue.", cite: "Ferraro, Melnick & Gerhardt, 1981", ref: "Ferraro JA, Melnick W, Gerhardt KJ. Effects of prolonged noise on middle ear muscle activity. PMID:7246916. 1981.", url: "https://pubmed.ncbi.nlm.nih.gov/7246916/" },
-      { text: "Here's something worth sitting with: the acoustic reflex has a latency of 25 to 150 milliseconds. That means when a sudden loud sound hits — a notification ding at full volume, a bass drop — your protective muscles literally can't react fast enough. Prevention through conditioning matters more than relying on the reflex alone.", cite: "Møller, 1984", ref: "Møller AR. Neurophysiology of the acoustic middle ear muscle reflex. In: Silman S, ed. The Acoustic Reflex. 1984.", url: "https://doi.org/10.1016/B978-0-12-643450-7.50009-9" },
+      { text: "This silence is intentional and important. In animal studies, the acoustic reflex — the contraction of your ear-protecting muscles — showed measurable fatigue during continuous 2-hour noise exposure at 95 dB. Recovery happened only during quiet intervals. We're giving your muscles that recovery window.", cite: "Gerhardt, Melnick & Ferraro, 1980", ref: "Gerhardt KJ, Melnick W, Ferraro JA. Reflex decay in chinchillas during prolonged noise. Ear Hear. 1980.", url: "https://pubmed.ncbi.nlm.nih.gov/7390064/" },
+      { text: "Your stapedius muscle — the smallest skeletal muscle in your body at just 6mm — contracts reflexively to protect your inner ear from loud sounds. But like any muscle, it fatigues. An 8-hour study showed progressive decay in contraction strength with continuous stimulation. These rest breaks prevent that fatigue.", cite: "Ferraro, Melnick & Gerhardt, 1981", ref: "Ferraro JA, Melnick W, Gerhardt KJ. Effects of prolonged noise on middle ear muscle activity. 1981.", url: "https://pubmed.ncbi.nlm.nih.gov/7246916/" },
+      { text: "Here's something worth sitting with: the acoustic reflex has a latency of 25 to 150 milliseconds. That means when a sudden loud sound hits — a notification ding at full volume, a bass drop — your protective muscles literally can't react fast enough. Prevention through conditioning matters more than relying on the reflex alone.", cite: "Moller, 1984", ref: "Moller AR. Neurophysiology of the acoustic middle ear muscle reflex. In: Silman S, ed. The Acoustic Reflex. 1984.", url: "https://doi.org/10.1016/B978-0-12-643450-7.50009-9" },
       { text: "Think of this silence as the space between reps. Your ear muscles just engaged with the previous phase of stimulation. In exercise science, the principle is clear — adaptation happens during recovery, not during effort. The same logic applies to your auditory reflexes.", cite: "Gerhardt et al., 1980", ref: "Gerhardt KJ, Melnick W, Ferraro JA. Reflex decay during prolonged noise. 1980.", url: "https://pubmed.ncbi.nlm.nih.gov/7390064/" },
     ],
     'Low Frequency Sweep': [
-      { text: "This tone is gliding from 250 Hz up to 1000 Hz — the bass-to-midrange zone. Your middle ear muscles primarily attenuate low frequencies, providing about 10-15 dB of protection below 2 kHz. This sweep gently engages that protective response across its most active range, like taking your reflex through its full range of motion.", cite: "Møller, 1984", ref: "Møller AR. The acoustic middle ear muscle reflex. In: Silman S, ed. The Acoustic Reflex. 1984.", url: "https://doi.org/10.1016/B978-0-12-643450-7.50009-9" },
+      { text: "This tone is gliding from 250 Hz up to 1000 Hz — the bass-to-midrange zone. Your middle ear muscles primarily attenuate low frequencies, providing about 10-15 dB of protection below 2 kHz. This sweep gently engages that protective response across its most active range, like taking your reflex through its full range of motion.", cite: "Moller, 1984", ref: "Moller AR. The acoustic middle ear muscle reflex. In: Silman S, ed. The Acoustic Reflex. 1984.", url: "https://doi.org/10.1016/B978-0-12-643450-7.50009-9" },
       { text: "Modern headphones — especially bass-heavy consumer earbuds — deliver disproportionate low-frequency energy directly into your ear canal. Over-ear headphones spread that energy across a larger surface. In-ear buds concentrate it. Your stapedius muscle evolved to handle environmental bass (thunder, footsteps), not 3 hours of boosted 808s at close range.", cite: "WHO, 2024", ref: "World Health Organization. Make Listening Safe initiative; WHO-ITU Global Standard for Safe Listening.", url: "https://www.who.int/news-room/fact-sheets/detail/deafness-and-hearing-loss" },
       { text: "The acoustic reflex triggers most reliably between 500 Hz and 4000 Hz, but it attenuates low frequencies the most. By sweeping through this range slowly, we're asking your reflex arc to engage gradually rather than slamming it with a sudden loud sound, which is how it normally gets activated and can cause startling.", cite: "Silman & Gelfand, 1981", ref: "Silman S, Gelfand SA. The relationship between acoustic reflex parameters. In: The Acoustic Reflex. 1981.", url: "https://doi.org/10.1016/B978-0-12-643450-7.50012-9" },
     ],
     'Mid Frequency Sweep': [
       { text: "500 to 4000 Hz — this is where human hearing is most sensitive and where the acoustic reflex responds most strongly. This is also the range where speech lives, where most music energy concentrates, and where your ears do their heaviest lifting during headphone use. We're addressing the zone that works hardest.", cite: "Silman & Gelfand, 1981", ref: "Silman S, Gelfand SA. Acoustic reflex parameters. In: The Acoustic Reflex. 1981.", url: "https://doi.org/10.1016/B978-0-12-643450-7.50012-9" },
       { text: "The acoustic reflex typically triggers at 70-100 dB above your hearing threshold — but we're delivering this sweep well below that, around 60-70 dB. We're not trying to trigger a full reflex contraction. We're gently activating the neural pathway so it stays responsive, like stretching a muscle without loading it.", cite: "Gelfand, 2009", ref: "Gelfand SA. Essentials of Audiology. 3rd ed. Thieme; 2009.", url: "https://doi.org/10.1055/b-0034-84036" },
-      { text: "A 2020 study in mice found that moderate noise exposure (80 dB, 6 hours/day for 4 weeks) actually strengthened the medial olivocochlear reflex — a protective mechanism — without causing any hair cell damage. This is the closest existing evidence that controlled sound exposure can enhance your ear's defense systems.", cite: "Yin et al., 2020", ref: "Yin Y, et al. Long-term moderate noise exposure strengthens MOCR. Auris Nasus Larynx. 2020.", url: "https://pubmed.ncbi.nlm.nih.gov/" },
+      { text: "A 2020 study in mice found that moderate noise exposure (80 dB, 6 hours/day for 4 weeks) actually strengthened the medial olivocochlear reflex — a protective mechanism — without causing any hair cell damage. This is the closest existing evidence that controlled sound exposure can enhance your ear's defense systems.", cite: "Yin et al., 2020", ref: "Yin Y, et al. Long-term moderate noise exposure strengthens MOCR. Auris Nasus Larynx. 2020.", url: "https://pubmed.ncbi.nlm.nih.gov/32404262/" },
     ],
     'High Frequency Sweep': [
-      { text: "We're sweeping through 1000-4000 Hz and into the upper range here. A 2025 study found that the earliest signs of headphone-related hearing damage appear at extended high frequencies — above 8000 Hz — before they show up on a standard hearing test. Think of this as exercising the upper end of your hearing range before problems appear.", cite: "Gottfriedova et al., 2025", ref: "Gottfriedova B, et al. Extended high-frequency audiometry in headphone users. 2025.", url: "https://pubmed.ncbi.nlm.nih.gov/" },
+      { text: "We're sweeping through 1000-4000 Hz and into the upper range here. Research shows that the earliest signs of headphone-related hearing damage appear at extended high frequencies — above 8000 Hz — before they show up on a standard hearing test. Think of this as exercising the upper end of your hearing range before problems appear.", cite: "Sulaiman et al., 2013", ref: "Sulaiman AH, et al. Evaluation of early hearing damage in personal listening device users using extended high-frequency audiometry. Eur Arch Otorhinolaryngol. 2013.", url: "https://pubmed.ncbi.nlm.nih.gov/23812554/" },
       { text: "The WHO estimates over 1 billion young people worldwide are at risk of permanent hearing loss from unsafe personal listening devices. The damage is cumulative and irreversible — there's no surgery or drug that restores noise-damaged hair cells in humans. Prevention is genuinely the only option, which is why exercises like this matter.", cite: "WHO, 2024", ref: "World Health Organization. Deafness and hearing loss fact sheet. 2024.", url: "https://www.who.int/news-room/fact-sheets/detail/deafness-and-hearing-loss" },
       { text: "Your ear canal creates a natural resonance peak around 2700 Hz — it actually amplifies sounds in that range by about 10-15 dB. In-ear buds sit inside that resonance chamber. When the sweep passes through those frequencies, you might notice it sounds slightly louder — that's your ear canal's natural acoustics, not us changing the volume.", cite: "Shaw, 1974", ref: "Shaw EAG. Transformation of sound pressure from free field to eardrum. JASA. 1974.", url: "https://doi.org/10.1121/1.1914543" },
     ],
     'Mixed Enrichment': [
-      { text: "You're hearing two things layered together: broadband pink noise providing full-spectrum stimulation to your auditory system, and binaural beats maintaining that calm brainwave state. The combination is intentional — the noise engages your ear's physical mechanics while the beats keep your nervous system relaxed.", cite: "Jastreboff, 2015", ref: "Jastreboff PJ. TRT overview. HNO. 2015.", url: "https://pubmed.ncbi.nlm.nih.gov/26669698/" },
-      { text: "In tinnitus retraining therapy, the standard approach is continuous broadband sound enrichment for months. Adding binaural beats isn't part of the traditional protocol — we're combining two evidence-based approaches. To be transparent: no study has tested this exact combination. But the mechanisms are complementary and the intensity is safe.", cite: "Jastreboff & Jastreboff, 2000", ref: "Jastreboff PJ, Jastreboff MM. TRT as a method for treatment. Semin Hear. 2000.", url: "https://pubmed.ncbi.nlm.nih.gov/22180699/" },
+      { text: "You're hearing two things layered together: broadband pink noise providing full-spectrum stimulation to your auditory system, and binaural beats maintaining that calm brainwave state. The combination is intentional — the noise engages your ear's physical mechanics while the beats keep your nervous system relaxed.", cite: "Jastreboff, 2015", ref: "Jastreboff PJ. 25 years of TRT. HNO. 2015.", url: "https://pubmed.ncbi.nlm.nih.gov/25862626/" },
+      { text: "In tinnitus retraining therapy, the standard approach is continuous broadband sound enrichment for months. Adding binaural beats isn't part of the traditional protocol — we're combining two evidence-based approaches. To be transparent: no study has tested this exact combination. But the mechanisms are complementary and the intensity is safe.", cite: "Jastreboff & Jastreboff, 2000", ref: "Jastreboff PJ, Jastreboff MM. TRT as a method for treatment. Semin Hear. 2000.", url: "https://doi.org/10.1055/s-2000-13466" },
       { text: "One thing that makes this different from just 'listening to white noise on YouTube' — the binaural beat component requires proper stereo delivery to work. Your AirPods provide that separation. The beat frequency is calibrated to your settings, not just a generic track. And the noise is algorithmically generated, not a looped recording.", cite: "Oster, 1973", ref: "Oster G. Auditory beats in the brain. Sci Am. 1973.", url: "https://pubmed.ncbi.nlm.nih.gov/4727697/" },
     ],
     'Notched Audio Therapy': [
-      { text: "Right now, you're hearing pink noise with a precise frequency band removed — centered on your tinnitus pitch. This is called Tailor-Made Notched Music Training. A 2024 meta-analysis confirmed it works: by removing energy at your tinnitus frequency, surrounding neurons in your auditory cortex start inhibiting the overactive ones causing the ringing.", cite: "Alfonso et al., 2024", ref: "Alfonso MA, et al. Tailor-made notched music training for tinnitus: meta-analysis. Am J Otolaryngol. 2024.", url: "https://pubmed.ncbi.nlm.nih.gov/" },
-      { text: "The mechanism is called lateral inhibition — it's the same process that makes edges look sharper in your vision. When you remove the tinnitus frequency from the sound, neurons tuned to nearby frequencies become more active and suppress the overactive tinnitus neurons. It's like your brain learning to turn down its own volume knob.", cite: "Stein et al., 2016", ref: "Stein A, et al. Clinical trial of tailor-made notched music training. BMC Neurology. 2016;16:38.", url: "https://pubmed.ncbi.nlm.nih.gov/27000048/" },
-      { text: "The original clinical trial used 2 hours per day for 3 months with 100 participants. We're using shorter sessions, so results may take longer. But the researchers noted that compliance is the biggest predictor of success — and shorter, more frequent sessions tend to have better compliance than marathon listening.", cite: "Stein et al., 2016", ref: "Stein A, et al. Notched music training for tinnitus. BMC Neurology. 2016;16:38.", url: "https://pubmed.ncbi.nlm.nih.gov/27000048/" },
-      { text: "Compared to traditional tinnitus retraining therapy, notched music training has been described in the literature as having 'simpler processes and a higher compliance rate.' Smartphone delivery has been validated — this isn't something that requires a clinic visit. But it does require accurate pitch-matching, so make sure your tinnitus frequency is set correctly in settings.", cite: "Tong et al., 2023", ref: "Tong B, et al. Notched music therapy comparison with TRT. 2023.", url: "https://pubmed.ncbi.nlm.nih.gov/" },
+      { text: "Right now, you're hearing pink noise with a precise frequency band removed — centered on your tinnitus pitch. This is called Tailor-Made Notched Music Training. A 2024 meta-analysis confirmed it works: by removing energy at your tinnitus frequency, surrounding neurons in your auditory cortex start inhibiting the overactive ones causing the ringing.", cite: "Alfonso et al., 2024", ref: "Alfonso MA, et al. Tailor-made notched music training for tinnitus: meta-analysis. Am J Otolaryngol. 2024.", url: "https://pubmed.ncbi.nlm.nih.gov/39106683/" },
+      { text: "The mechanism is called lateral inhibition — it's the same process that makes edges look sharper in your vision. When you remove the tinnitus frequency from the sound, neurons tuned to nearby frequencies become more active and suppress the overactive tinnitus neurons. It's like your brain learning to turn down its own volume knob.", cite: "Stein et al., 2016", ref: "Stein A, et al. Clinical trial of tailor-made notched music training. BMC Neurology. 2016;16:38.", url: "https://pubmed.ncbi.nlm.nih.gov/26987755/" },
+      { text: "The original clinical trial used 2 hours per day for 3 months with 100 participants. We're using shorter sessions, so results may take longer. But the researchers noted that compliance is the biggest predictor of success — and shorter, more frequent sessions tend to have better compliance than marathon listening.", cite: "Stein et al., 2016", ref: "Stein A, et al. Notched music training for tinnitus. BMC Neurology. 2016;16:38.", url: "https://pubmed.ncbi.nlm.nih.gov/26987755/" },
+      { text: "Compared to traditional tinnitus retraining therapy, notched music training has been described in the literature as having 'simpler processes and a higher compliance rate.' Smartphone delivery has been validated — this isn't something that requires a clinic visit. But it does require accurate pitch-matching, so make sure your tinnitus frequency is set correctly in settings.", cite: "Tong et al., 2023", ref: "Tong B, et al. Efficacy of tailor-made notched music training vs TRT. Eur Arch Otorhinolaryngol. 2023.", url: "https://pubmed.ncbi.nlm.nih.gov/36534646/" },
     ],
     'ACRN Neuromodulation': [
-      { text: "Four tones are playing in randomized order, clustered around your tinnitus frequency — at roughly 85%, 93%, 107%, and 117% of your pitch. This is Acoustic Coordinated Reset Neuromodulation, developed by Peter Tass. The idea: tinnitus is caused by neurons firing in pathological synchrony, and these offset tones disrupt that sync.", cite: "Tass et al., 2012", ref: "Tass PA, et al. Counteracting tinnitus by acoustic coordinated reset neuromodulation. Restor Neurol Neurosci. 2012.", url: "https://pubmed.ncbi.nlm.nih.gov/22232030/" },
-      { text: "We want to be straight with you: a 2017 systematic review concluded that the evidence for ACRN is 'insufficient for clinical implementation.' The mechanism is theoretically sound and early studies are promising, but we don't have large-scale trials yet. We include it because the risk at these low intensities is essentially zero, and the potential benefit is real.", cite: "Wegger, Ovesen & Larsen, 2017", ref: "Wegger M, Ovesen T, Larsen DG. Acoustic coordinated reset for tinnitus: systematic review. Otol Neurotol. 2017.", url: "https://pubmed.ncbi.nlm.nih.gov/28806335/" },
-      { text: "ACRN has been validated for mobile device delivery — this isn't something that requires lab equipment. The key variables are accurate tinnitus frequency matching and randomized tone sequences. Each cycle you're hearing plays the 4 tones in a different random order, which is important for breaking the synchronized firing pattern.", cite: "Hauptmann et al., 2016", ref: "Hauptmann C, et al. Acoustic CR neuromodulation for tinnitus delivered through mobile devices. 2016.", url: "https://pubmed.ncbi.nlm.nih.gov/" },
+      { text: "Four tones are playing in randomized order, clustered around your tinnitus frequency — at roughly 85%, 93%, 107%, and 117% of your pitch. This is Acoustic Coordinated Reset Neuromodulation, developed by Peter Tass. The idea: tinnitus is caused by neurons firing in pathological synchrony, and these offset tones disrupt that sync.", cite: "Tass et al., 2012", ref: "Tass PA, et al. Counteracting tinnitus by acoustic coordinated reset neuromodulation. Restor Neurol Neurosci. 2012.", url: "https://pubmed.ncbi.nlm.nih.gov/22414611/" },
+      { text: "We want to be straight with you: a 2017 systematic review concluded that the evidence for ACRN is 'insufficient for clinical implementation.' The mechanism is theoretically sound and early studies are promising, but we don't have large-scale trials yet. We include it because the risk at these low intensities is essentially zero, and the potential benefit is real.", cite: "Wegger, Ovesen & Larsen, 2017", ref: "Wegger M, Ovesen T, Larsen DG. Acoustic coordinated reset for tinnitus: systematic review. Otol Neurotol. 2017.", url: "https://pubmed.ncbi.nlm.nih.gov/28243221/" },
+      { text: "ACRN has been validated for mobile device delivery — this isn't something that requires lab equipment. The key variables are accurate tinnitus frequency matching and randomized tone sequences. Each cycle you're hearing plays the 4 tones in a different random order, which is important for breaking the synchronized firing pattern.", cite: "Hauptmann et al., 2016", ref: "Hauptmann C, et al. Acoustic CR neuromodulation for tinnitus delivered through mobile devices. Front Neurol. 2016.", url: "https://pubmed.ncbi.nlm.nih.gov/27718349/" },
     ],
     'Cool Down': [
-      { text: "The session is winding down with fading pink noise. Your auditory system is transitioning back to normal — the muscles have been gently worked, the neural pathways stimulated, and your brain is settling from the binaural entrainment. Abrupt silence after a session can feel jarring, so we taper off gradually.", cite: "Jastreboff, 2015", ref: "Jastreboff PJ. Tinnitus retraining therapy. HNO. 2015.", url: "https://pubmed.ncbi.nlm.nih.gov/26669698/" },
+      { text: "The session is winding down with fading pink noise. Your auditory system is transitioning back to normal — the muscles have been gently worked, the neural pathways stimulated, and your brain is settling from the binaural entrainment. Abrupt silence after a session can feel jarring, so we taper off gradually.", cite: "Jastreboff, 2015", ref: "Jastreboff PJ. 25 years of TRT. HNO. 2015.", url: "https://pubmed.ncbi.nlm.nih.gov/25862626/" },
       { text: "After this session, try to avoid immediately putting on loud music or podcasts. Give your ears 5-10 minutes of normal ambient sound. Think of it like not sprinting right after a stretch session. The CDC's safe listening guidelines recommend keeping volume below 85 dB — for reference, a normal conversation is about 60 dB.", cite: "CDC, 2024", ref: "Centers for Disease Control. Noise-Induced Hearing Loss Prevention. 2024.", url: "https://www.cdc.gov/hearing-loss-prevention/" },
-      { text: "If you do this consistently — the research protocols used daily sessions over 12 weeks minimum — you're giving your auditory system regular intervals of calibrated, safe stimulation. No study has proven this prevents headphone damage in humans. But the underlying mechanisms are sound, the intensities are safe, and doing something intentional for your ear health beats doing nothing.", cite: "Yin et al., 2020", ref: "Yin Y, et al. Moderate noise strengthens olivocochlear reflex. Auris Nasus Larynx. 2020.", url: "https://pubmed.ncbi.nlm.nih.gov/" },
+      { text: "If you do this consistently — the research protocols used daily sessions over 12 weeks minimum — you're giving your auditory system regular intervals of calibrated, safe stimulation. No study has proven this prevents headphone damage in humans. But the underlying mechanisms are sound, the intensities are safe, and doing something intentional for your ear health beats doing nothing.", cite: "Yin et al., 2020", ref: "Yin Y, et al. Long-term moderate noise exposure strengthens MOCR. Auris Nasus Larynx. 2020.", url: "https://pubmed.ncbi.nlm.nih.gov/32404262/" },
     ],
   };
 
@@ -116,7 +116,9 @@
     });
   }
 
-  function showInsightSlide(insight, idx, total) {
+  function showInsightSlide(insight, idx, total, direction) {
+    // direction: 'up' (auto), 'left' (swipe right/next), 'right' (swipe left/prev)
+    const dir = direction || 'up';
     const nextSlot = activeSlot === 'a' ? 'b' : 'a';
     const currentSlide = document.getElementById(`insight-slide-${activeSlot}`);
     const nextSlide = document.getElementById(`insight-slide-${nextSlot}`);
@@ -136,18 +138,38 @@
       e.preventDefault();
     };
 
-    // Crossfade: exit current, enter next
-    currentSlide.classList.remove('active');
-    currentSlide.classList.add('exit-up');
-    nextSlide.classList.remove('exit-up');
-    nextSlide.classList.add('active');
+    // Clean up previous transition classes
+    currentSlide.classList.remove('active', 'exit-up', 'exit-left', 'exit-right', 'enter-left', 'enter-right');
+    nextSlide.classList.remove('exit-up', 'exit-left', 'exit-right', 'enter-left', 'enter-right');
 
-    // Clean up exit class after transition
-    setTimeout(() => currentSlide.classList.remove('exit-up'), 800);
+    // Set entry position before triggering transition
+    if (dir === 'left') {
+      nextSlide.classList.add('enter-right');
+      // Force reflow
+      nextSlide.offsetHeight;
+      currentSlide.classList.add('exit-left');
+      nextSlide.classList.add('active');
+    } else if (dir === 'right') {
+      nextSlide.classList.add('enter-left');
+      nextSlide.offsetHeight;
+      currentSlide.classList.add('exit-right');
+      nextSlide.classList.add('active');
+    } else {
+      currentSlide.classList.add('exit-up');
+      nextSlide.classList.add('active');
+    }
+
+    // Clean up exit classes after transition
+    setTimeout(() => {
+      currentSlide.classList.remove('exit-up', 'exit-left', 'exit-right');
+      nextSlide.classList.remove('enter-left', 'enter-right');
+    }, 800);
 
     activeSlot = nextSlot;
     updateProgressDots(idx, total);
   }
+
+  let currentInsightOrder = [];
 
   function startInsightRotation(phaseName) {
     stopInsightRotation();
@@ -155,23 +177,36 @@
     if (!pool || pool.length === 0) return;
 
     currentInsightPhase = phaseName;
-    const order = getInsightOrder(phaseName);
+    currentInsightOrder = getInsightOrder(phaseName);
     currentInsightIdx = 0;
 
     // Update phase badge
     document.getElementById('insight-phase-name').textContent = phaseName;
 
     // Build dots
-    buildProgressDots(order.length);
+    buildProgressDots(currentInsightOrder.length);
 
     // Show first insight immediately
-    showInsightSlide(pool[order[0]], 0, order.length);
+    showInsightSlide(pool[currentInsightOrder[0]], 0, currentInsightOrder.length);
 
     // Rotate every 12 seconds
+    resetInsightTimer();
+  }
+
+  function resetInsightTimer() {
+    if (insightRotationTimer) clearInterval(insightRotationTimer);
     insightRotationTimer = setInterval(() => {
-      currentInsightIdx = (currentInsightIdx + 1) % order.length;
-      showInsightSlide(pool[order[currentInsightIdx]], currentInsightIdx, order.length);
+      advanceInsight(1, 'up');
     }, 12000);
+  }
+
+  function advanceInsight(delta, direction) {
+    const pool = phaseInsights[currentInsightPhase];
+    if (!pool || currentInsightOrder.length === 0) return;
+
+    currentInsightIdx = (currentInsightIdx + delta + currentInsightOrder.length) % currentInsightOrder.length;
+    showInsightSlide(pool[currentInsightOrder[currentInsightIdx]], currentInsightIdx, currentInsightOrder.length, direction);
+    resetInsightTimer(); // Reset auto-rotate timer on manual swipe
   }
 
   function stopInsightRotation() {
@@ -179,6 +214,39 @@
       clearInterval(insightRotationTimer);
       insightRotationTimer = null;
     }
+  }
+
+  // Swipe gesture support for insight carousel
+  let swipeStartX = 0;
+  let swipeStartY = 0;
+  let swipeTracking = false;
+
+  function initInsightSwipe() {
+    const carousel = document.getElementById('insight-carousel');
+    if (!carousel) return;
+
+    carousel.addEventListener('touchstart', (e) => {
+      swipeStartX = e.touches[0].clientX;
+      swipeStartY = e.touches[0].clientY;
+      swipeTracking = true;
+    }, { passive: true });
+
+    carousel.addEventListener('touchend', (e) => {
+      if (!swipeTracking) return;
+      swipeTracking = false;
+      const dx = e.changedTouches[0].clientX - swipeStartX;
+      const dy = e.changedTouches[0].clientY - swipeStartY;
+      // Only trigger if horizontal swipe > 50px and mostly horizontal
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        if (dx < 0) {
+          // Swipe left → next
+          advanceInsight(1, 'left');
+        } else {
+          // Swipe right → prev
+          advanceInsight(-1, 'right');
+        }
+      }
+    }, { passive: true });
   }
 
   // --- Storage ---
@@ -217,6 +285,15 @@
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
+    // Hide install banner on player/progress screens to avoid overlap
+    const banner = document.getElementById('install-banner');
+    if (banner) {
+      if (id === 'screen-player' || id === 'screen-progress') {
+        banner.style.setProperty('display', 'none', 'important');
+      } else {
+        banner.style.removeProperty('display');
+      }
+    }
   }
 
   // --- Streak Calculation ---
@@ -1625,6 +1702,7 @@
     checkStripeReturn();
     bindEvents();
     initAdmin();
+    initInsightSwipe();
     startLandingViz();
 
     // Capture Chrome/Edge install prompt
