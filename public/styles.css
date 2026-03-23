@@ -67,7 +67,7 @@ html, body {
 .logo-mark { margin-bottom: 24px; }
 .logo-svg { width: 80px; height: 80px; }
 .logo-svg-sm { width: 32px; height: 32px; }
-.logo-svg-md { width: 44px; height: 44px; }
+.logo-svg-md { width: 60px; height: 60px; }
 
 .brand {
   font-size: 42px;
@@ -1340,15 +1340,13 @@ select.setting-input { text-align: left; }
   position: relative;
   width: 100%;
   max-width: 420px;
-  max-height: 100vh;
-  max-height: 100dvh;
-  overflow: hidden;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: var(--bg2);
   border-radius: var(--radius) var(--radius) 0 0;
-  padding: 24px 20px calc(20px + var(--safe-bottom));
+  padding: 32px 24px calc(32px + var(--safe-bottom));
   animation: slideUp 0.4s ease;
-  display: flex;
-  flex-direction: column;
 }
 
 @keyframes slideUp {
@@ -1377,23 +1375,23 @@ select.setting-input { text-align: left; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
-.paywall-header h2 { margin-top: 8px; font-size: 20px; }
+.paywall-header h2 { margin-top: 12px; font-size: 22px; }
 .paywall-subtitle {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--accent2);
-  margin-top: 4px;
+  margin-top: 6px;
   font-weight: 500;
 }
 
 .paywall-features {
   list-style: none;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
 .paywall-features li {
-  padding: 4px 0;
-  font-size: 12px;
+  padding: 6px 0;
+  font-size: 13px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1430,8 +1428,7 @@ select.setting-input { text-align: left; }
 .paywall-plans {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 12px;
   margin-bottom: 20px;
 }
 
@@ -1478,8 +1475,8 @@ select.setting-input { text-align: left; }
 .btn-subscribe {
   width: 100%;
   margin-top: 0;
-  padding: 14px;
-  font-size: 15px;
+  padding: 16px;
+  font-size: 16px;
 }
 
 .paywall-terms {
@@ -1705,7 +1702,7 @@ select.setting-input { text-align: left; }
 .stripe-element-container {
   width: 100%;
   min-height: 0;
-  margin: 10px 0;
+  margin: 16px 0;
   border-radius: var(--radius-sm);
   overflow: hidden;
   transition: min-height 0.3s ease;
