@@ -1,0 +1,12 @@
+name = "tympaniq-api"
+main = "stripe-worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://yourdomain.com"
+
+# Set these as secrets via: wrangler secret put STRIPE_SECRET_KEY
+# STRIPE_SECRET_KEY
+# STRIPE_WEBHOOK_SECRET
+# STRIPE_PRICE_MONTHLY
+# STRIPE_PRICE_YEARLY
