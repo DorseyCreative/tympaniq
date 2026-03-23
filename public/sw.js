@@ -1,11 +1,12 @@
-const CACHE_NAME = 'tympaniq-v6';
+const CACHE_NAME = 'tympaniq-v12';
 const ASSETS = [
   '/',
   '/index.html',
-  '/styles.css',
-  '/audio-engine.js?v=6',
-  '/app.js?v=6',
+  '/styles.css?v=12',
+  '/audio-engine.js?v=12',
+  '/app.js?v=12',
   '/manifest.json',
+  '/music/broadband-enrichment.mp3',
   '/music/alpha-binaural.mp3',
   '/music/mixed-enrichment.mp3'
 ];
@@ -24,8 +25,28 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
+// Network-first for HTML/JS/CSS, cache-first for music/icons
 self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
-  );
+  const url = new URL(e.request.url);
+  const isAsset = url.pathname.endsWith('.mp3') || url.pathname.startsWith('/icons/');
+
+  if (isAsset) {
+    // Cache-first for large static assets
+    e.respondWith(
+      caches.match(e.request).then(r => r || fetch(e.request).then(resp => {
+        const clone = resp.clone();
+        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+        return resp;
+      }))
+    );
+  } else {
+    // Network-first for app code — always get latest
+    e.respondWith(
+      fetch(e.request).then(resp => {
+        const clone = resp.clone();
+        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+        return resp;
+      }).catch(() => caches.match(e.request))
+    );
+  }
 });
