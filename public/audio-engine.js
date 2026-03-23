@@ -570,7 +570,7 @@ class MusicPlayer {
 
   // Phase-name → music file mapping
   static TRACK_MAP = {
-    'Broadband Enrichment': 'music/mixed-enrichment.mp3',
+    'Broadband Enrichment': 'music/broadband-enrichment.mp3',
     'Alpha Binaural': 'music/alpha-binaural.mp3',
     'Mixed Enrichment': 'music/mixed-enrichment.mp3',
     // Add more as clips are provided:
