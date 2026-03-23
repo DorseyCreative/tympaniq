@@ -38,15 +38,21 @@ class TympanIQEngine {
     if (this._keepAliveSetup) return;
     this._keepAliveSetup = true;
 
-    // Route AudioContext through a MediaStream → <audio> element.
-    // This tricks iOS/Android into treating Web Audio as a media playback session,
-    // preventing suspension when the app goes to background.
+    // Create a MediaStream with a near-silent oscillator → <audio> element.
+    // This tricks iOS/Android into treating the page as a media playback session,
+    // preventing AudioContext suspension when the app goes to background.
+    // The actual audio plays through ctx.destination normally (no doubling).
     try {
       const dest = this.ctx.createMediaStreamDestination();
-      this.masterGain.connect(dest);
+      const osc = this.ctx.createOscillator();
+      const silentGain = this.ctx.createGain();
+      silentGain.gain.value = 0.001; // near-silent
+      osc.connect(silentGain);
+      silentGain.connect(dest);
+      osc.start();
+      this._keepAliveOsc = osc;
       const audio = new Audio();
       audio.srcObject = dest.stream;
-      audio.volume = 1;
       this._streamAudio = audio;
     } catch (e) {
       // Fallback: silent audio element
