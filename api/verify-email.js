@@ -40,11 +40,20 @@ module.exports = async (req, res) => {
 
       for (const sub of (subData.data || [])) {
         const priceId = sub.items?.data?.[0]?.price?.id;
-        if (priceId && tiqPrices.has(priceId)) {
-          return res.json({ isPro: true, customerId: customer.id });
-        }
-        if (sub.metadata?.project === 'tympaniq') {
-          return res.json({ isPro: true, customerId: customer.id });
+        if ((priceId && tiqPrices.has(priceId)) || sub.metadata?.project === 'tympaniq') {
+          const plan = priceId === process.env.STRIPE_PRICE_YEARLY ? 'yearly' : 'monthly';
+          const info = {
+            isPro: true,
+            customerId: customer.id,
+            email: customer.email,
+            name: customer.name || null,
+            status: sub.status,
+            plan,
+            currentPeriodEnd: sub.current_period_end,
+            trialEnd: sub.trial_end,
+            cancelAtPeriodEnd: sub.cancel_at_period_end,
+          };
+          return res.json(info);
         }
       }
 
@@ -57,11 +66,20 @@ module.exports = async (req, res) => {
 
       for (const sub of (trialData.data || [])) {
         const priceId = sub.items?.data?.[0]?.price?.id;
-        if (priceId && tiqPrices.has(priceId)) {
-          return res.json({ isPro: true, customerId: customer.id });
-        }
-        if (sub.metadata?.project === 'tympaniq') {
-          return res.json({ isPro: true, customerId: customer.id });
+        if ((priceId && tiqPrices.has(priceId)) || sub.metadata?.project === 'tympaniq') {
+          const plan = priceId === process.env.STRIPE_PRICE_YEARLY ? 'yearly' : 'monthly';
+          const info = {
+            isPro: true,
+            customerId: customer.id,
+            email: customer.email,
+            name: customer.name || null,
+            status: sub.status,
+            plan,
+            currentPeriodEnd: sub.current_period_end,
+            trialEnd: sub.trial_end,
+            cancelAtPeriodEnd: sub.cancel_at_period_end,
+          };
+          return res.json(info);
         }
       }
     }

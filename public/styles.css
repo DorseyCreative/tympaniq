@@ -876,6 +876,54 @@ select.setting-input { text-align: left; }
 .toggle input:checked + .toggle-slider { background: var(--accent); }
 .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
 
+/* Profile Card */
+.profile-card {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  text-align: center;
+}
+.profile-stat-value {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.profile-stat-label {
+  display: block;
+  font-size: 10px;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+.profile-email-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.profile-email-label {
+  font-size: 12px;
+  color: var(--text2);
+}
+.profile-email-value {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Subscription Status */
 .sub-status { padding: 16px; background: var(--surface); border-radius: var(--radius-sm); }
 .sub-badge {
   display: inline-block;
@@ -889,6 +937,16 @@ select.setting-input { text-align: left; }
 .sub-badge.pro { background: rgba(99, 102, 241, 0.2); color: var(--accent); }
 .sub-status p { font-size: 13px; color: var(--text2); margin-bottom: 12px; }
 .sub-status .btn-primary { margin-top: 0; width: 100%; padding: 12px; font-size: 14px; }
+.sub-details { margin: 12px 0; }
+.sub-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 13px;
+}
+.sub-detail-label { color: var(--text2); }
+.sub-detail-value { color: var(--text); font-weight: 500; }
 /* Trial Banner */
 .trial-banner {
   display: flex;
@@ -1119,25 +1177,54 @@ select.setting-input { text-align: left; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .paywall-header h2 { margin-top: 12px; font-size: 22px; }
+.paywall-subtitle {
+  font-size: 13px;
+  color: var(--accent2);
+  margin-top: 6px;
+  font-weight: 500;
+}
 
 .paywall-features {
   list-style: none;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .paywall-features li {
-  padding: 8px 0;
-  font-size: 14px;
+  padding: 6px 0;
+  font-size: 13px;
   display: flex;
   align-items: center;
   gap: 10px;
+}
+.feature-section-label {
+  font-size: 10px !important;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent) !important;
+  font-weight: 600;
+  padding-top: 14px !important;
+  padding-bottom: 4px !important;
+  border: none;
+}
+.feature-section-label.coming {
+  color: var(--text2) !important;
+}
+.feature-coming {
+  opacity: 0.5;
 }
 .check {
   color: var(--success);
   font-weight: 700;
   font-size: 16px;
+}
+.check-soon {
+  color: var(--text2);
+  font-weight: 600;
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
 }
 
 .paywall-plans {
@@ -1148,7 +1235,7 @@ select.setting-input { text-align: left; }
 }
 
 .plan-btn {
-  padding: 16px;
+  padding: 16px 12px;
   background: var(--surface);
   border: 2px solid transparent;
   border-radius: var(--radius-sm);
@@ -1156,11 +1243,30 @@ select.setting-input { text-align: left; }
   text-align: center;
   color: var(--text);
   position: relative;
+  transition: border-color 0.2s, background 0.2s;
 }
-.plan-btn.active { border-color: var(--accent); }
+.plan-btn.active {
+  border-color: var(--accent);
+  background: rgba(99, 102, 241, 0.08);
+}
+.plan-best {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 2px 10px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
 .plan-price { display: block; font-size: 24px; font-weight: 700; }
 .plan-period { font-size: 13px; color: var(--text2); }
-.plan-save {
+.plan-detail {
   display: block;
   margin-top: 4px;
   font-size: 11px;

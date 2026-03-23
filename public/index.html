@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
   <div id="app">
@@ -381,11 +381,39 @@
           </div>
         </div>
         <div class="setting-group">
+          <h3>Your Profile</h3>
+          <div class="profile-card">
+            <div class="profile-stats">
+              <div class="profile-stat">
+                <span class="profile-stat-value" id="profile-streak">0</span>
+                <span class="profile-stat-label">Day Streak</span>
+              </div>
+              <div class="profile-stat">
+                <span class="profile-stat-value" id="profile-sessions">0</span>
+                <span class="profile-stat-label">Sessions</span>
+              </div>
+              <div class="profile-stat">
+                <span class="profile-stat-value" id="profile-minutes">0</span>
+                <span class="profile-stat-label">Minutes</span>
+              </div>
+              <div class="profile-stat">
+                <span class="profile-stat-value" id="profile-best-streak">0</span>
+                <span class="profile-stat-label">Best Streak</span>
+              </div>
+            </div>
+            <div class="profile-email-row" id="profile-email-row" style="display:none">
+              <span class="profile-email-label">Account</span>
+              <span class="profile-email-value" id="profile-email"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-group">
           <h3>Subscription</h3>
           <div id="sub-status" class="sub-status">
             <span class="sub-badge free">Free Plan</span>
             <p>Unlock Deep Conditioning, notched audio, ACRN, and unlimited sessions.</p>
-            <button id="btn-upgrade" class="btn-primary">Upgrade to Pro — $4.99/mo</button>
+            <button id="btn-upgrade" class="btn-primary">Upgrade to Pro</button>
             <div class="restore-purchase">
               <p class="restore-label">Already subscribed?</p>
               <div class="restore-row">
@@ -397,7 +425,24 @@
           </div>
           <div id="sub-status-pro" class="sub-status" style="display:none">
             <span class="sub-badge pro">Pro Plan</span>
-            <p>Full access to all therapy modes and features.</p>
+            <div class="sub-details">
+              <div class="sub-detail-row">
+                <span class="sub-detail-label">Plan</span>
+                <span class="sub-detail-value" id="sub-plan-name">—</span>
+              </div>
+              <div class="sub-detail-row">
+                <span class="sub-detail-label">Status</span>
+                <span class="sub-detail-value" id="sub-status-text">Active</span>
+              </div>
+              <div class="sub-detail-row" id="sub-renew-row">
+                <span class="sub-detail-label">Renews</span>
+                <span class="sub-detail-value" id="sub-renew-date">—</span>
+              </div>
+              <div class="sub-detail-row" id="sub-trial-row" style="display:none">
+                <span class="sub-detail-label">Trial ends</span>
+                <span class="sub-detail-value" id="sub-trial-end">—</span>
+              </div>
+            </div>
             <button id="btn-manage-sub" class="btn-secondary">Manage Subscription</button>
           </div>
         </div>
@@ -563,29 +608,41 @@
             </defs>
           </svg>
           <h2>Unlock TympanIQ Pro</h2>
+          <p class="paywall-subtitle">7-day free trial, cancel anytime</p>
         </div>
-        <ul class="paywall-features">
-          <li><span class="check">&#x2713;</span> Deep Conditioning (30-min full protocol)</li>
-          <li><span class="check">&#x2713;</span> Personalized notched audio therapy</li>
-          <li><span class="check">&#x2713;</span> ACRN neuromodulation tones</li>
-          <li><span class="check">&#x2713;</span> Advanced frequency calibration</li>
-          <li><span class="check">&#x2713;</span> Unlimited daily sessions</li>
-          <li><span class="check">&#x2713;</span> Detailed analytics & export</li>
-        </ul>
+
         <div class="paywall-plans">
-          <button class="plan-btn active" data-plan="monthly">
+          <button class="plan-btn" data-plan="monthly">
             <span class="plan-price">$4.99</span>
             <span class="plan-period">/month</span>
+            <span class="plan-detail">Billed monthly</span>
           </button>
-          <button class="plan-btn" data-plan="yearly">
+          <button class="plan-btn active" data-plan="yearly">
+            <span class="plan-best">Best Value</span>
             <span class="plan-price">$29.99</span>
             <span class="plan-period">/year</span>
-            <span class="plan-save">Save 50%</span>
+            <span class="plan-detail">$2.50/mo — save 50%</span>
           </button>
         </div>
+
+        <ul class="paywall-features">
+          <li class="feature-section-label">Included now</li>
+          <li><span class="check">&#x2713;</span> Deep Conditioning — 30-min full protocol</li>
+          <li><span class="check">&#x2713;</span> Personalized notched audio for tinnitus</li>
+          <li><span class="check">&#x2713;</span> ACRN neuromodulation therapy</li>
+          <li><span class="check">&#x2713;</span> Unlimited sessions with background music</li>
+          <li><span class="check">&#x2713;</span> Advanced frequency calibration</li>
+          <li><span class="check">&#x2713;</span> Streak tracking &amp; session analytics</li>
+          <li class="feature-section-label coming">Coming soon</li>
+          <li class="feature-coming"><span class="check-soon">+</span> Hearing health journal</li>
+          <li class="feature-coming"><span class="check-soon">+</span> Custom session builder</li>
+          <li class="feature-coming"><span class="check-soon">+</span> Share progress with audiologist</li>
+          <li class="feature-coming"><span class="check-soon">+</span> Apple Watch companion</li>
+        </ul>
+
         <div id="stripe-payment-element" class="stripe-element-container"></div>
         <button id="btn-subscribe" class="btn-primary btn-subscribe">Start 7-Day Free Trial</button>
-        <p class="paywall-terms">Cancel anytime. Recurring billing after trial.</p>
+        <p class="paywall-terms">Cancel anytime during trial. You won't be charged until trial ends.</p>
         <div class="stripe-badge">
           <svg viewBox="0 0 60 25" width="60" height="25" fill="none">
             <rect width="60" height="25" rx="4" fill="rgba(255,255,255,0.05)"/>
@@ -597,8 +654,8 @@
   </div>
 
   <script src="https://js.stripe.com/v3/" async></script>
-  <script src="audio-engine.js?v=7"></script>
-  <script src="app.js?v=7"></script>
+  <script src="audio-engine.js?v=8"></script>
+  <script src="app.js?v=8"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');

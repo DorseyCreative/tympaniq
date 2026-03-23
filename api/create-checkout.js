@@ -27,6 +27,7 @@ module.exports = async (req, res) => {
     const params = new URLSearchParams();
     params.append('mode', 'subscription');
     params.append('payment_method_types[]', 'card');
+    params.append('payment_method_types[]', 'link');
     params.append('line_items[0][price]', priceId);
     params.append('line_items[0][quantity]', '1');
     params.append('subscription_data[trial_period_days]', '7');

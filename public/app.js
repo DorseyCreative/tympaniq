@@ -392,9 +392,52 @@
     document.getElementById('setting-music-enabled').checked = state.settings.musicEnabled !== false;
     document.getElementById('setting-music-volume').value = state.settings.musicVolume ?? 30;
 
+    // Profile stats
+    const streak = calcStreak();
+    const totalSessions = state.sessions.length;
+    const totalMinutes = state.sessions.reduce((sum, s) => sum + Math.round(s.duration / 60), 0);
+    document.getElementById('profile-streak').textContent = streak.current;
+    document.getElementById('profile-sessions').textContent = totalSessions;
+    document.getElementById('profile-minutes').textContent = totalMinutes;
+    document.getElementById('profile-best-streak').textContent = streak.best;
+
+    // Show email if stored
+    const userEmail = store.get('userEmail', null);
+    if (userEmail) {
+      document.getElementById('profile-email-row').style.display = 'flex';
+      document.getElementById('profile-email').textContent = userEmail;
+    }
+
+    // Subscription details
     if (state.isPro) {
       document.getElementById('sub-status').style.display = 'none';
       document.getElementById('sub-status-pro').style.display = 'block';
+
+      const subInfo = store.get('subInfo', null);
+      if (subInfo) {
+        const planNames = { monthly: '$4.99/month', yearly: '$29.99/year' };
+        document.getElementById('sub-plan-name').textContent = planNames[subInfo.plan] || subInfo.plan;
+
+        if (subInfo.status === 'trialing') {
+          document.getElementById('sub-status-text').textContent = 'Trial';
+          if (subInfo.trialEnd) {
+            document.getElementById('sub-trial-row').style.display = 'flex';
+            document.getElementById('sub-trial-end').textContent = new Date(subInfo.trialEnd * 1000).toLocaleDateString();
+          }
+        } else {
+          document.getElementById('sub-status-text').textContent = subInfo.cancelAtPeriodEnd ? 'Canceling' : 'Active';
+        }
+
+        if (subInfo.currentPeriodEnd) {
+          document.getElementById('sub-renew-date').textContent =
+            new Date(subInfo.currentPeriodEnd * 1000).toLocaleDateString();
+          document.getElementById('sub-renew-row').querySelector('.sub-detail-label').textContent =
+            subInfo.cancelAtPeriodEnd ? 'Expires' : 'Renews';
+        }
+      }
+    } else {
+      document.getElementById('sub-status').style.display = 'block';
+      document.getElementById('sub-status-pro').style.display = 'none';
     }
 
     buildPhasePreview();
@@ -1071,11 +1114,17 @@
     const features = document.querySelector('.paywall-features');
     const plans = document.querySelector('.paywall-plans');
     const terms = document.querySelector('.paywall-terms');
+    const subtitle = document.querySelector('.paywall-subtitle');
+    const header = document.querySelector('.paywall-header');
+    const badge = document.querySelector('.stripe-badge');
     const btn = document.getElementById('btn-subscribe');
     const container = document.getElementById('stripe-payment-element');
     if (features) features.style.display = '';
     if (plans) plans.style.display = '';
     if (terms) terms.style.display = '';
+    if (subtitle) subtitle.style.display = '';
+    if (header) header.style.display = '';
+    if (badge) badge.style.display = '';
     if (btn) { btn.style.display = ''; btn.disabled = false; btn.textContent = 'Start 7-Day Free Trial'; }
     if (container) { container.innerHTML = ''; container.classList.remove('loaded'); }
   }
@@ -1299,9 +1348,17 @@
       if (e.key === 'Enter') restorePurchase();
     });
 
-    document.getElementById('btn-manage-sub').addEventListener('click', () => {
-      // In production, open Stripe customer portal
-      alert('Subscription management will open Stripe Customer Portal in production.');
+    document.getElementById('btn-manage-sub').addEventListener('click', async () => {
+      const email = store.get('userEmail', null);
+      if (!email) {
+        // Fallback: prompt for email
+        const input = prompt('Enter your subscription email:');
+        if (!input) return;
+        store.set('userEmail', input);
+        openCustomerPortal(input);
+      } else {
+        openCustomerPortal(email);
+      }
     });
 
     // Settings auto-save on change
@@ -1345,6 +1402,14 @@
 
       if (data.isPro) {
         state.isPro = true;
+        store.set('userEmail', data.email || email);
+        store.set('subInfo', {
+          plan: data.plan,
+          status: data.status,
+          currentPeriodEnd: data.currentPeriodEnd,
+          trialEnd: data.trialEnd,
+          cancelAtPeriodEnd: data.cancelAtPeriodEnd,
+        });
         saveState();
         msg.textContent = 'Subscription restored!';
         msg.className = 'restore-msg success';
@@ -1361,6 +1426,34 @@
 
     btn.disabled = false;
     btn.textContent = 'Restore';
+  }
+
+  // --- Customer Portal ---
+  async function openCustomerPortal(email) {
+    const btn = document.getElementById('btn-manage-sub');
+    const origText = btn.textContent;
+    btn.textContent = 'Opening...';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/customer-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.open(data.url, '_blank', 'noopener');
+      } else {
+        btn.textContent = data.error || 'Error opening portal';
+        setTimeout(() => { btn.textContent = origText; }, 3000);
+      }
+    } catch {
+      btn.textContent = 'Connection error';
+      setTimeout(() => { btn.textContent = origText; }, 3000);
+    }
+    btn.disabled = false;
+    btn.textContent = origText;
   }
 
   // --- Admin Dashboard (embedded in settings) ---
@@ -1487,13 +1580,17 @@
         container.innerHTML = '';
         container.classList.add('loaded');
 
-        // Collapse features/plans to make room for checkout
+        // Collapse everything to make room for checkout
         const features = document.querySelector('.paywall-features');
         const plans = document.querySelector('.paywall-plans');
         const terms = document.querySelector('.paywall-terms');
+        const subtitle = document.querySelector('.paywall-subtitle');
+        const badge = document.querySelector('.stripe-badge');
         if (features) features.style.display = 'none';
         if (plans) plans.style.display = 'none';
         if (terms) terms.style.display = 'none';
+        if (subtitle) subtitle.style.display = 'none';
+        if (badge) badge.style.display = 'none';
 
         // Use Stripe Embedded Checkout (matches ui_mode: 'embedded' on backend)
         const checkout = await stripe.initEmbeddedCheckout({
