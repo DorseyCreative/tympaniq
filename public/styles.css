@@ -444,7 +444,7 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 62%;
+  height: 56%;
   padding: calc(44px + var(--safe-top)) 24px 0;
   gap: 10px;
 }
@@ -553,7 +553,7 @@ html, body {
   left: 0;
   right: 0;
   z-index: 5;
-  height: 38%;
+  height: 44%;
   display: none;
   flex-direction: column;
   padding: 0 20px calc(12px + var(--safe-bottom));
@@ -696,11 +696,11 @@ html, body {
 }
 
 .insight-body {
-  font-size: 13px;
-  color: rgba(232, 232, 240, 0.82);
-  line-height: 1.65;
+  font-size: 15px;
+  color: rgba(232, 232, 240, 0.85);
+  line-height: 1.7;
   letter-spacing: 0.01em;
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   max-width: 520px;
 }
 
@@ -1675,10 +1675,10 @@ select.setting-input { text-align: left; }
     height: min(40vw, 190px);
   }
   .timer-text { font-size: 32px; margin: 2px 0 4px; }
-  .player-content { gap: 6px; height: 60%; padding-top: calc(40px + var(--safe-top)); }
-  .insight-panel { height: 40%; }
+  .player-content { gap: 6px; height: 54%; padding-top: calc(40px + var(--safe-top)); }
+  .insight-panel { height: 46%; }
   .insight-panel-header { padding: 10px 0 6px; }
-  .insight-body { font-size: 12px; line-height: 1.5; margin-bottom: 8px; }
+  .insight-body { font-size: 13px; line-height: 1.6; margin-bottom: 8px; }
   .insight-citation { padding: 6px 10px; }
   .insight-cite-tag { font-size: 10px; }
   .insight-cite-ref { font-size: 9px; }
@@ -1698,12 +1698,12 @@ select.setting-input { text-align: left; }
     margin-bottom: 40px;
   }
   .modal { align-items: center; }
-  .insight-panel { height: 38%; padding: 0 40px calc(16px + var(--safe-bottom)); }
-  .insight-body { font-size: 14px; max-width: 600px; }
+  .insight-panel { height: 44%; padding: 0 40px calc(16px + var(--safe-bottom)); }
+  .insight-body { font-size: 16px; max-width: 600px; }
   .insight-citation { max-width: 600px; }
   .viz-orb {
     width: min(50vw, 280px);
     height: min(50vw, 280px);
   }
-  .player-content { height: 62%; }
+  .player-content { height: 56%; }
 }

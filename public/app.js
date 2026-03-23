@@ -239,14 +239,24 @@
       // Only trigger if horizontal swipe > 50px and mostly horizontal
       if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
         if (dx < 0) {
-          // Swipe left → next
           advanceInsight(1, 'left');
         } else {
-          // Swipe right → prev
           advanceInsight(-1, 'right');
         }
       }
     }, { passive: true });
+
+    // Tap left/right half to navigate
+    carousel.addEventListener('click', (e) => {
+      if (e.target.closest('a')) return; // Don't intercept link clicks
+      const rect = carousel.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      if (x < rect.width / 2) {
+        advanceInsight(-1, 'right');
+      } else {
+        advanceInsight(1, 'left');
+      }
+    });
   }
 
   // --- Storage ---
