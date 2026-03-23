@@ -1408,7 +1408,17 @@
 
     // Volume
     document.getElementById('volume-slider').addEventListener('input', (e) => {
-      engine.setVolume(parseInt(e.target.value) / 100);
+      const val = parseInt(e.target.value);
+      engine.setVolume(val / 100);
+      // Glow orb when near recommended level (35-45)
+      const orb = document.querySelector('.viz-orb');
+      if (orb) {
+        if (val >= 35 && val <= 45) {
+          orb.classList.add('vol-recommended');
+        } else {
+          orb.classList.remove('vol-recommended');
+        }
+      }
     });
 
     // Music volume (player)
