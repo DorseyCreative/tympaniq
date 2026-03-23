@@ -498,35 +498,67 @@ class TympanIQEngine {
 
     startPhase(0);
 
-    this.sessionTimer = setInterval(() => {
+    // Use AudioContext.currentTime as clock source — immune to browser throttling
+    this._sessionStartTime = this.ctx.currentTime;
+    this._pauseOffset = 0;
+    this._lastTickElapsed = -1;
+
+    const tick = () => {
       if (!this.isPlaying) return;
 
-      this.elapsed++;
-      phaseElapsed++;
+      const now = this.ctx.currentTime;
+      const realElapsed = Math.floor(now - this._sessionStartTime + this._pauseOffset);
 
-      if (this.onTick) {
-        this.onTick(this.totalDuration - this.elapsed, this.elapsed, this.totalDuration);
-      }
+      // Only fire callbacks when a new second ticks over
+      if (realElapsed > this._lastTickElapsed) {
+        this._lastTickElapsed = realElapsed;
+        this.elapsed = realElapsed;
 
-      // Emit phase progress
-      if (this.onPhaseProgress) {
-        const phaseDuration = protocol.phases[phaseIndex].duration;
-        this.onPhaseProgress(phaseIndex, phaseElapsed / phaseDuration, protocol.phases);
-      }
+        // Recalculate phase elapsed from real time
+        let accumulated = 0;
+        let currentPhaseIdx = 0;
+        for (let i = 0; i < protocol.phases.length; i++) {
+          if (accumulated + protocol.phases[i].duration > realElapsed) {
+            currentPhaseIdx = i;
+            break;
+          }
+          accumulated += protocol.phases[i].duration;
+          currentPhaseIdx = i + 1;
+        }
 
-      if (this.elapsed >= this.totalDuration) {
-        this.stopSession(true);
-        return;
-      }
+        if (currentPhaseIdx >= protocol.phases.length) {
+          this.stopSession(true);
+          return;
+        }
 
-      if (phaseElapsed >= protocol.phases[phaseIndex].duration) {
-        startPhase(phaseIndex + 1);
+        if (currentPhaseIdx !== phaseIndex) {
+          startPhase(currentPhaseIdx);
+        }
+        phaseElapsed = realElapsed - accumulated;
+
+        if (this.onTick) {
+          this.onTick(this.totalDuration - realElapsed, realElapsed, this.totalDuration);
+        }
+
+        if (this.onPhaseProgress) {
+          const phaseDuration = protocol.phases[currentPhaseIdx].duration;
+          this.onPhaseProgress(currentPhaseIdx, phaseElapsed / phaseDuration, protocol.phases);
+        }
+
+        if (realElapsed >= this.totalDuration) {
+          this.stopSession(true);
+          return;
+        }
       }
-    }, 1000);
+    };
+
+    // Use setInterval but it self-corrects from AudioContext.currentTime
+    this.sessionTimer = setInterval(tick, 250);
   }
 
   pause() {
     if (this.ctx && this.isPlaying) {
+      this._pauseOffset += (this.ctx.currentTime - this._sessionStartTime);
       this.ctx.suspend();
       this.isPlaying = false;
       clearInterval(this.sessionTimer);
@@ -537,15 +569,18 @@ class TympanIQEngine {
     if (this.ctx && !this.isPlaying) {
       this.ctx.resume();
       this.isPlaying = true;
-      // Re-start timer
-      const protocol = this; // timer was cleared, need to re-tick
+      this._sessionStartTime = this.ctx.currentTime;
       this.sessionTimer = setInterval(() => {
         if (!this.isPlaying) return;
-        this.elapsed++;
-        const remaining = this.totalDuration - this.elapsed;
-        if (this.onTick) this.onTick(remaining, this.elapsed, this.totalDuration);
-        if (remaining <= 0) this.stopSession(true);
-      }, 1000);
+        const realElapsed = Math.floor(this.ctx.currentTime - this._sessionStartTime + this._pauseOffset);
+        if (realElapsed > this._lastTickElapsed) {
+          this._lastTickElapsed = realElapsed;
+          this.elapsed = realElapsed;
+          const remaining = this.totalDuration - realElapsed;
+          if (this.onTick) this.onTick(remaining, realElapsed, this.totalDuration);
+          if (remaining <= 0) this.stopSession(true);
+        }
+      }, 250);
     }
   }
 
