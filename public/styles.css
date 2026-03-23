@@ -1021,6 +1021,9 @@ select.setting-input { text-align: left; }
   position: relative;
   width: 100%;
   max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: var(--bg2);
   border-radius: var(--radius) var(--radius) 0 0;
   padding: 32px 24px calc(32px + var(--safe-bottom));
@@ -1328,20 +1331,24 @@ select.setting-input { text-align: left; }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Stripe Element Container */
+/* Stripe Embedded Checkout */
 .stripe-element-container {
   width: 100%;
   min-height: 0;
-  margin-bottom: 16px;
+  margin: 16px 0;
   border-radius: var(--radius-sm);
+  overflow: hidden;
   transition: min-height 0.3s ease;
 }
 .stripe-element-container.loaded {
-  min-height: 50px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  min-height: 300px;
+}
+.stripe-element-container iframe {
+  width: 100% !important;
+  min-height: 300px;
+  border: none !important;
   border-radius: var(--radius-sm);
+  color-scheme: dark;
 }
 .stripe-badge {
   display: flex;

@@ -1021,6 +1021,17 @@
 
   function hidePaywall() {
     document.getElementById('paywall-modal').classList.remove('active');
+    // Reset paywall state
+    const features = document.querySelector('.paywall-features');
+    const plans = document.querySelector('.paywall-plans');
+    const terms = document.querySelector('.paywall-terms');
+    const btn = document.getElementById('btn-subscribe');
+    const container = document.getElementById('stripe-payment-element');
+    if (features) features.style.display = '';
+    if (plans) plans.style.display = '';
+    if (terms) terms.style.display = '';
+    if (btn) { btn.style.display = ''; btn.disabled = false; btn.textContent = 'Start 7-Day Free Trial'; }
+    if (container) { container.innerHTML = ''; container.classList.remove('loaded'); }
   }
 
   // --- Event Bindings ---
@@ -1428,6 +1439,14 @@
         container.innerHTML = '';
         container.classList.add('loaded');
 
+        // Collapse features/plans to make room for checkout
+        const features = document.querySelector('.paywall-features');
+        const plans = document.querySelector('.paywall-plans');
+        const terms = document.querySelector('.paywall-terms');
+        if (features) features.style.display = 'none';
+        if (plans) plans.style.display = 'none';
+        if (terms) terms.style.display = 'none';
+
         // Use Stripe Embedded Checkout (matches ui_mode: 'embedded' on backend)
         const checkout = await stripe.initEmbeddedCheckout({
           clientSecret: data.clientSecret,
@@ -1436,6 +1455,9 @@
 
         // Hide subscribe button — embedded checkout has its own submit
         btn.style.display = 'none';
+
+        // Scroll container to show checkout
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } catch (err) {
       btn.textContent = originalText;
