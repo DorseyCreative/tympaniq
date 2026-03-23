@@ -382,6 +382,42 @@
       </div>
     </div>
 
+    <!-- Install Prompt -->
+    <div id="install-prompt" class="install-prompt">
+      <div class="install-backdrop"></div>
+      <div class="install-card">
+        <div class="install-icon">
+          <svg viewBox="0 0 80 80" class="logo-svg">
+            <circle cx="40" cy="40" r="36" fill="none" stroke="url(#grad-inst)" stroke-width="2"/>
+            <circle cx="40" cy="40" r="24" fill="none" stroke="url(#grad-inst)" stroke-width="1.5" opacity="0.6"/>
+            <circle cx="40" cy="40" r="12" fill="url(#grad-inst)" opacity="0.8"/>
+            <defs>
+              <linearGradient id="grad-inst" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#6366f1"/>
+                <stop offset="100%" style="stop-color:#06b6d4"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <h3 class="install-title">Install TympanIQ</h3>
+        <p class="install-text">Add to your home screen for the full experience — offline access, faster loading, and no browser bars.</p>
+        <div id="install-steps-ios" class="install-steps" style="display:none">
+          <p class="install-step">Tap <strong>Share</strong> <span class="install-share-icon">&#x2191;</span> then <strong>Add to Home Screen</strong></p>
+        </div>
+        <button id="btn-install" class="btn-primary install-btn">Install App</button>
+        <button id="btn-install-dismiss" class="install-dismiss">Not now</button>
+      </div>
+    </div>
+
+    <!-- Install Banner (persistent reminder) -->
+    <div id="install-banner" class="install-banner" style="display:none">
+      <div class="install-banner-inner">
+        <span class="install-banner-text">Install TympanIQ for the best experience</span>
+        <button id="btn-banner-install" class="install-banner-btn">Install</button>
+        <button id="btn-banner-dismiss" class="install-banner-close">&times;</button>
+      </div>
+    </div>
+
     <!-- Pre-Session Reminder Overlay -->
     <div id="session-reminder" class="session-reminder">
       <div class="reminder-backdrop"></div>

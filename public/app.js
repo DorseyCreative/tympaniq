@@ -416,7 +416,44 @@
       document.getElementById('timer-seconds').textContent = String(secs).padStart(2, '0');
     };
 
-    // Phase ring — draw segmented arcs in the SVG
+    setupPlayerCallbacks();
+
+    engine.onComplete = (completed, elapsed) => {
+      musicPlayer.stop();
+      if (completed) {
+        state.sessions.push({
+          mode: currentMode,
+          duration: elapsed,
+          date: new Date().toISOString().split('T')[0],
+          timestamp: Date.now()
+        });
+        saveState();
+      }
+      document.getElementById('icon-play').style.display = 'block';
+      document.getElementById('icon-pause').style.display = 'none';
+      showScreen('screen-dashboard');
+      updateDashboard();
+    };
+
+    engine.setVolume(parseInt(document.getElementById('volume-slider').value) / 100);
+    engine.startSession(mode, state.settings);
+
+    // Init music player on same audio context
+    musicPlayer.init(engine.ctx);
+    musicPlayer.setEnabled(state.settings.musicEnabled !== false);
+    musicPlayer.setVolume((state.settings.musicVolume ?? 30) / 100);
+    musicPlayer.preloadAll();
+
+    // Sync music volume slider
+    document.getElementById('music-volume-slider').value = state.settings.musicVolume ?? 30;
+
+    // Start visualizer
+    analyser = engine.getAnalyserNode();
+    startVisualizer();
+  }
+
+  // --- Shared Player Callbacks (used by both full sessions and trial) ---
+  function setupPlayerCallbacks() {
     const shortNames = {
       'Broadband Enrichment': 'ENRICH',
       'Alpha Binaural': 'ALPHA',
@@ -605,39 +642,6 @@
       document.getElementById('freq-right').textContent = data.right;
       document.getElementById('freq-beat').textContent = data.beat;
     };
-
-    engine.onComplete = (completed, elapsed) => {
-      musicPlayer.stop();
-      if (completed) {
-        state.sessions.push({
-          mode: currentMode,
-          duration: elapsed,
-          date: new Date().toISOString().split('T')[0],
-          timestamp: Date.now()
-        });
-        saveState();
-      }
-      document.getElementById('icon-play').style.display = 'block';
-      document.getElementById('icon-pause').style.display = 'none';
-      showScreen('screen-dashboard');
-      updateDashboard();
-    };
-
-    engine.setVolume(parseInt(document.getElementById('volume-slider').value) / 100);
-    engine.startSession(mode, state.settings);
-
-    // Init music player on same audio context
-    musicPlayer.init(engine.ctx);
-    musicPlayer.setEnabled(state.settings.musicEnabled !== false);
-    musicPlayer.setVolume((state.settings.musicVolume ?? 30) / 100);
-    musicPlayer.preloadAll();
-
-    // Sync music volume slider
-    document.getElementById('music-volume-slider').value = state.settings.musicVolume ?? 30;
-
-    // Start visualizer
-    analyser = engine.getAnalyserNode();
-    startVisualizer();
   }
 
   // --- Visualizer ---
@@ -803,6 +807,165 @@
     draw();
   }
 
+  // --- PWA Install Prompt ---
+  let deferredInstallPrompt = null;
+
+  function isInstalledPWA() {
+    // Check display-mode (standalone = installed PWA)
+    if (window.matchMedia('(display-mode: standalone)').matches) return true;
+    if (window.navigator.standalone === true) return true; // iOS
+    return false;
+  }
+
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  }
+
+  function showInstallPrompt() {
+    const prompt = document.getElementById('install-prompt');
+    const installBtn = document.getElementById('btn-install');
+    const iosSteps = document.getElementById('install-steps-ios');
+
+    if (isIOS()) {
+      // iOS doesn't support beforeinstallprompt — show manual instructions
+      installBtn.style.display = 'none';
+      iosSteps.style.display = 'block';
+    } else if (deferredInstallPrompt) {
+      installBtn.style.display = 'block';
+      iosSteps.style.display = 'none';
+    } else {
+      // Neither iOS nor Chrome install prompt available — skip
+      return;
+    }
+
+    prompt.classList.add('active');
+  }
+
+  function hideInstallPrompt() {
+    document.getElementById('install-prompt').classList.remove('active');
+  }
+
+  function showInstallBanner() {
+    if (isInstalledPWA()) return;
+    if (store.get('bannerDismissed', false)) return;
+    document.getElementById('install-banner').style.display = 'block';
+  }
+
+  function hideInstallBanner() {
+    document.getElementById('install-banner').style.display = 'none';
+  }
+
+  // --- Trial Mode (3 min: 1:30 enrich + 1:30 alpha) ---
+  function startTrialSession() {
+    currentMode = 'trial';
+    showScreen('screen-player');
+
+    document.getElementById('player-mode-label').textContent = 'Free Trial';
+    document.getElementById('timer-minutes').textContent = '03';
+    document.getElementById('timer-seconds').textContent = '00';
+    document.getElementById('icon-play').style.display = 'none';
+    document.getElementById('icon-pause').style.display = 'block';
+
+    // Override protocol for trial — 2 phases, 90s each
+    const trialProtocol = {
+      totalDuration: 180,
+      phases: [
+        { name: 'Broadband Enrichment', type: 'pink_noise', duration: 90, level: 0.3 },
+        { name: 'Alpha Binaural', type: 'binaural', duration: 90, baseFreq: 440, beatFreq: 10, level: 0.35 },
+      ]
+    };
+
+    engine.onTick = (remaining) => {
+      const mins = Math.floor(remaining / 60);
+      const secs = remaining % 60;
+      document.getElementById('timer-minutes').textContent = String(mins).padStart(2, '0');
+      document.getElementById('timer-seconds').textContent = String(secs).padStart(2, '0');
+    };
+
+    // Reuse the same phase ring / insight / freq update callbacks from startPlayer
+    setupPlayerCallbacks();
+
+    engine.onComplete = (completed, elapsed) => {
+      document.getElementById('icon-play').style.display = 'block';
+      document.getElementById('icon-pause').style.display = 'none';
+      stopVisualizer();
+      musicPlayer.stop();
+
+      if (completed) {
+        // Trial finished — mark complete and show paywall
+        store.set('trialCompleted', true);
+        showScreen('screen-dashboard');
+        updateDashboard();
+        setTimeout(() => showPaywall(), 400);
+      } else {
+        showScreen('screen-dashboard');
+        updateDashboard();
+      }
+    };
+
+    engine.setVolume(parseInt(document.getElementById('volume-slider').value) / 100);
+
+    // Manually inject the trial protocol and start
+    engine.init();
+    if (engine.ctx.state === 'suspended') engine.ctx.resume();
+    engine.totalDuration = trialProtocol.totalDuration;
+    engine.protocol = trialProtocol;
+    engine.elapsed = 0;
+    engine.isPlaying = true;
+
+    let phaseIndex = 0;
+    let phaseElapsed = 0;
+
+    const startPhase = (idx) => {
+      if (idx >= trialProtocol.phases.length) {
+        engine.stopSession(true);
+        return;
+      }
+      phaseIndex = idx;
+      phaseElapsed = 0;
+      engine.playPhase(trialProtocol.phases[idx]);
+    };
+
+    if (engine.onPhaseProgress) {
+      engine.onPhaseProgress(0, 0, trialProtocol.phases);
+    }
+
+    startPhase(0);
+
+    engine.sessionTimer = setInterval(() => {
+      if (!engine.isPlaying) return;
+      engine.elapsed++;
+      phaseElapsed++;
+
+      if (engine.onTick) {
+        engine.onTick(trialProtocol.totalDuration - engine.elapsed, engine.elapsed, trialProtocol.totalDuration);
+      }
+
+      if (engine.onPhaseProgress) {
+        const phaseDuration = trialProtocol.phases[phaseIndex].duration;
+        engine.onPhaseProgress(phaseIndex, phaseElapsed / phaseDuration, trialProtocol.phases);
+      }
+
+      if (engine.elapsed >= trialProtocol.totalDuration) {
+        engine.stopSession(true);
+        return;
+      }
+
+      if (phaseElapsed >= trialProtocol.phases[phaseIndex].duration) {
+        startPhase(phaseIndex + 1);
+      }
+    }, 1000);
+
+    // Start music + visualizer
+    musicPlayer.init(engine.ctx);
+    musicPlayer.setVolume(state.settings.musicVolume != null ? state.settings.musicVolume / 100 : 0.3);
+    musicPlayer.setEnabled(state.settings.musicEnabled !== false);
+    musicPlayer.preloadAll();
+
+    analyser = engine.getAnalyserNode();
+    startVisualizer();
+  }
+
   // --- Paywall ---
   function showPaywall() {
     document.getElementById('paywall-modal').classList.add('active');
@@ -814,14 +977,63 @@
 
   // --- Event Bindings ---
   function bindEvents() {
-    // Landing
+    // Landing — for non-pro users, go straight to trial
     document.getElementById('btn-get-started').addEventListener('click', () => {
-      if (state.onboarded) {
+      if (state.isPro) {
+        if (state.onboarded) {
+          showScreen('screen-dashboard');
+          updateDashboard();
+        } else {
+          showScreen('screen-onboard');
+        }
+      } else if (state.onboarded) {
         showScreen('screen-dashboard');
         updateDashboard();
       } else {
         showScreen('screen-onboard');
       }
+    });
+
+    // Install prompt buttons
+    document.getElementById('btn-install').addEventListener('click', async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const result = await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        hideInstallPrompt();
+        if (result.outcome === 'accepted') {
+          store.set('installed', true);
+          hideInstallBanner();
+        }
+      }
+    });
+
+    document.getElementById('btn-install-dismiss').addEventListener('click', () => {
+      hideInstallPrompt();
+      store.set('installDismissed', true);
+      store.set('installDismissedAt', Date.now());
+      // Show banner as persistent reminder
+      showInstallBanner();
+    });
+
+    document.getElementById('btn-banner-install').addEventListener('click', async () => {
+      if (isIOS()) {
+        hideInstallBanner();
+        showInstallPrompt();
+      } else if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const result = await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        hideInstallBanner();
+        if (result.outcome === 'accepted') {
+          store.set('installed', true);
+        }
+      }
+    });
+
+    document.getElementById('btn-banner-dismiss').addEventListener('click', () => {
+      hideInstallBanner();
+      store.set('bannerDismissed', true);
     });
 
     // Onboarding
@@ -848,7 +1060,7 @@
       if (onboardStep === 3) btn.textContent = 'Get Started';
     });
 
-    // Session start buttons — show reminder first
+    // Session start buttons — show reminder first, trial for non-pro
     document.querySelectorAll('.btn-start').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const mode = e.target.dataset.mode;
@@ -856,14 +1068,25 @@
           showPaywall();
           return;
         }
-        showSessionReminder(mode);
+        if (!state.isPro && !store.get('trialCompleted', false)) {
+          // Non-pro, hasn't completed trial yet — run trial
+          showSessionReminder('trial');
+        } else if (!state.isPro) {
+          // Already did trial — show paywall
+          showPaywall();
+        } else {
+          showSessionReminder(mode);
+        }
       });
     });
 
     // Begin session from reminder
     document.getElementById('btn-begin-session').addEventListener('click', () => {
       hideSessionReminder();
-      if (pendingMode) {
+      if (pendingMode === 'trial') {
+        startTrialSession();
+        pendingMode = null;
+      } else if (pendingMode) {
         startPlayer(pendingMode);
         pendingMode = null;
       }
@@ -1074,6 +1297,41 @@
     checkStripeReturn();
     bindEvents();
     startLandingViz();
+
+    // Capture Chrome/Edge install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+
+      // Show install prompt if not already installed and not previously dismissed recently
+      if (!isInstalledPWA() && !store.get('installed', false)) {
+        const dismissedAt = store.get('installDismissedAt', 0);
+        const hoursSinceDismiss = (Date.now() - dismissedAt) / (1000 * 60 * 60);
+        if (!store.get('installDismissed', false) || hoursSinceDismiss > 24) {
+          setTimeout(() => showInstallPrompt(), 1500);
+        } else {
+          showInstallBanner();
+        }
+      }
+    });
+
+    // iOS: show install prompt on first visit if not standalone
+    if (isIOS() && !isInstalledPWA() && !store.get('installed', false)) {
+      const dismissedAt = store.get('installDismissedAt', 0);
+      const hoursSinceDismiss = (Date.now() - dismissedAt) / (1000 * 60 * 60);
+      if (!store.get('installDismissed', false) || hoursSinceDismiss > 24) {
+        setTimeout(() => showInstallPrompt(), 1500);
+      } else if (!store.get('bannerDismissed', false)) {
+        showInstallBanner();
+      }
+    }
+
+    // Detect if installed after the fact
+    window.addEventListener('appinstalled', () => {
+      store.set('installed', true);
+      hideInstallPrompt();
+      hideInstallBanner();
+    });
 
     if (state.onboarded) {
       // Skip landing on return visits after a brief flash
