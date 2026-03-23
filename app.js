@@ -803,6 +803,164 @@
     draw();
   }
 
+  // --- PWA Install Prompt ---
+  let deferredInstallPrompt = null;
+
+  function isInstalledPWA() {
+    // Check display-mode (standalone = installed PWA)
+    if (window.matchMedia('(display-mode: standalone)').matches) return true;
+    if (window.navigator.standalone === true) return true; // iOS
+    return false;
+  }
+
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  }
+
+  function showInstallPrompt() {
+    const prompt = document.getElementById('install-prompt');
+    const installBtn = document.getElementById('btn-install');
+    const iosSteps = document.getElementById('install-steps-ios');
+
+    if (isIOS()) {
+      // iOS doesn't support beforeinstallprompt — show manual instructions
+      installBtn.style.display = 'none';
+      iosSteps.style.display = 'block';
+    } else if (deferredInstallPrompt) {
+      installBtn.style.display = 'block';
+      iosSteps.style.display = 'none';
+    } else {
+      // Neither iOS nor Chrome install prompt available — skip
+      return;
+    }
+
+    prompt.classList.add('active');
+  }
+
+  function hideInstallPrompt() {
+    document.getElementById('install-prompt').classList.remove('active');
+  }
+
+  function showInstallBanner() {
+    if (isInstalledPWA()) return;
+    if (store.get('bannerDismissed', false)) return;
+    document.getElementById('install-banner').style.display = 'block';
+  }
+
+  function hideInstallBanner() {
+    document.getElementById('install-banner').style.display = 'none';
+  }
+
+  // --- Trial Mode (3 min: 1:30 enrich + 1:30 alpha) ---
+  function startTrialSession() {
+    currentMode = 'trial';
+    showScreen('screen-player');
+
+    document.getElementById('player-mode-label').textContent = 'Free Trial';
+    document.getElementById('timer-minutes').textContent = '03';
+    document.getElementById('timer-seconds').textContent = '00';
+    document.getElementById('icon-play').style.display = 'none';
+    document.getElementById('icon-pause').style.display = 'block';
+
+    // Override protocol for trial — 2 phases, 90s each
+    const trialProtocol = {
+      totalDuration: 180,
+      phases: [
+        { name: 'Broadband Enrichment', type: 'pink_noise', duration: 90, level: 0.3 },
+        { name: 'Alpha Binaural', type: 'binaural', duration: 90, baseFreq: 440, beatFreq: 10, level: 0.35 },
+      ]
+    };
+
+    engine.onTick = (remaining) => {
+      const mins = Math.floor(remaining / 60);
+      const secs = remaining % 60;
+      document.getElementById('timer-minutes').textContent = String(mins).padStart(2, '0');
+      document.getElementById('timer-seconds').textContent = String(secs).padStart(2, '0');
+    };
+
+    // Reuse the same phase ring / insight / freq update callbacks from startPlayer
+    setupPlayerCallbacks();
+
+    engine.onComplete = (completed, elapsed) => {
+      document.getElementById('icon-play').style.display = 'block';
+      document.getElementById('icon-pause').style.display = 'none';
+      stopVisualizer();
+      musicPlayer.stop();
+
+      if (completed) {
+        // Trial finished — show paywall
+        showScreen('screen-dashboard');
+        updateDashboard();
+        setTimeout(() => showPaywall(), 400);
+      } else {
+        showScreen('screen-dashboard');
+        updateDashboard();
+      }
+    };
+
+    engine.setVolume(parseInt(document.getElementById('volume-slider').value) / 100);
+
+    // Manually inject the trial protocol and start
+    engine.init();
+    if (engine.ctx.state === 'suspended') engine.ctx.resume();
+    engine.totalDuration = trialProtocol.totalDuration;
+    engine.protocol = trialProtocol;
+    engine.elapsed = 0;
+    engine.isPlaying = true;
+
+    let phaseIndex = 0;
+    let phaseElapsed = 0;
+
+    const startPhase = (idx) => {
+      if (idx >= trialProtocol.phases.length) {
+        engine.stopSession(true);
+        return;
+      }
+      phaseIndex = idx;
+      phaseElapsed = 0;
+      engine.playPhase(trialProtocol.phases[idx]);
+    };
+
+    if (engine.onPhaseProgress) {
+      engine.onPhaseProgress(0, 0, trialProtocol.phases);
+    }
+
+    startPhase(0);
+
+    engine.sessionTimer = setInterval(() => {
+      if (!engine.isPlaying) return;
+      engine.elapsed++;
+      phaseElapsed++;
+
+      if (engine.onTick) {
+        engine.onTick(trialProtocol.totalDuration - engine.elapsed, engine.elapsed, trialProtocol.totalDuration);
+      }
+
+      if (engine.onPhaseProgress) {
+        const phaseDuration = trialProtocol.phases[phaseIndex].duration;
+        engine.onPhaseProgress(phaseIndex, phaseElapsed / phaseDuration, trialProtocol.phases);
+      }
+
+      if (engine.elapsed >= trialProtocol.totalDuration) {
+        engine.stopSession(true);
+        return;
+      }
+
+      if (phaseElapsed >= trialProtocol.phases[phaseIndex].duration) {
+        startPhase(phaseIndex + 1);
+      }
+    }, 1000);
+
+    // Start music + visualizer
+    musicPlayer.init(engine.ctx);
+    musicPlayer.setVolume(state.settings.musicVolume != null ? state.settings.musicVolume / 100 : 0.3);
+    musicPlayer.setEnabled(state.settings.musicEnabled !== false);
+    musicPlayer.preloadAll();
+
+    analyser = engine.getAnalyserNode();
+    startVisualizer();
+  }
+
   // --- Paywall ---
   function showPaywall() {
     document.getElementById('paywall-modal').classList.add('active');
