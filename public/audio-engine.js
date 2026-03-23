@@ -28,42 +28,21 @@ class TympanIQEngine {
     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     this.masterGain = this.ctx.createGain();
     this.masterGain.gain.value = this.volume;
-    this.masterGain.connect(this.ctx.destination);
 
-    // Keep audio alive when app loses focus (mobile)
-    this._keepAlive();
-  }
-
-  _keepAlive() {
-    if (this._keepAliveSetup) return;
-    this._keepAliveSetup = true;
-
-    // Create a MediaStream with a near-silent oscillator → <audio> element.
-    // This tricks iOS/Android into treating the page as a media playback session,
-    // preventing AudioContext suspension when the app goes to background.
-    // The actual audio plays through ctx.destination normally (no doubling).
+    // Route ALL audio through MediaStreamDestination → <audio> element.
+    // This is the only way to keep audio alive on iOS when backgrounded.
+    // Do NOT connect to ctx.destination (would cause doubling).
     try {
-      const dest = this.ctx.createMediaStreamDestination();
-      const osc = this.ctx.createOscillator();
-      const silentGain = this.ctx.createGain();
-      silentGain.gain.value = 0.001; // near-silent
-      osc.connect(silentGain);
-      silentGain.connect(dest);
-      osc.start();
-      this._keepAliveOsc = osc;
-      const audio = new Audio();
-      audio.srcObject = dest.stream;
-      this._streamAudio = audio;
+      this._streamDest = this.ctx.createMediaStreamDestination();
+      this.masterGain.connect(this._streamDest);
+      this._streamAudio = new Audio();
+      this._streamAudio.srcObject = this._streamDest.stream;
     } catch (e) {
-      // Fallback: silent audio element
-      const audio = new Audio();
-      audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-      audio.loop = true;
-      audio.volume = 0.01;
-      this._streamAudio = audio;
+      // Fallback for browsers without MediaStream support — use direct output
+      this.masterGain.connect(this.ctx.destination);
+      this._streamAudio = null;
     }
 
-    // Resume AudioContext when returning to app
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && this.isPlaying) {
         if (this.ctx.state === 'suspended') this.ctx.resume();
@@ -593,6 +572,11 @@ class TympanIQEngine {
     if (this.onComplete) this.onComplete(completed, this.elapsed);
   }
 
+  // Output node — MediaStreamDestination if available, else ctx.destination
+  getOutputNode() {
+    return this._streamDest || this.ctx.destination;
+  }
+
   // --- Visualizer Data ---
 
   getAnalyserNode() {
@@ -635,11 +619,12 @@ class MusicPlayer {
     // 'Cool Down': 'music/cool-down.mp3',
   };
 
-  init(audioCtx) {
+  init(audioCtx, outputNode) {
     this.ctx = audioCtx;
     this.gainNode = this.ctx.createGain();
     this.gainNode.gain.value = this.volume;
-    this.gainNode.connect(this.ctx.destination);
+    // Route to same output as engine (MediaStreamDest or ctx.destination)
+    this.gainNode.connect(outputNode || this.ctx.destination);
   }
 
   setVolume(v) {

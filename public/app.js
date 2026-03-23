@@ -464,7 +464,7 @@
 
     // Init music player on same audio context and preload
     if (!musicPlayer.ctx) {
-      musicPlayer.init(engine.ctx);
+      musicPlayer.init(engine.ctx, engine.getOutputNode());
     }
     musicPlayer.setEnabled(state.settings.musicEnabled !== false);
     musicPlayer.setVolume((state.settings.musicVolume ?? 30) / 100);
@@ -947,7 +947,7 @@
 
     // Init music BEFORE starting phases so onPhaseChange can use it
     if (!musicPlayer.ctx) {
-      musicPlayer.init(engine.ctx);
+      musicPlayer.init(engine.ctx, engine.getOutputNode());
     }
     musicPlayer.setVolume(state.settings.musicVolume != null ? state.settings.musicVolume / 100 : 0.3);
     musicPlayer.setEnabled(state.settings.musicEnabled !== false);
