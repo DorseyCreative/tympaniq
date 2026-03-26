@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=13">
+  <link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body>
   <div id="app">
@@ -181,6 +181,23 @@
           <span class="stat-value" id="stat-week">0/7</span>
           <span class="stat-label">This Week</span>
         </div>
+      </div>
+    </div>
+
+    <!-- Session End Overlay -->
+    <div id="session-end-overlay" class="session-end-overlay">
+      <div class="session-end-content">
+        <div class="session-end-icon">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="24" cy="24" r="20"/><path d="M16 24l5 5 11-11"/></svg>
+        </div>
+        <h2 class="session-end-title">Session Complete</h2>
+        <p class="session-end-text" id="session-end-text"></p>
+        <div class="session-end-wave" id="session-end-wave">
+          <div class="sew-bar"></div><div class="sew-bar"></div><div class="sew-bar"></div>
+          <div class="sew-bar"></div><div class="sew-bar"></div><div class="sew-bar"></div>
+          <div class="sew-bar"></div>
+        </div>
+        <button class="session-end-skip" id="session-end-skip">Skip</button>
       </div>
     </div>
 
@@ -681,8 +698,8 @@
   </div>
 
   <script src="https://js.stripe.com/v3/" async></script>
-  <script src="audio-engine.js?v=13"></script>
-  <script src="app.js?v=13"></script>
+  <script src="audio-engine.js?v=14"></script>
+  <script src="app.js?v=14"></script>
   <script>
     if ('serviceWorker' in navigator) {
       if (!localStorage.getItem('tiq_sw_v12')) {

@@ -1,14 +1,19 @@
-const CACHE_NAME = 'tympaniq-v13';
+const CACHE_NAME = 'tympaniq-v14';
 const ASSETS = [
   '/',
   '/index.html',
-  '/styles.css?v=13',
-  '/audio-engine.js?v=13',
-  '/app.js?v=13',
+  '/styles.css?v=14',
+  '/audio-engine.js?v=14',
+  '/app.js?v=14',
   '/manifest.json',
   '/music/broadband-enrichment.mp3',
   '/music/alpha-binaural.mp3',
-  '/music/mixed-enrichment.mp3'
+  '/music/mixed-enrichment.mp3',
+  '/audio/voice/session-end-1.mp3',
+  '/audio/voice/session-end-2.mp3',
+  '/audio/voice/session-end-3.mp3',
+  '/audio/voice/session-end-4.mp3',
+  '/audio/voice/session-end-5.mp3'
 ];
 
 self.addEventListener('install', e => {

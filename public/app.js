@@ -92,6 +92,67 @@
     ],
   };
 
+  // Session-end voice messages (River voice, ElevenLabs)
+  const sessionEndMessages = [
+    { audio: 'audio/voice/session-end-1.mp3', text: 'Session complete. Pay attention today to the sounds around you that you usually avoid. You should notice decreased sensitivities as you continue your sessions with TympanIQ. Happy hearing.' },
+    { audio: 'audio/voice/session-end-2.mp3', text: 'Great session. Over the next few hours, notice how everyday sounds feel a little different, a little softer. That\u2019s your auditory system recalibrating. See you next time.' },
+    { audio: 'audio/voice/session-end-3.mp3', text: 'You just gave your ears a real workout. As you go about your day, pay attention to sounds that used to bother you. They may surprise you. Keep it up.' },
+    { audio: 'audio/voice/session-end-4.mp3', text: 'Session done. Your auditory reflexes just got a little stronger. Try to give your ears a few quiet minutes before jumping back into noise. Happy hearing.' },
+    { audio: 'audio/voice/session-end-5.mp3', text: 'That\u2019s a wrap. Each session builds on the last. Consistency is everything. Notice how the world sounds today, and come back tomorrow. Your ears will thank you.' },
+  ];
+  let sessionEndAudio = null;
+
+  function playSessionEndMessage(onDone) {
+    const overlay = document.getElementById('session-end-overlay');
+    const textEl = document.getElementById('session-end-text');
+    const waveEl = document.getElementById('session-end-wave');
+    const skipBtn = document.getElementById('session-end-skip');
+
+    // Pick a random message, avoid repeating last
+    const lastIdx = parseInt(localStorage.getItem('tiq_lastEndMsg') || '-1');
+    let idx;
+    do { idx = Math.floor(Math.random() * sessionEndMessages.length); } while (idx === lastIdx && sessionEndMessages.length > 1);
+    localStorage.setItem('tiq_lastEndMsg', String(idx));
+
+    const msg = sessionEndMessages[idx];
+    textEl.textContent = msg.text;
+    waveEl.classList.remove('paused');
+
+    // Show overlay
+    overlay.style.display = 'flex';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => overlay.classList.add('active', 'fade-in'));
+    });
+
+    // Play audio
+    if (sessionEndAudio) { sessionEndAudio.pause(); sessionEndAudio = null; }
+    sessionEndAudio = new Audio(msg.audio);
+
+    function closeOverlay() {
+      waveEl.classList.add('paused');
+      overlay.classList.remove('fade-in');
+      setTimeout(() => {
+        overlay.classList.remove('active');
+        overlay.style.display = 'none';
+        if (sessionEndAudio) { sessionEndAudio.pause(); sessionEndAudio = null; }
+        if (onDone) onDone();
+      }, 400);
+    }
+
+    sessionEndAudio.addEventListener('ended', closeOverlay);
+    sessionEndAudio.play().catch(() => {
+      // If autoplay blocked, still show text, close after 6s
+      setTimeout(closeOverlay, 6000);
+    });
+
+    // Skip button
+    const handler = () => {
+      skipBtn.removeEventListener('click', handler);
+      closeOverlay();
+    };
+    skipBtn.addEventListener('click', handler);
+  }
+
   // Insight carousel state
   let shownInsights = {};
   let insightRotationTimer = null;
@@ -683,6 +744,7 @@
 
     engine.onComplete = (completed, elapsed) => {
       musicPlayer.stop();
+      stopInsightRotation();
       if (completed) {
         state.sessions.push({
           mode: currentMode,
@@ -691,12 +753,19 @@
           timestamp: Date.now()
         });
         saveState();
+        // Play voice message, then go to dashboard
+        playSessionEndMessage(() => {
+          document.getElementById('icon-play').style.display = 'block';
+          document.getElementById('icon-pause').style.display = 'none';
+          showScreen('screen-dashboard');
+          updateDashboard();
+        });
+      } else {
+        document.getElementById('icon-play').style.display = 'block';
+        document.getElementById('icon-pause').style.display = 'none';
+        showScreen('screen-dashboard');
+        updateDashboard();
       }
-      document.getElementById('icon-play').style.display = 'block';
-      document.getElementById('icon-pause').style.display = 'none';
-      stopInsightRotation();
-      showScreen('screen-dashboard');
-      updateDashboard();
     };
 
     engine.setVolume(parseInt(document.getElementById('volume-slider').value) / 100);
@@ -1138,20 +1207,24 @@
     setupPlayerCallbacks();
 
     engine.onComplete = (completed, elapsed) => {
-      document.getElementById('icon-play').style.display = 'block';
-      document.getElementById('icon-pause').style.display = 'none';
       stopVisualizer();
       stopInsightRotation();
       musicPlayer.stop();
 
       if (completed) {
-        // Trial finished — increment count and show paywall
+        // Trial finished — play voice message, then show paywall
         const count = store.get('trialCount', 0) + 1;
         store.set('trialCount', count);
-        showScreen('screen-dashboard');
-        updateDashboard();
-        setTimeout(() => showPaywall(), 400);
+        playSessionEndMessage(() => {
+          document.getElementById('icon-play').style.display = 'block';
+          document.getElementById('icon-pause').style.display = 'none';
+          showScreen('screen-dashboard');
+          updateDashboard();
+          setTimeout(() => showPaywall(), 400);
+        });
       } else {
+        document.getElementById('icon-play').style.display = 'block';
+        document.getElementById('icon-pause').style.display = 'none';
         showScreen('screen-dashboard');
         updateDashboard();
       }
