@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TympanIQ — Session Card Styles</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a1a;
+    --surface: rgba(255,255,255,0.04);
+    --accent: #6366f1;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 24px 16px 80px;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+  h1 { text-align: center; font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  .sub { text-align: center; font-size: 11px; opacity: 0.3; margin-bottom: 32px; }
+  .section {
+    margin-bottom: 40px;
+  }
+  .section-title {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+    color: #7c3aed; margin-bottom: 14px; padding-left: 4px;
+  }
+
+  /* ========== STYLE A: Minimal List ========== */
+  .sa-card {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .sa-card:hover { border-color: rgba(99,102,241,0.2); }
+  .sa-card.sa-rec { border-color: rgba(99,102,241,0.15); background: linear-gradient(135deg, var(--surface), rgba(99,102,241,0.04)); }
+  .sa-orb {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; position: relative;
+  }
+  .sa-orb::after {
+    content: ''; position: absolute; inset: 0; border-radius: 50%;
+    border: 1.5px solid currentColor; opacity: 0.15;
+    animation: saOrbPulse 3s ease-in-out infinite;
+  }
+  @keyframes saOrbPulse { 0%,100% { transform: scale(1); opacity: 0.15; } 50% { transform: scale(1.15); opacity: 0.3; } }
+  .sa-orb-q { color: #22c55e; background: rgba(34,197,94,0.08); }
+  .sa-orb-d { color: #6366f1; background: rgba(99,102,241,0.08); }
+  .sa-orb-p { color: #06b6d4; background: rgba(6,182,212,0.08); }
+  .sa-orb svg { width: 20px; height: 20px; }
+  .sa-info { flex: 1; }
+  .sa-info h3 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .sa-info p { font-size: 11px; color: rgba(255,255,255,0.35); }
+  .sa-meta { text-align: right; flex-shrink: 0; }
+  .sa-time { font-size: 16px; font-weight: 700; }
+  .sa-time span { font-size: 10px; font-weight: 400; opacity: 0.4; }
+  .sa-badge {
+    font-size: 8px; text-transform: uppercase; letter-spacing: 1px;
+    padding: 2px 6px; border-radius: 4px; margin-top: 4px;
+    display: inline-block;
+  }
+  .sa-badge-rec { background: rgba(99,102,241,0.15); color: #a78bfa; }
+  .sa-badge-pro { background: rgba(6,182,212,0.1); color: #67e8f9; }
+
+  /* ========== STYLE B: Stacked Glassmorphism ========== */
+  .sb-card {
+    position: relative; padding: 20px;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 18px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .sb-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+  .sb-glow {
+    position: absolute; top: -40px; right: -40px;
+    width: 120px; height: 120px; border-radius: 50%;
+    filter: blur(40px); opacity: 0.12;
+  }
+  .sb-glow-q { background: #22c55e; }
+  .sb-glow-d { background: #6366f1; }
+  .sb-glow-p { background: #06b6d4; }
+  .sb-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .sb-top h3 { font-size: 17px; font-weight: 600; }
+  .sb-dur {
+    padding: 4px 10px; border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    font-size: 12px; font-weight: 600;
+    color: rgba(255,255,255,0.6);
+  }
+  .sb-card p { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; margin-bottom: 14px; }
+  .sb-bottom { display: flex; align-items: center; justify-content: space-between; }
+  .sb-phases { display: flex; gap: 6px; flex-wrap: wrap; }
+  .sb-phase {
+    padding: 3px 8px; border-radius: 6px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+    font-size: 10px; color: rgba(255,255,255,0.4);
+  }
+  .sb-play {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+  }
+  .sb-play svg { width: 14px; height: 14px; fill: white; }
+  .sb-play-q { background: rgba(34,197,94,0.2); }
+  .sb-play-q:hover { background: rgba(34,197,94,0.4); }
+  .sb-play-d { background: rgba(99,102,241,0.25); }
+  .sb-play-d:hover { background: rgba(99,102,241,0.45); }
+  .sb-play-p { background: rgba(6,182,212,0.2); }
+  .sb-play-p:hover { background: rgba(6,182,212,0.4); }
+  .sb-rec-ribbon {
+    position: absolute; top: 12px; right: -28px;
+    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    color: white; font-size: 8px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 32px;
+    transform: rotate(45deg);
+  }
+  .sb-pro-tag {
+    position: absolute; top: 10px; right: 12px;
+    display: flex; align-items: center; gap: 3px;
+    padding: 3px 8px; border-radius: 6px;
+    background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2);
+    font-size: 9px; font-weight: 700; color: #67e8f9;
+  }
+
+  /* ========== STYLE C: Timeline / Progression ========== */
+  .sc-wrap { position: relative; padding-left: 28px; }
+  .sc-line {
+    position: absolute; left: 10px; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(to bottom, rgba(34,197,94,0.3), rgba(99,102,241,0.3), rgba(6,182,212,0.3));
+    border-radius: 1px;
+  }
+  .sc-card {
+    position: relative; padding: 16px 18px;
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .sc-card:hover { border-color: rgba(255,255,255,0.1); }
+  .sc-node {
+    position: absolute; left: -22px; top: 20px;
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid; background: var(--bg);
+  }
+  .sc-node-q { border-color: #22c55e; }
+  .sc-node-d { border-color: #6366f1; box-shadow: 0 0 8px rgba(99,102,241,0.4); background: rgba(99,102,241,0.2); }
+  .sc-node-p { border-color: #06b6d4; }
+  .sc-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .sc-card-top h3 { font-size: 14px; font-weight: 600; }
+  .sc-card-time { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4); }
+  .sc-card p { font-size: 11px; color: rgba(255,255,255,0.35); line-height: 1.5; margin-bottom: 10px; }
+  .sc-card-foot { display: flex; justify-content: space-between; align-items: center; }
+  .sc-card-phases { display: flex; gap: 4px; }
+  .sc-card-phase {
+    width: 6px; height: 6px; border-radius: 50%; opacity: 0.5;
+  }
+  .sc-card-btn {
+    padding: 6px 14px; border-radius: 8px; border: none;
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    color: white; transition: all 0.15s;
+  }
+  .sc-btn-q { background: rgba(34,197,94,0.2); }
+  .sc-btn-q:hover { background: rgba(34,197,94,0.35); }
+  .sc-btn-d { background: rgba(99,102,241,0.25); }
+  .sc-btn-d:hover { background: rgba(99,102,241,0.4); }
+  .sc-btn-p { background: rgba(6,182,212,0.15); color: rgba(255,255,255,0.5); }
+  .sc-label-prog {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 1px;
+    color: rgba(255,255,255,0.2); margin-bottom: 8px;
+  }
+
+  /* ========== STYLE D: Big Hero Card + Small Pills ========== */
+  .sd-hero {
+    position: relative; padding: 28px 22px;
+    background: linear-gradient(160deg, rgba(99,102,241,0.08), rgba(6,182,212,0.04));
+    border: 1px solid rgba(99,102,241,0.15);
+    border-radius: 20px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .sd-hero:hover { transform: translateY(-2px); }
+  .sd-hero-glow {
+    position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%);
+    width: 200px; height: 100px; border-radius: 50%;
+    background: rgba(99,102,241,0.15); filter: blur(50px);
+  }
+  .sd-hero-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+    color: #a78bfa; margin-bottom: 8px; position: relative;
+  }
+  .sd-hero h3 {
+    font-size: 22px; font-weight: 700; margin-bottom: 6px; position: relative;
+    background: linear-gradient(135deg, #e2e8f0, #a78bfa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .sd-hero p { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; margin-bottom: 16px; position: relative; }
+  .sd-hero-meta {
+    display: flex; align-items: center; gap: 16px; position: relative;
+  }
+  .sd-hero-time { font-size: 28px; font-weight: 200; color: rgba(255,255,255,0.7); }
+  .sd-hero-time span { font-size: 12px; opacity: 0.5; }
+  .sd-hero-phases { display: flex; gap: 4px; flex-wrap: wrap; }
+  .sd-hero-phase {
+    padding: 3px 10px; border-radius: 6px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+    font-size: 10px; color: rgba(255,255,255,0.5);
+  }
+  .sd-hero-btn {
+    margin-left: auto; padding: 10px 22px; border-radius: 12px;
+    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    border: none; color: white; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .sd-hero-btn:hover { box-shadow: 0 4px 16px rgba(99,102,241,0.4); }
+  .sd-hero-btn svg { width: 14px; height: 14px; fill: white; }
+
+  .sd-pills { display: flex; gap: 10px; }
+  .sd-pill {
+    flex: 1; padding: 14px;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
+    text-align: center; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .sd-pill:hover { border-color: rgba(255,255,255,0.1); }
+  .sd-pill-time { font-size: 20px; font-weight: 700; color: rgba(255,255,255,0.7); }
+  .sd-pill-time span { font-size: 10px; font-weight: 400; opacity: 0.4; }
+  .sd-pill h4 { font-size: 12px; font-weight: 600; margin: 6px 0 2px; }
+  .sd-pill p { font-size: 10px; color: rgba(255,255,255,0.3); }
+  .sd-pill-pro {
+    position: relative; overflow: hidden;
+  }
+  .sd-pill-pro::after {
+    content: 'PRO'; position: absolute; top: 6px; right: 6px;
+    font-size: 8px; font-weight: 700; letter-spacing: 1px;
+    padding: 2px 5px; border-radius: 4px;
+    background: rgba(6,182,212,0.12); color: #67e8f9;
+  }
+
+  /* ========== STYLE E: Swipeable Carousel Feel ========== */
+  .se-scroll {
+    display: flex; gap: 12px;
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 0 16px;
+    -ms-overflow-style: none; scrollbar-width: none;
+  }
+  .se-scroll::-webkit-scrollbar { display: none; }
+  .se-card {
+    flex: 0 0 260px; scroll-snap-align: start;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 18px;
+    display: flex; flex-direction: column;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .se-card:hover { border-color: rgba(255,255,255,0.12); }
+  .se-card-head {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .se-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .se-dot-q { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+  .se-dot-d { background: #6366f1; box-shadow: 0 0 8px rgba(99,102,241,0.4); }
+  .se-dot-p { background: #06b6d4; box-shadow: 0 0 8px rgba(6,182,212,0.4); }
+  .se-card-head h3 { font-size: 15px; font-weight: 600; flex: 1; }
+  .se-card-head .se-dur {
+    font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.4);
+  }
+  .se-card p {
+    font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.5;
+    flex: 1; margin-bottom: 14px;
+  }
+  .se-card-phases { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 14px; }
+  .se-card-phase {
+    padding: 3px 8px; border-radius: 6px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+    font-size: 10px; color: rgba(255,255,255,0.35);
+  }
+  .se-btn {
+    width: 100%; padding: 10px; border-radius: 10px; border: none;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    color: white; transition: all 0.15s;
+  }
+  .se-btn svg { width: 12px; height: 12px; fill: white; }
+  .se-btn-q { background: rgba(34,197,94,0.15); }
+  .se-btn-q:hover { background: rgba(34,197,94,0.3); }
+  .se-btn-d { background: rgba(99,102,241,0.2); }
+  .se-btn-d:hover { background: rgba(99,102,241,0.35); }
+  .se-btn-p { background: rgba(6,182,212,0.12); color: rgba(255,255,255,0.5); }
+  .se-pro-tag {
+    position: absolute; top: 10px; right: 12px;
+    padding: 2px 6px; border-radius: 4px;
+    background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2);
+    font-size: 8px; font-weight: 700; color: #67e8f9;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Session Card Styles</h1>
+<p class="sub">Pick a direction — tap to feel interactions</p>
+
+<!-- STYLE A -->
+<div class="section">
+  <div class="section-title">A — Minimal List Rows</div>
+  <div class="sa-card">
+    <div class="sa-orb sa-orb-q">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    </div>
+    <div class="sa-info"><h3>Quick Relief</h3><p>Pink noise + alpha binaural for immediate relaxation</p></div>
+    <div class="sa-meta"><div class="sa-time">10<span>m</span></div></div>
+  </div>
+  <div class="sa-card sa-rec">
+    <div class="sa-orb sa-orb-d">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    </div>
+    <div class="sa-info"><h3>Daily Training</h3><p>Frequency sweeps with rest intervals</p></div>
+    <div class="sa-meta"><div class="sa-time">20<span>m</span></div><span class="sa-badge sa-badge-rec">Popular</span></div>
+  </div>
+  <div class="sa-card" style="opacity:0.6">
+    <div class="sa-orb sa-orb-p">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div class="sa-info"><h3>Deep Conditioning</h3><p>Full protocol with ACRN + notched audio</p></div>
+    <div class="sa-meta"><div class="sa-time">30<span>m</span></div><span class="sa-badge sa-badge-pro">Pro</span></div>
+  </div>
+</div>
+
+<!-- STYLE B -->
+<div class="section">
+  <div class="section-title">B — Glassmorphism Cards</div>
+  <div class="sb-card">
+    <div class="sb-glow sb-glow-q"></div>
+    <div class="sb-top"><h3>Quick Relief</h3><div class="sb-dur">10 min</div></div>
+    <p>Pink noise + alpha binaural beats for immediate ear relaxation and stress reduction.</p>
+    <div class="sb-bottom">
+      <div class="sb-phases"><span class="sb-phase">Pink Noise</span><span class="sb-phase">10 Hz Alpha</span></div>
+      <button class="sb-play sb-play-q"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+    </div>
+  </div>
+  <div class="sb-card">
+    <div class="sb-glow sb-glow-d"></div>
+    <div class="sb-rec-ribbon">Popular</div>
+    <div class="sb-top"><h3>Daily Training</h3><div class="sb-dur">20 min</div></div>
+    <p>Graduated frequency sweeps with rest intervals to condition your acoustic reflexes.</p>
+    <div class="sb-bottom">
+      <div class="sb-phases"><span class="sb-phase">Sweeps</span><span class="sb-phase">Rest</span><span class="sb-phase">Binaural</span></div>
+      <button class="sb-play sb-play-d"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+    </div>
+  </div>
+  <div class="sb-card" style="opacity:0.65">
+    <div class="sb-glow sb-glow-p"></div>
+    <div class="sb-pro-tag">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      PRO
+    </div>
+    <div class="sb-top"><h3>Deep Conditioning</h3><div class="sb-dur">30 min</div></div>
+    <p>Full protocol: notched audio, ACRN neuromodulation, and structured recovery.</p>
+    <div class="sb-bottom">
+      <div class="sb-phases"><span class="sb-phase">Full Protocol</span><span class="sb-phase">Notched</span><span class="sb-phase">ACRN</span></div>
+      <button class="sb-play sb-play-p"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- STYLE C -->
+<div class="section">
+  <div class="section-title">C — Timeline Progression</div>
+  <div class="sc-wrap">
+    <div class="sc-line"></div>
+    <div class="sc-label-prog">Your Journey</div>
+    <div class="sc-card">
+      <div class="sc-node sc-node-q"></div>
+      <div class="sc-card-top"><h3>Quick Relief</h3><span class="sc-card-time">10 min</span></div>
+      <p>Pink noise + alpha binaural for immediate relaxation.</p>
+      <div class="sc-card-foot">
+        <div class="sc-card-phases">
+          <span class="sc-card-phase" style="background:#22c55e"></span>
+          <span class="sc-card-phase" style="background:#22c55e"></span>
+        </div>
+        <button class="sc-card-btn sc-btn-q">Begin</button>
+      </div>
+    </div>
+    <div class="sc-card" style="border-color: rgba(99,102,241,0.15);">
+      <div class="sc-node sc-node-d"></div>
+      <div class="sc-card-top"><h3>Daily Training</h3><span class="sc-card-time">20 min</span></div>
+      <p>Frequency sweeps with rest intervals for reflex conditioning.</p>
+      <div class="sc-card-foot">
+        <div class="sc-card-phases">
+          <span class="sc-card-phase" style="background:#6366f1"></span>
+          <span class="sc-card-phase" style="background:#6366f1"></span>
+          <span class="sc-card-phase" style="background:#6366f1"></span>
+          <span class="sc-card-phase" style="background:#6366f1"></span>
+        </div>
+        <button class="sc-card-btn sc-btn-d">Begin</button>
+      </div>
+    </div>
+    <div class="sc-card" style="opacity:0.55">
+      <div class="sc-node sc-node-p"></div>
+      <div class="sc-card-top"><h3>Deep Conditioning</h3><span class="sc-card-time">30 min</span></div>
+      <p>Full therapeutic protocol with ACRN and notched audio.</p>
+      <div class="sc-card-foot">
+        <div class="sc-card-phases">
+          <span class="sc-card-phase" style="background:#06b6d4"></span>
+          <span class="sc-card-phase" style="background:#06b6d4"></span>
+          <span class="sc-card-phase" style="background:#06b6d4"></span>
+          <span class="sc-card-phase" style="background:#06b6d4"></span>
+          <span class="sc-card-phase" style="background:#06b6d4"></span>
+          <span class="sc-card-phase" style="background:#06b6d4"></span>
+        </div>
+        <button class="sc-card-btn sc-btn-p">Unlock</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STYLE D -->
+<div class="section">
+  <div class="section-title">D — Hero Card + Pills</div>
+  <div class="sd-hero">
+    <div class="sd-hero-glow"></div>
+    <div class="sd-hero-label">Recommended Session</div>
+    <h3>Daily Training</h3>
+    <p>Graduated frequency sweeps with rest intervals to condition your acoustic reflex pathways.</p>
+    <div class="sd-hero-meta">
+      <div class="sd-hero-time">20<span> min</span></div>
+      <div class="sd-hero-phases">
+        <span class="sd-hero-phase">Sweeps</span>
+        <span class="sd-hero-phase">Rest</span>
+        <span class="sd-hero-phase">Binaural</span>
+      </div>
+      <button class="sd-hero-btn">
+        <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Start
+      </button>
+    </div>
+  </div>
+  <div class="sd-pills">
+    <div class="sd-pill">
+      <div class="sd-pill-time">10<span>m</span></div>
+      <h4>Quick Relief</h4>
+      <p>Fast relaxation</p>
+    </div>
+    <div class="sd-pill sd-pill-pro">
+      <div class="sd-pill-time">30<span>m</span></div>
+      <h4>Deep Protocol</h4>
+      <p>Full therapy</p>
+    </div>
+  </div>
+</div>
+
+<!-- STYLE E -->
+<div class="section">
+  <div class="section-title">E — Swipeable Carousel</div>
+  <div class="se-scroll">
+    <div class="se-card">
+      <div class="se-card-head">
+        <span class="se-dot se-dot-q"></span>
+        <h3>Quick Relief</h3>
+        <span class="se-dur">10 min</span>
+      </div>
+      <p>Pink noise + alpha binaural beats for immediate ear relaxation and stress reduction.</p>
+      <div class="se-card-phases">
+        <span class="se-card-phase">Pink Noise</span><span class="se-card-phase">10 Hz Alpha</span>
+      </div>
+      <button class="se-btn se-btn-q"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Session</button>
+    </div>
+    <div class="se-card" style="border-color: rgba(99,102,241,0.15);">
+      <div class="se-card-head">
+        <span class="se-dot se-dot-d"></span>
+        <h3>Daily Training</h3>
+        <span class="se-dur">20 min</span>
+      </div>
+      <p>Graduated frequency sweeps with rest intervals to condition your acoustic reflexes.</p>
+      <div class="se-card-phases">
+        <span class="se-card-phase">Sweeps</span><span class="se-card-phase">Rest</span><span class="se-card-phase">Binaural</span>
+      </div>
+      <button class="se-btn se-btn-d"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Session</button>
+    </div>
+    <div class="se-card" style="opacity:0.65">
+      <div class="se-pro-tag">PRO</div>
+      <div class="se-card-head">
+        <span class="se-dot se-dot-p"></span>
+        <h3>Deep Conditioning</h3>
+        <span class="se-dur">30 min</span>
+      </div>
+      <p>Full protocol: notched audio, ACRN neuromodulation, and structured recovery.</p>
+      <div class="se-card-phases">
+        <span class="se-card-phase">Full Protocol</span><span class="se-card-phase">Notched</span><span class="se-card-phase">ACRN</span>
+      </div>
+      <button class="se-btn se-btn-p"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Unlock Pro</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
