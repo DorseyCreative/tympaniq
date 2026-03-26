@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="stylesheet" href="styles.css?v=13">
 </head>
 <body>
   <div id="app">
@@ -36,7 +36,7 @@
           </svg>
         </div>
         <h1 class="brand">TympanIQ</h1>
-        <p class="tagline">Sonic therapy for your ears.<br>Scientifically designed for headphone users.</p>
+        <p class="tagline">Sonic therapy for your ears.<br>Backed by audiology research.</p>
         <button id="btn-get-started" class="btn-primary">Get Started</button>
         <p class="disclaimer">Not a medical device. Consult an audiologist for hearing concerns.</p>
       </div>
@@ -54,13 +54,13 @@
           <p>TympanIQ uses precisely calibrated sound frequencies to condition your auditory reflex pathways — the muscles that protect your inner ear from damage.</p>
           <div class="science-card">
             <h4>The Science</h4>
-            <p>Your tensor tympani and stapedius muscles contract to shield your cochlea from loud sounds. Prolonged headphone use fatigues these reflexes. Our protocol gently re-engages them.</p>
+            <p>Your tensor tympani and stapedius muscles contract to shield your cochlea from loud sounds. Noise exposure, aging, and stress can fatigue these reflexes. Our protocol gently re-engages them.</p>
           </div>
         </div>
         <div class="onboard-step" data-step="2">
           <div class="step-icon">&#x1f3a7;</div>
-          <h2>Optimized for AirPods</h2>
-          <p>Binaural beats require stereo separation. TympanIQ is calibrated for in-ear devices, accounting for the occlusion effect and proximity to the tympanic membrane.</p>
+          <h2>Best with Headphones</h2>
+          <p>Binaural beats require stereo separation to work. Any quality headphones or earbuds will deliver the full therapeutic effect.</p>
           <div class="volume-warning">
             <span class="warn-icon">&#x26a0;&#xfe0f;</span>
             <p>Always start at low volume. Therapy is delivered at safe levels (50-75 dB). If you feel discomfort, stop immediately.</p>
@@ -476,7 +476,7 @@
         </div>
         <div class="setting-group">
           <h3>About</h3>
-          <p class="about-text">TympanIQ v1.0 — Sonic ear therapy designed for headphone users. Based on peer-reviewed research in acoustic reflex conditioning, tinnitus retraining therapy, and auditory neuroscience.</p>
+          <p class="about-text">TympanIQ v1.0 — Sonic ear therapy for tinnitus relief, noise sensitivity, and auditory wellness. Based on peer-reviewed research in acoustic reflex conditioning, tinnitus retraining therapy, and auditory neuroscience.</p>
           <p class="about-text disclaimer-sm">This is not a medical device. It does not diagnose, treat, cure, or prevent any disease. Consult a healthcare professional for hearing concerns.</p>
         </div>
 
@@ -612,7 +612,7 @@
           </svg>
         </div>
         <h3 class="reminder-title">Before you begin</h3>
-        <p class="reminder-text">This session is designed for <strong>noise-cancelling headphones</strong> at about <strong>60% volume</strong>. Binaural beats need proper stereo separation to work.</p>
+        <p class="reminder-text">Use <strong>headphones or earbuds</strong> at a <strong>comfortable volume</strong>. Binaural beats need stereo separation to deliver the full therapeutic effect.</p>
         <p class="reminder-subtext">Results vary by individual. If you feel any discomfort, stop the session.</p>
         <button id="btn-begin-session" class="btn-primary reminder-begin">Begin Session</button>
       </div>
@@ -681,8 +681,8 @@
   </div>
 
   <script src="https://js.stripe.com/v3/" async></script>
-  <script src="audio-engine.js?v=12"></script>
-  <script src="app.js?v=12"></script>
+  <script src="audio-engine.js?v=13"></script>
+  <script src="app.js?v=13"></script>
   <script>
     if ('serviceWorker' in navigator) {
       if (!localStorage.getItem('tiq_sw_v12')) {
