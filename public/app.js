@@ -100,7 +100,21 @@
     { audio: 'audio/voice/session-end-4.mp3', text: 'Session done. Your auditory reflexes just got a little stronger. Try to give your ears a few quiet minutes before jumping back into noise. Happy hearing.' },
     { audio: 'audio/voice/session-end-5.mp3', text: 'That\u2019s a wrap. Each session builds on the last. Consistency is everything. Notice how the world sounds today, and come back tomorrow. Your ears will thank you.' },
   ];
-  let sessionEndAudio = null;
+  let sessionEndSource = null;
+  const voiceBuffers = {}; // pre-decoded AudioBuffers
+
+  // Preload all voice files into AudioBuffers using the engine's AudioContext
+  function preloadVoiceBuffers() {
+    if (!engine.ctx) return;
+    sessionEndMessages.forEach((msg, i) => {
+      if (voiceBuffers[i]) return;
+      fetch(msg.audio)
+        .then(r => r.arrayBuffer())
+        .then(buf => engine.ctx.decodeAudioData(buf))
+        .then(decoded => { voiceBuffers[i] = decoded; })
+        .catch(() => {});
+    });
+  }
 
   function playSessionEndMessage(onDone) {
     const overlay = document.getElementById('session-end-overlay');
@@ -124,26 +138,51 @@
       requestAnimationFrame(() => overlay.classList.add('active', 'fade-in'));
     });
 
-    // Play audio
-    if (sessionEndAudio) { sessionEndAudio.pause(); sessionEndAudio = null; }
-    sessionEndAudio = new Audio(msg.audio);
-
     function closeOverlay() {
       waveEl.classList.add('paused');
       overlay.classList.remove('fade-in');
       setTimeout(() => {
         overlay.classList.remove('active');
         overlay.style.display = 'none';
-        if (sessionEndAudio) { sessionEndAudio.pause(); sessionEndAudio = null; }
+        if (sessionEndSource) { try { sessionEndSource.stop(); } catch(e) {} sessionEndSource = null; }
         if (onDone) onDone();
       }, 400);
     }
 
-    sessionEndAudio.addEventListener('ended', closeOverlay);
-    sessionEndAudio.play().catch(() => {
-      // If autoplay blocked, still show text, close after 6s
-      setTimeout(closeOverlay, 6000);
-    });
+    // Stop any previous source
+    if (sessionEndSource) { try { sessionEndSource.stop(); } catch(e) {} sessionEndSource = null; }
+
+    // Resume AudioContext (it may have been suspended by stopSession)
+    const ctx = engine.ctx;
+    if (!ctx) { setTimeout(closeOverlay, 4000); return; }
+
+    const playBuffer = (buffer) => {
+      if (ctx.state === 'suspended') ctx.resume();
+      sessionEndSource = ctx.createBufferSource();
+      sessionEndSource.buffer = buffer;
+      sessionEndSource.connect(ctx.destination);
+      sessionEndSource.onended = closeOverlay;
+      sessionEndSource.start(0);
+    };
+
+    if (voiceBuffers[idx]) {
+      playBuffer(voiceBuffers[idx]);
+    } else {
+      // Fallback: fetch + decode on the fly
+      fetch(msg.audio)
+        .then(r => r.arrayBuffer())
+        .then(buf => ctx.decodeAudioData(buf))
+        .then(decoded => {
+          voiceBuffers[idx] = decoded;
+          playBuffer(decoded);
+        })
+        .catch(() => {
+          // Last resort: try HTML Audio element
+          const audio = new Audio(msg.audio);
+          audio.addEventListener('ended', closeOverlay);
+          audio.play().catch(() => setTimeout(closeOverlay, 6000));
+        });
+    }
 
     // Skip button
     const handler = () => {
@@ -730,6 +769,7 @@
     };
 
     setupPlayerCallbacks();
+    preloadVoiceBuffers();
 
     engine.onComplete = (completed, elapsed) => {
       musicPlayer.stop();
@@ -1355,6 +1395,7 @@
 
     // Reuse the same phase ring / insight / freq update callbacks from startPlayer
     setupPlayerCallbacks();
+    preloadVoiceBuffers();
 
     engine.onComplete = (completed, elapsed) => {
       stopVisualizer();
