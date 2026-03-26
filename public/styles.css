@@ -869,22 +869,24 @@ html, body {
   height: 120%;
   pointer-events: none;
   z-index: 3;
-  cursor: grab;
 }
-.phase-ring.seeking {
-  cursor: grabbing;
-}
-/* Seek dot on phase ring */
+/* Seek orb on phase ring */
 .seek-dot {
   pointer-events: all;
   cursor: grab;
-  transition: r 0.15s ease, filter 0.15s ease;
+  filter: drop-shadow(0 0 6px rgba(99,102,241,0.5));
+  transition: filter 0.2s ease;
 }
-.seek-dot:hover, .phase-ring.seeking .seek-dot {
+.seek-dot:hover {
+  filter: drop-shadow(0 0 12px rgba(99,102,241,0.8));
+  cursor: grab;
+}
+.viz-orb.seeking {
   cursor: grabbing;
 }
-.phase-ring.seeking .seek-dot {
-  filter: drop-shadow(0 0 8px rgba(99,102,241,0.7));
+.viz-orb.seeking .seek-dot {
+  filter: drop-shadow(0 0 16px rgba(99,102,241,1)) drop-shadow(0 0 4px white);
+  cursor: grabbing;
 }
 .phase-ring .seg-arc {
   transition: opacity 0.5s ease;
@@ -951,9 +953,8 @@ html, body {
   height: 38%;
   display: none;
   flex-direction: column;
-  padding: 0 20px calc(12px + var(--safe-bottom));
-  background: rgba(10, 10, 26, 0.96);
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 0 0 calc(12px + var(--safe-bottom));
+  background: transparent;
   transition: opacity 0.6s ease;
   overflow: hidden;
   box-sizing: border-box;
@@ -1016,7 +1017,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 0 4px;
+  padding: 10px 20px 4px;
   flex-shrink: 0;
 }
 .insight-section-title span {
@@ -1036,9 +1037,8 @@ html, body {
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  padding: 0 0 6px;
+  padding: 0 20px 6px;
   flex-shrink: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   margin-bottom: 2px;
 }
 
@@ -1118,8 +1118,8 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: center;
-  padding: 8px 16px;
+  align-items: stretch;
+  padding: 6px 0;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.7s ease, transform 0.7s ease;
@@ -1173,42 +1173,24 @@ html, body {
 
 .insight-body {
   font-size: 14px;
-  color: rgba(226, 232, 240, 0.85);
-  line-height: 1.75;
+  color: rgba(226, 232, 240, 0.75);
+  line-height: 1.8;
   letter-spacing: 0.01em;
-  text-align: center;
+  text-align: left;
   margin: 0 0 12px;
-  max-width: 520px;
-  padding: 16px 18px;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 24px rgba(0, 0, 0, 0.2);
+  padding: 8px 24px;
   position: relative;
-}
-.insight-body::before {
-  content: '\201C';
-  position: absolute;
-  top: 8px;
-  left: 14px;
-  font-size: 28px;
-  color: rgba(124, 58, 237, 0.25);
-  font-family: Georgia, serif;
-  line-height: 1;
 }
 
 .insight-citation {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
   padding: 6px 14px;
   background: rgba(124, 58, 237, 0.06);
   border: 1px solid rgba(124, 58, 237, 0.12);
   border-radius: 20px;
-  max-width: 520px;
+  margin: 0 24px;
   flex-shrink: 0;
   flex-wrap: wrap;
 }
@@ -2222,9 +2204,8 @@ select.setting-input { text-align: left; }
   .timer-text { font-size: 32px; margin: 2px 0 4px; }
   .player-content { gap: 6px; height: 54%; padding-top: calc(40px + var(--safe-top)); }
   .insight-panel { height: 36%; }
-  .insight-panel-header { padding: 6px 0 4px; }
-  .insight-body { font-size: 12px; line-height: 1.6; margin-bottom: 8px; padding: 12px 14px; }
-  .insight-body::before { font-size: 22px; top: 6px; left: 10px; }
+  .insight-panel-header { padding: 6px 20px 4px; }
+  .insight-body { font-size: 12px; line-height: 1.6; margin-bottom: 8px; padding: 6px 20px; }
   .insight-citation { padding: 6px 10px; }
   .insight-cite-tag { font-size: 10px; }
   .insight-cite-ref { font-size: 9px; }
@@ -2245,8 +2226,8 @@ select.setting-input { text-align: left; }
     margin-bottom: 40px;
   }
   .modal { align-items: center; }
-  .insight-panel { height: 38%; padding: 0 40px calc(16px + var(--safe-bottom)); }
-  .insight-body { font-size: 15px; max-width: 600px; padding: 20px 24px; }
+  .insight-panel { height: 38%; padding: 0 0 calc(16px + var(--safe-bottom)); }
+  .insight-body { font-size: 15px; padding: 10px 40px; }
   .insight-citation { max-width: 600px; }
   .viz-orb {
     width: min(50vw, 280px);

@@ -995,32 +995,32 @@
   // --- Phase Ring Seek / Scrub Transport ---
   (function initSeekRing() {
     const svg = document.getElementById('phase-ring');
+    const orbEl = document.querySelector('.viz-orb');
     let seeking = false;
     let seekDot = null;
-    const cx = 150, cy = 150, r = 130;
-    const startOffset = -Math.PI / 2; // 12 o'clock
+    let lastSeekElapsed = 0; // remember position during drag
+    const CX = 150, CY = 150, R = 130;
+    const START_ANGLE = -Math.PI / 2; // 12 o'clock
 
     function angleToElapsed(angle) {
-      // Normalize angle to 0..2π from 12 o'clock
-      let a = angle - startOffset;
+      let a = angle - START_ANGLE;
       if (a < 0) a += Math.PI * 2;
       if (a > Math.PI * 2) a -= Math.PI * 2;
       const fraction = a / (Math.PI * 2);
-      return Math.floor(fraction * (engine.totalDuration || 1));
+      return Math.max(0, Math.min(Math.floor(fraction * (engine.totalDuration || 1)), (engine.totalDuration || 1) - 1));
     }
 
     function elapsedToAngle(elapsed) {
-      const fraction = elapsed / (engine.totalDuration || 1);
-      return startOffset + fraction * Math.PI * 2;
+      return START_ANGLE + (elapsed / (engine.totalDuration || 1)) * Math.PI * 2;
     }
 
     function ensureSeekDot() {
-      if (!seekDot) {
+      if (!seekDot || !svg.contains(seekDot)) {
         seekDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        seekDot.setAttribute('r', '7');
-        seekDot.setAttribute('fill', '#6366f1');
-        seekDot.setAttribute('stroke', 'white');
-        seekDot.setAttribute('stroke-width', '2');
+        seekDot.setAttribute('r', '9');
+        seekDot.setAttribute('fill', 'url(#grad-active)');
+        seekDot.setAttribute('stroke', 'rgba(255,255,255,0.9)');
+        seekDot.setAttribute('stroke-width', '2.5');
         seekDot.classList.add('seek-dot');
         svg.appendChild(seekDot);
       }
@@ -1030,126 +1030,100 @@
     function updateDotPosition(elapsed) {
       const dot = ensureSeekDot();
       const angle = elapsedToAngle(elapsed);
-      dot.setAttribute('cx', cx + r * Math.cos(angle));
-      dot.setAttribute('cy', cy + r * Math.sin(angle));
+      dot.setAttribute('cx', (CX + R * Math.cos(angle)).toFixed(2));
+      dot.setAttribute('cy', (CY + R * Math.sin(angle)).toFixed(2));
     }
 
-    // Keep dot synced with playback
-    const origOnTick = null;
-    let _wrappedTick = false;
-
-    function wrapOnTick() {
-      if (_wrappedTick) return;
-      _wrappedTick = true;
-      const intervalId = setInterval(() => {
+    // Sync dot with playback
+    let syncInterval = null;
+    function startDotSync() {
+      if (syncInterval) return;
+      syncInterval = setInterval(() => {
         if (!engine.isPlaying && !engine._paused) {
-          clearInterval(intervalId);
+          clearInterval(syncInterval);
+          syncInterval = null;
           if (seekDot) { seekDot.remove(); seekDot = null; }
-          _wrappedTick = false;
           return;
         }
         if (!seeking && engine.elapsed != null) {
           updateDotPosition(engine.elapsed);
         }
-      }, 250);
+      }, 200);
     }
 
-    function getAngleFromEvent(e) {
-      const pt = svg.getBoundingClientRect();
-      const svgW = pt.width;
-      const svgH = pt.height;
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      // Convert to SVG viewBox coords (0-300)
-      const x = ((clientX - pt.left) / svgW) * 300;
-      const y = ((clientY - pt.top) / svgH) * 300;
-      return Math.atan2(y - cy, x - cx);
+    // Convert screen coordinates to angle on the ring
+    function getAngleFromPointer(clientX, clientY) {
+      const rect = orbEl.getBoundingClientRect();
+      // orbEl center in screen coords
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      return Math.atan2(clientY - centerY, clientX - centerX);
+    }
+
+    function getClientCoords(e) {
+      if (e.touches && e.touches.length) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      if (e.changedTouches && e.changedTouches.length) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+      return { x: e.clientX, y: e.clientY };
+    }
+
+    function isNearRing(clientX, clientY) {
+      const rect = orbEl.getBoundingClientRect();
+      const dx = clientX - (rect.left + rect.width / 2);
+      const dy = clientY - (rect.top + rect.height / 2);
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const outerEdge = rect.width * 0.6; // phase ring extends to 120% of orb
+      const innerEdge = rect.width * 0.3;
+      return dist >= innerEdge && dist <= outerEdge;
     }
 
     function startSeek(e) {
       if (!engine.isPlaying && !engine._paused) return;
+      const coords = getClientCoords(e);
+      if (!isNearRing(coords.x, coords.y)) return;
       e.preventDefault();
       e.stopPropagation();
       seeking = true;
-      svg.classList.add('seeking');
-      svg.style.pointerEvents = 'all';
-      const angle = getAngleFromEvent(e);
-      const elapsed = angleToElapsed(angle);
-      updateDotPosition(elapsed);
+      orbEl.classList.add('seeking');
+      const angle = getAngleFromPointer(coords.x, coords.y);
+      lastSeekElapsed = angleToElapsed(angle);
+      updateDotPosition(lastSeekElapsed);
     }
 
     function moveSeek(e) {
       if (!seeking) return;
       e.preventDefault();
-      const angle = getAngleFromEvent(e);
-      const elapsed = angleToElapsed(angle);
-      updateDotPosition(elapsed);
-      // Update timer display live while scrubbing
-      const remaining = (engine.totalDuration || 0) - elapsed;
-      const mins = Math.floor(Math.max(0, remaining) / 60);
-      const secs = Math.max(0, remaining) % 60;
-      document.getElementById('timer-minutes').textContent = String(mins).padStart(2, '0');
-      document.getElementById('timer-seconds').textContent = String(secs).padStart(2, '0');
+      const coords = getClientCoords(e);
+      const angle = getAngleFromPointer(coords.x, coords.y);
+      lastSeekElapsed = angleToElapsed(angle);
+      updateDotPosition(lastSeekElapsed);
+      // Update timer live
+      const rem = Math.max(0, (engine.totalDuration || 0) - lastSeekElapsed);
+      document.getElementById('timer-minutes').textContent = String(Math.floor(rem / 60)).padStart(2, '0');
+      document.getElementById('timer-seconds').textContent = String(rem % 60).padStart(2, '0');
     }
 
     function endSeek(e) {
       if (!seeking) return;
       seeking = false;
-      svg.classList.remove('seeking');
-      const angle = getAngleFromEvent(e.changedTouches ? e : e);
-      // For touch end, use changedTouches
-      let finalAngle;
-      if (e.changedTouches && e.changedTouches.length) {
-        const pt = svg.getBoundingClientRect();
-        const x = ((e.changedTouches[0].clientX - pt.left) / pt.width) * 300;
-        const y = ((e.changedTouches[0].clientY - pt.top) / pt.height) * 300;
-        finalAngle = Math.atan2(y - cy, x - cx);
-      } else {
-        finalAngle = getAngleFromEvent(e);
-      }
-      const elapsed = angleToElapsed(finalAngle);
-      engine.seekTo(elapsed);
+      orbEl.classList.remove('seeking');
+      // Use stored position — touchend has no .touches
+      engine.seekTo(lastSeekElapsed);
     }
 
-    // Attach events — use the viz-orb container so the hit area is generous
-    const orbEl = document.querySelector('.viz-orb');
-
-    orbEl.addEventListener('mousedown', (e) => {
-      // Only trigger if click is near the ring edge (not center)
-      const rect = orbEl.getBoundingClientRect();
-      const dx = e.clientX - (rect.left + rect.width / 2);
-      const dy = e.clientY - (rect.top + rect.height / 2);
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const ringRadius = rect.width * 0.5; // outer edge
-      const innerThreshold = ringRadius * 0.55; // ignore clicks in center area
-      if (dist < innerThreshold) return;
-      startSeek(e);
-    });
-
-    orbEl.addEventListener('touchstart', (e) => {
-      const rect = orbEl.getBoundingClientRect();
-      const dx = e.touches[0].clientX - (rect.left + rect.width / 2);
-      const dy = e.touches[0].clientY - (rect.top + rect.height / 2);
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const ringRadius = rect.width * 0.5;
-      const innerThreshold = ringRadius * 0.55;
-      if (dist < innerThreshold) return;
-      startSeek(e);
-    }, { passive: false });
-
+    orbEl.addEventListener('mousedown', startSeek);
+    orbEl.addEventListener('touchstart', startSeek, { passive: false });
     document.addEventListener('mousemove', moveSeek);
     document.addEventListener('touchmove', moveSeek, { passive: false });
     document.addEventListener('mouseup', endSeek);
     document.addEventListener('touchend', endSeek);
 
-    // Auto-show dot once session starts
-    const origStart = startPlayer;
-    const checkDot = setInterval(() => {
-      if (engine.isPlaying && engine.totalDuration > 0) {
+    // Watch for session start to show dot
+    setInterval(() => {
+      if (engine.isPlaying && engine.totalDuration > 0 && !syncInterval) {
         ensureSeekDot();
-        wrapOnTick();
+        startDotSync();
       }
-    }, 1000);
+    }, 500);
   })();
 
   // --- Visualizer ---
@@ -1448,7 +1422,6 @@
     engine.isPlaying = true;
 
     let phaseIndex = 0;
-    let phaseElapsed = 0;
 
     const startPhase = (idx) => {
       if (idx >= trialProtocol.phases.length) {
@@ -1456,8 +1429,8 @@
         return;
       }
       phaseIndex = idx;
-      phaseElapsed = 0;
       engine.playPhase(trialProtocol.phases[idx]);
+      engine.currentPhase = trialProtocol.phases[idx];
     };
 
     if (engine.onPhaseProgress) {
@@ -1466,29 +1439,54 @@
 
     startPhase(0);
 
+    // Use AudioContext timing (same as full sessions) so seekTo works
+    engine._sessionStartTime = engine.ctx.currentTime;
+    engine._pauseOffset = 0;
+    engine._lastTickElapsed = -1;
+
     engine.sessionTimer = setInterval(() => {
       if (!engine.isPlaying) return;
-      engine.elapsed++;
-      phaseElapsed++;
 
-      if (engine.onTick) {
-        engine.onTick(trialProtocol.totalDuration - engine.elapsed, engine.elapsed, trialProtocol.totalDuration);
+      const realElapsed = Math.floor(engine.ctx.currentTime - engine._sessionStartTime + engine._pauseOffset);
+      if (realElapsed <= engine._lastTickElapsed) return;
+      engine._lastTickElapsed = realElapsed;
+      engine.elapsed = realElapsed;
+
+      // Determine current phase from elapsed
+      let accumulated = 0;
+      let currentPhaseIdx = 0;
+      for (let i = 0; i < trialProtocol.phases.length; i++) {
+        if (accumulated + trialProtocol.phases[i].duration > realElapsed) {
+          currentPhaseIdx = i;
+          break;
+        }
+        accumulated += trialProtocol.phases[i].duration;
+        currentPhaseIdx = i + 1;
       }
 
-      if (engine.onPhaseProgress) {
-        const phaseDuration = trialProtocol.phases[phaseIndex].duration;
-        engine.onPhaseProgress(phaseIndex, phaseElapsed / phaseDuration, trialProtocol.phases);
-      }
-
-      if (engine.elapsed >= trialProtocol.totalDuration) {
+      if (currentPhaseIdx >= trialProtocol.phases.length) {
         engine.stopSession(true);
         return;
       }
 
-      if (phaseElapsed >= trialProtocol.phases[phaseIndex].duration) {
-        startPhase(phaseIndex + 1);
+      if (currentPhaseIdx !== phaseIndex) {
+        startPhase(currentPhaseIdx);
+        if (engine.onPhaseChange) engine.onPhaseChange(trialProtocol.phases[currentPhaseIdx]);
       }
-    }, 1000);
+
+      const phaseElapsed = realElapsed - accumulated;
+
+      if (engine.onTick) {
+        engine.onTick(trialProtocol.totalDuration - realElapsed, realElapsed, trialProtocol.totalDuration);
+      }
+      if (engine.onPhaseProgress) {
+        engine.onPhaseProgress(currentPhaseIdx, phaseElapsed / trialProtocol.phases[currentPhaseIdx].duration, trialProtocol.phases);
+      }
+
+      if (realElapsed >= trialProtocol.totalDuration) {
+        engine.stopSession(true);
+      }
+    }, 250);
 
     analyser = engine.getAnalyserNode();
     startVisualizer();
