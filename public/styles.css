@@ -727,8 +727,9 @@ html, body {
   inset: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  padding: 0;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 16px;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.7s ease, transform 0.7s ease;
@@ -777,22 +778,42 @@ html, body {
 }
 
 .insight-body {
-  font-size: 15px;
-  color: rgba(232, 232, 240, 0.85);
-  line-height: 1.7;
+  font-size: 14px;
+  color: rgba(226, 232, 240, 0.85);
+  line-height: 1.75;
   letter-spacing: 0.01em;
-  margin: 0 0 14px;
+  text-align: center;
+  margin: 0 0 12px;
   max-width: 520px;
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 24px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+.insight-body::before {
+  content: '\201C';
+  position: absolute;
+  top: 8px;
+  left: 14px;
+  font-size: 28px;
+  color: rgba(124, 58, 237, 0.25);
+  font-family: Georgia, serif;
+  line-height: 1;
 }
 
 .insight-citation {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
+  padding: 6px 14px;
+  background: rgba(124, 58, 237, 0.06);
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  border-radius: 20px;
   max-width: 520px;
   flex-shrink: 0;
   flex-wrap: wrap;
@@ -1808,7 +1829,8 @@ select.setting-input { text-align: left; }
   .player-content { gap: 6px; height: 54%; padding-top: calc(40px + var(--safe-top)); }
   .insight-panel { height: 46%; }
   .insight-panel-header { padding: 10px 0 6px; }
-  .insight-body { font-size: 13px; line-height: 1.6; margin-bottom: 8px; }
+  .insight-body { font-size: 12px; line-height: 1.6; margin-bottom: 8px; padding: 12px 14px; }
+  .insight-body::before { font-size: 22px; top: 6px; left: 10px; }
   .insight-citation { padding: 6px 10px; }
   .insight-cite-tag { font-size: 10px; }
   .insight-cite-ref { font-size: 9px; }
@@ -1829,7 +1851,7 @@ select.setting-input { text-align: left; }
   }
   .modal { align-items: center; }
   .insight-panel { height: 44%; padding: 0 40px calc(16px + var(--safe-bottom)); }
-  .insight-body { font-size: 16px; max-width: 600px; }
+  .insight-body { font-size: 15px; max-width: 600px; padding: 20px 24px; }
   .insight-citation { max-width: 600px; }
   .viz-orb {
     width: min(50vw, 280px);
