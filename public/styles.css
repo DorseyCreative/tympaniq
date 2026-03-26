@@ -558,16 +558,12 @@ html, body {
   left: 0;
   right: 0;
   z-index: 5;
-  height: 44%;
+  height: 38%;
   display: none;
   flex-direction: column;
   padding: 0 20px calc(12px + var(--safe-bottom));
-  background: linear-gradient(to top,
-    rgba(10, 10, 26, 0.98) 0%,
-    rgba(10, 10, 26, 0.96) 70%,
-    rgba(10, 10, 26, 0.6) 90%,
-    transparent 100%
-  );
+  background: rgba(10, 10, 26, 0.96);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
   transition: opacity 0.6s ease;
   overflow: hidden;
   box-sizing: border-box;
@@ -577,47 +573,57 @@ html, body {
 }
 
 
-.therapy-banner {
-  display: flex;
-  align-items: flex-start;
+/* Therapy ticker — smooth scrolling banner above insight panel */
+.therapy-ticker {
+  display: none;
+  align-items: center;
   gap: 8px;
-  padding: 10px 12px;
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px solid rgba(99, 102, 241, 0.15);
-  border-radius: 10px;
-  margin: 10px 0 6px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.06), rgba(6, 182, 212, 0.04));
+  border-top: 1px solid rgba(99, 102, 241, 0.1);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+  overflow: hidden;
   flex-shrink: 0;
-  animation: therapyFadeIn 0.8s ease;
 }
-@keyframes therapyFadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+#screen-player.active .therapy-ticker { display: flex; }
 .therapy-pulse {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--accent);
   flex-shrink: 0;
-  margin-top: 4px;
   animation: therapyPulse 2.5s ease-in-out infinite;
 }
 @keyframes therapyPulse {
   0%, 100% { opacity: 0.4; box-shadow: 0 0 4px rgba(99, 102, 241, 0.2); }
   50% { opacity: 1; box-shadow: 0 0 10px rgba(99, 102, 241, 0.5); }
 }
-.therapy-text {
+.therapy-ticker-track {
+  flex: 1;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+.therapy-ticker-text {
   font-size: 11px;
-  color: rgba(200, 200, 220, 0.7);
-  line-height: 1.5;
+  color: rgba(200, 200, 220, 0.6);
+  line-height: 1.4;
   margin: 0;
+  white-space: nowrap;
+  animation: tickerScroll 20s linear infinite;
+  display: inline-block;
+  padding-left: 100%;
+}
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
 }
 
 .insight-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0 8px;
+  padding: 8px 0 6px;
   flex-shrink: 0;
 }
 
@@ -729,13 +735,15 @@ html, body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 12px 16px;
+  padding: 8px 16px;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.7s ease, transform 0.7s ease;
   pointer-events: none;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .insight-slide.active {
@@ -1827,8 +1835,8 @@ select.setting-input { text-align: left; }
   }
   .timer-text { font-size: 32px; margin: 2px 0 4px; }
   .player-content { gap: 6px; height: 54%; padding-top: calc(40px + var(--safe-top)); }
-  .insight-panel { height: 46%; }
-  .insight-panel-header { padding: 10px 0 6px; }
+  .insight-panel { height: 36%; }
+  .insight-panel-header { padding: 6px 0 4px; }
   .insight-body { font-size: 12px; line-height: 1.6; margin-bottom: 8px; padding: 12px 14px; }
   .insight-body::before { font-size: 22px; top: 6px; left: 10px; }
   .insight-citation { padding: 6px 10px; }
@@ -1850,7 +1858,7 @@ select.setting-input { text-align: left; }
     margin-bottom: 40px;
   }
   .modal { align-items: center; }
-  .insight-panel { height: 44%; padding: 0 40px calc(16px + var(--safe-bottom)); }
+  .insight-panel { height: 38%; padding: 0 40px calc(16px + var(--safe-bottom)); }
   .insight-body { font-size: 15px; max-width: 600px; padding: 20px 24px; }
   .insight-citation { max-width: 600px; }
   .viz-orb {

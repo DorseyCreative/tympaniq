@@ -944,9 +944,10 @@
       if (therapyText && banner && bannerText) {
         bannerText.textContent = therapyText;
         banner.style.display = 'flex';
-        banner.style.animation = 'none';
-        banner.offsetHeight; // reflow
-        banner.style.animation = '';
+        // Restart ticker scroll animation
+        bannerText.style.animation = 'none';
+        bannerText.offsetHeight; // reflow
+        bannerText.style.animation = '';
       } else if (banner) {
         banner.style.display = 'none';
       }
