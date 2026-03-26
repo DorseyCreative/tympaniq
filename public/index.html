@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=16">
 </head>
 <body>
   <div id="app">
@@ -463,22 +463,16 @@
 
       <!-- Insight Panel — bottom section of player -->
       <div class="insight-panel" id="phase-explainer">
+        <div class="insight-section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="insight-section-icon"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>Why You're Here</span>
+        </div>
         <div class="insight-panel-header">
-          <div class="insight-section-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="insight-section-icon"><path d="M12 6.25v11.5M7.75 10.75l4.25-4.5 4.25 4.5"/><circle cx="12" cy="12" r="10"/></svg>
-            <span>Why You're Here</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <div class="insight-phase-badge" id="insight-phase-badge">
-              <span class="insight-phase-dot"></span>
-              <span class="insight-phase-name" id="insight-phase-name">Broadband Enrichment</span>
-            </div>
-            <div class="insight-progress-dots" id="insight-progress-dots"></div>
-            <button class="insight-pause-btn" id="insight-pause-btn" title="Pause auto-rotation">
-              <svg id="insight-pause-icon" viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
-              <svg id="insight-play-icon" viewBox="0 0 24 24" fill="currentColor" width="12" height="12" style="display:none"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-            </button>
-          </div>
+          <div class="insight-progress-dots" id="insight-progress-dots"></div>
+          <button class="insight-pause-btn" id="insight-pause-btn" title="Pause auto-rotation">
+            <svg id="insight-pause-icon" viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+            <svg id="insight-play-icon" viewBox="0 0 24 24" fill="currentColor" width="12" height="12" style="display:none"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+          </button>
         </div>
         <div class="insight-carousel" id="insight-carousel">
           <div class="insight-tap insight-tap-left" id="insight-tap-left">
@@ -885,8 +879,8 @@
   </div>
 
   <script src="https://js.stripe.com/v3/" async></script>
-  <script src="audio-engine.js?v=15"></script>
-  <script src="app.js?v=15"></script>
+  <script src="audio-engine.js?v=16"></script>
+  <script src="app.js?v=16"></script>
   <script>
     if ('serviceWorker' in navigator) {
       if (!localStorage.getItem('tiq_sw_v12')) {

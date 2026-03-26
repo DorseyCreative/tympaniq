@@ -262,9 +262,6 @@
     currentInsightOrder = getInsightOrder(phaseName);
     currentInsightIdx = 0;
 
-    // Update phase badge
-    document.getElementById('insight-phase-name').textContent = phaseName;
-
     // Build dots
     buildProgressDots(currentInsightOrder.length);
 
@@ -476,18 +473,14 @@
     const trialBanner = document.getElementById('trial-banner');
     if (state.isPro) {
       const card = document.querySelector('.session-card[data-mode="deep"]');
-      card.classList.remove('locked');
+      card.classList.remove('locked', 'sc-locked');
       const badge = document.getElementById('lock-badge-deep');
       if (badge) badge.style.display = 'none';
       const btn = card.querySelector('.btn-start');
-      btn.textContent = 'Start Session';
-      btn.classList.remove('btn-pro');
+      if (btn) btn.classList.remove('btn-pro');
 
-      // Hide trial banner, reset button text
+      // Hide trial banner
       if (trialBanner) trialBanner.style.display = 'none';
-      document.querySelectorAll('.session-card:not([data-mode="deep"]) .btn-start').forEach(b => {
-        b.textContent = 'Start Session';
-      });
     } else {
       // Show trial banner
       const trialCount = store.get('trialCount', 0);
@@ -501,10 +494,6 @@
           text.textContent = 'Trial sessions used — upgrade for full access';
         }
       }
-      // Change button text for non-pro
-      document.querySelectorAll('.session-card:not([data-mode="deep"]) .btn-start').forEach(b => {
-        b.textContent = remaining > 0 ? 'Try Free' : 'Upgrade to Start';
-      });
     }
   }
 
@@ -1442,9 +1431,9 @@
     });
 
     // Session start buttons — show reminder first, trial for non-pro
-    document.querySelectorAll('.btn-start').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const mode = e.target.dataset.mode;
+    document.querySelectorAll('.session-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        const mode = card.dataset.mode;
         if (mode === 'deep' && !state.isPro) {
           showPaywall();
           return;
