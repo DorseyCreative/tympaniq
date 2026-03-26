@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TympanIQ — UI Showcase</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0a0a1a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 24px 16px 80px;
+  }
+  h1 { text-align: center; font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+  .subtitle { text-align: center; font-size: 13px; opacity: 0.5; margin-bottom: 40px; }
+  .section-title {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+    color: #7c3aed; margin: 48px 0 24px; text-align: center;
+  }
+  .grid {
+    display: grid; grid-template-columns: 1fr; gap: 32px;
+    max-width: 420px; margin: 0 auto;
+  }
+  .demo-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px; padding: 24px;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+  }
+  .demo-card h3 { font-size: 14px; font-weight: 500; opacity: 0.7; }
+  .demo-card p.desc { font-size: 11px; opacity: 0.35; text-align: center; line-height: 1.5; }
+
+  /* ========== COUNTDOWN 1: Circular Progress Ring ========== */
+  .ring-timer { position: relative; width: 160px; height: 160px; }
+  .ring-timer svg { transform: rotate(-90deg); }
+  .ring-timer circle {
+    fill: none; stroke-width: 4; stroke-linecap: round;
+  }
+  .ring-bg { stroke: rgba(255,255,255,0.06); }
+  .ring-progress {
+    stroke: url(#ringGrad);
+    stroke-dasharray: 452;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+    filter: drop-shadow(0 0 6px rgba(124,58,237,0.4));
+  }
+  .ring-time {
+    position: absolute; inset: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 32px; font-weight: 300;
+    letter-spacing: 2px;
+  }
+  .ring-label { font-size: 10px; opacity: 0.3; margin-top: -4px; }
+
+  /* ========== COUNTDOWN 2: Flip Clock ========== */
+  .flip-clock { display: flex; gap: 6px; align-items: center; }
+  .flip-unit { display: flex; gap: 2px; }
+  .flip-digit {
+    position: relative; width: 40px; height: 56px;
+    background: #1a1a2e; border-radius: 6px; overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .flip-digit .top, .flip-digit .bottom {
+    position: absolute; width: 100%; height: 50%; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .flip-digit .top { top: 0; border-bottom: 1px solid rgba(0,0,0,0.3); }
+  .flip-digit .bottom { bottom: 0; }
+  .flip-digit span {
+    font-size: 32px; font-weight: 600; color: #e2e8f0;
+    position: absolute;
+  }
+  .flip-digit .top span { top: 6px; }
+  .flip-digit .bottom span { bottom: 6px; }
+  .flip-sep { font-size: 28px; font-weight: 700; opacity: 0.3; animation: blinkSep 1s step-end infinite; }
+  @keyframes blinkSep { 50% { opacity: 0.08; } }
+  .flip-digit.flipping .top {
+    animation: flipTop 0.5s ease-in forwards;
+    transform-origin: bottom; perspective: 200px;
+  }
+  @keyframes flipTop {
+    0% { transform: rotateX(0); }
+    100% { transform: rotateX(-90deg); }
+  }
+
+  /* ========== COUNTDOWN 3: Gooey Morph ========== */
+  .gooey-wrap {
+    filter: contrast(15) brightness(1.5);
+    background: #0a0a1a;
+    width: 160px; height: 80px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 12px; overflow: hidden;
+  }
+  .gooey-num {
+    font-size: 56px; font-weight: 700; color: #e2e8f0;
+    filter: blur(1px);
+    transition: all 0.8s ease;
+  }
+  .gooey-num.morphing {
+    filter: blur(8px);
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+
+  /* ========== COUNTDOWN 4: Pulse + Hue ========== */
+  .pulse-timer {
+    font-size: 52px; font-weight: 200; letter-spacing: 4px;
+    animation: pulsebeat 1s ease-in-out infinite, hueShift 20s linear infinite;
+  }
+  @keyframes pulsebeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+  @keyframes hueShift {
+    from { filter: hue-rotate(0deg); color: #7c3aed; }
+    50% { filter: hue-rotate(60deg); color: #06b6d4; }
+    to { filter: hue-rotate(0deg); color: #7c3aed; }
+  }
+
+  /* ========== COUNTDOWN 5: Stroke-Drawn SVG ========== */
+  .stroke-timer { position: relative; width: 120px; height: 80px; }
+  .stroke-timer svg { width: 100%; height: 100%; }
+  .stroke-path {
+    fill: none; stroke: #06b6d4; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round;
+    filter: drop-shadow(0 0 4px rgba(6,182,212,0.5));
+  }
+  .stroke-path.drawing {
+    animation: drawStroke 0.8s ease forwards;
+  }
+  @keyframes drawStroke {
+    from { stroke-dashoffset: var(--len); }
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* ========== COUNTDOWN 6: Drum Roller ========== */
+  .drum-timer { display: flex; gap: 4px; align-items: center; }
+  .drum-col {
+    width: 36px; height: 48px; overflow: hidden;
+    background: rgba(255,255,255,0.04); border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .drum-strip {
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .drum-strip span {
+    display: block; width: 36px; height: 48px; line-height: 48px;
+    text-align: center; font-size: 24px; font-weight: 500;
+    color: #f0c674;
+  }
+  .drum-sep { font-size: 20px; opacity: 0.3; }
+
+  /* ========== COUNTDOWN 7: Segmented Arc ========== */
+  .arc-timer { position: relative; width: 160px; height: 160px; }
+  .arc-timer svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .arc-seg {
+    fill: none; stroke-width: 6; stroke-linecap: round;
+    transition: opacity 0.5s ease, stroke 0.3s;
+  }
+  .arc-seg.active { filter: drop-shadow(0 0 4px currentColor); }
+  .arc-seg.spent { opacity: 0.1; }
+  .arc-time {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .arc-time .big { font-size: 28px; font-weight: 300; }
+  .arc-time .small { font-size: 10px; opacity: 0.4; margin-top: 2px; }
+
+  /* ========== BLURB 1: Glassmorphism ========== */
+  .glass-card {
+    position: relative; width: 100%; padding: 20px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .glass-card .blurb-text { font-size: 14px; line-height: 1.7; font-weight: 300; }
+  .glass-card .cite { font-size: 11px; opacity: 0.35; margin-top: 10px; }
+  .glass-bg {
+    position: absolute; inset: -40px; z-index: -1;
+    background: radial-gradient(circle at 30% 50%, rgba(124,58,237,0.2), transparent 60%),
+                radial-gradient(circle at 70% 50%, rgba(6,182,212,0.15), transparent 60%);
+    animation: glassBgMove 8s ease-in-out infinite alternate;
+    filter: blur(30px);
+  }
+  @keyframes glassBgMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(10px, -10px); }
+  }
+
+  /* ========== BLURB 2: Aurora Border ========== */
+  .aurora-card {
+    position: relative; width: 100%; padding: 20px;
+    background: rgba(15,13,26,0.9);
+    border-radius: 14px; overflow: hidden;
+  }
+  .aurora-card::before {
+    content: ''; position: absolute; inset: -2px;
+    background: conic-gradient(from var(--aurora-angle, 0deg),
+      #7c3aed, #06b6d4, #7c3aed, #a855f7, #7c3aed);
+    border-radius: 16px; z-index: -1;
+    animation: auroraRotate 4s linear infinite;
+    filter: blur(4px);
+  }
+  @keyframes auroraRotate {
+    to { --aurora-angle: 360deg; }
+  }
+  @property --aurora-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  .aurora-card .blurb-text { font-size: 14px; line-height: 1.7; font-weight: 300; }
+  .aurora-card .cite { font-size: 11px; opacity: 0.35; margin-top: 10px; }
+
+  /* ========== BLURB 3: Spotlight Glow ========== */
+  .spotlight-card {
+    position: relative; width: 100%; padding: 20px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px; overflow: hidden;
+    cursor: pointer;
+  }
+  .spotlight-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(300px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(124,58,237,0.12), transparent 60%);
+    transition: opacity 0.3s;
+    opacity: 0;
+  }
+  .spotlight-card:hover::before,
+  .spotlight-card.touched::before { opacity: 1; }
+  .spotlight-card .blurb-text { position: relative; font-size: 14px; line-height: 1.7; font-weight: 300; }
+  .spotlight-card .cite { position: relative; font-size: 11px; opacity: 0.35; margin-top: 10px; }
+
+  /* ========== BLURB 4: Typewriter ========== */
+  .typewriter-card {
+    width: 100%; padding: 20px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+  }
+  .typewriter-text {
+    font-size: 14px; line-height: 1.7; font-weight: 300;
+    min-height: 72px;
+  }
+  .typewriter-cursor {
+    display: inline-block; width: 2px; height: 16px;
+    background: #7c3aed; vertical-align: text-bottom;
+    animation: twBlink 0.6s step-end infinite;
+  }
+  @keyframes twBlink { 50% { opacity: 0; } }
+
+  /* ========== BLURB 5: Text Roller ========== */
+  .roller-wrap {
+    width: 100%; height: 100px; overflow: hidden; position: relative;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    -webkit-mask-image: linear-gradient(transparent, black 15%, black 85%, transparent);
+    mask-image: linear-gradient(transparent, black 15%, black 85%, transparent);
+  }
+  .roller-strip {
+    animation: rollStrip 16s ease-in-out infinite;
+  }
+  .roller-item {
+    height: 100px; display: flex; align-items: center;
+    padding: 0 20px; font-size: 14px; line-height: 1.7; font-weight: 300;
+  }
+  @keyframes rollStrip {
+    0%, 20% { transform: translateY(0); }
+    25%, 45% { transform: translateY(-100px); }
+    50%, 70% { transform: translateY(-200px); }
+    75%, 95% { transform: translateY(-300px); }
+    100% { transform: translateY(0); }
+  }
+
+  /* ========== BLURB 6: Gradient Border Slide ========== */
+  .grad-card {
+    position: relative; width: 100%; padding: 20px;
+    background: #0f0d1a; border-radius: 14px; overflow: hidden;
+  }
+  .grad-card::before {
+    content: ''; position: absolute; inset: 0;
+    border-radius: 14px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(124,58,237,0.5), rgba(6,182,212,0.5), rgba(124,58,237,0.2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    background-size: 200% 200%;
+    animation: gradMove 3s ease-in-out infinite alternate;
+  }
+  @keyframes gradMove {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+  }
+  .grad-card .blurb-text { font-size: 14px; line-height: 1.7; font-weight: 300; }
+  .grad-card .cite { font-size: 11px; opacity: 0.35; margin-top: 10px; }
+
+  /* ========== BLURB 7: Reveal Bars ========== */
+  .reveal-card {
+    position: relative; width: 100%; padding: 20px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px; overflow: hidden;
+  }
+  .reveal-bar {
+    position: absolute; inset: 0; z-index: 2;
+    transform: translateX(0);
+  }
+  .reveal-bar:nth-child(1) { background: #7c3aed; animation: revealSwipe 2s 0s ease-in-out forwards; }
+  .reveal-bar:nth-child(2) { background: #06b6d4; animation: revealSwipe 2s 0.15s ease-in-out forwards; }
+  .reveal-bar:nth-child(3) { background: #4f46e5; animation: revealSwipe 2s 0.3s ease-in-out forwards; }
+  @keyframes revealSwipe {
+    0%, 30% { transform: translateX(0); }
+    100% { transform: translateX(105%); }
+  }
+  .reveal-content { position: relative; z-index: 1; }
+  .reveal-content .blurb-text { font-size: 14px; line-height: 1.7; font-weight: 300; }
+  .reveal-content .cite { font-size: 11px; opacity: 0.35; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<h1>TympanIQ UI Showcase</h1>
+<p class="subtitle">Countdown timers & blurb styles — tap to interact</p>
+
+<!-- ===== COUNTDOWN TIMERS ===== -->
+<p class="section-title">Countdown Timers</p>
+<div class="grid">
+
+  <!-- 1. Circular Ring -->
+  <div class="demo-card">
+    <h3>Circular Progress Ring</h3>
+    <div class="ring-timer" id="ring1">
+      <svg viewBox="0 0 160 160" width="160" height="160">
+        <defs>
+          <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#7c3aed"/>
+            <stop offset="100%" stop-color="#06b6d4"/>
+          </linearGradient>
+        </defs>
+        <circle class="ring-bg" cx="80" cy="80" r="72"/>
+        <circle class="ring-progress" id="ringProgress" cx="80" cy="80" r="72"/>
+      </svg>
+      <div class="ring-time" id="ringTime">4:30</div>
+    </div>
+    <span class="ring-label">Gradient ring depletes smoothly</span>
+    <p class="desc">SVG stroke-dashoffset with violet→cyan gradient. Neon glow via drop-shadow filter.</p>
+  </div>
+
+  <!-- 2. Flip Clock -->
+  <div class="demo-card">
+    <h3>3D Flip Clock</h3>
+    <div class="flip-clock" id="flipClock">
+      <div class="flip-unit">
+        <div class="flip-digit" id="flip-m1">
+          <div class="top"><span>0</span></div>
+          <div class="bottom"><span>0</span></div>
+        </div>
+        <div class="flip-digit" id="flip-m2">
+          <div class="top"><span>4</span></div>
+          <div class="bottom"><span>4</span></div>
+        </div>
+      </div>
+      <span class="flip-sep">:</span>
+      <div class="flip-unit">
+        <div class="flip-digit" id="flip-s1">
+          <div class="top"><span>3</span></div>
+          <div class="bottom"><span>3</span></div>
+        </div>
+        <div class="flip-digit" id="flip-s2">
+          <div class="top"><span>0</span></div>
+          <div class="bottom"><span>0</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="desc">Split-flap digits with 3D rotateX perspective flip on each tick.</p>
+  </div>
+
+  <!-- 3. Gooey Morph -->
+  <div class="demo-card">
+    <h3>Gooey Morphing</h3>
+    <div class="gooey-wrap">
+      <div class="gooey-num" id="gooeyNum">4:30</div>
+    </div>
+    <p class="desc">contrast(15) + blur filter causes digits to blob/melt into each other on transition.</p>
+  </div>
+
+  <!-- 4. Pulse + Hue -->
+  <div class="demo-card">
+    <h3>Pulse Beat + Hue Shift</h3>
+    <div class="pulse-timer" id="pulseTimer">4:30</div>
+    <p class="desc">Heartbeat scale pulse on each second. Slow hue rotation violet→cyan.</p>
+  </div>
+
+  <!-- 5. Stroke-Drawn -->
+  <div class="demo-card">
+    <h3>SVG Stroke-Drawn</h3>
+    <div class="stroke-timer" id="strokeTimer">
+      <svg viewBox="0 0 120 80">
+        <text x="50%" y="55" text-anchor="middle" font-size="52" font-weight="200"
+              fill="none" stroke="#06b6d4" stroke-width="1.5"
+              class="stroke-path drawing"
+              style="--len: 300; stroke-dasharray: 300; stroke-dashoffset: 300;"
+              id="strokeText">4:30</text>
+      </svg>
+    </div>
+    <p class="desc">Digits draw themselves on screen via animated stroke-dashoffset. Luminous cyan glow.</p>
+  </div>
+
+  <!-- 6. Drum Roller -->
+  <div class="demo-card">
+    <h3>Mechanical Drum</h3>
+    <div class="drum-timer" id="drumTimer">
+      <div class="drum-col"><div class="drum-strip" id="drum-m1">
+        <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+        <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+      </div></div>
+      <div class="drum-col"><div class="drum-strip" id="drum-m2">
+        <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+        <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+      </div></div>
+      <span class="drum-sep">:</span>
+      <div class="drum-col"><div class="drum-strip" id="drum-s1">
+        <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+        <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+      </div></div>
+      <div class="drum-col"><div class="drum-strip" id="drum-s2">
+        <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+        <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+      </div></div>
+    </div>
+    <p class="desc">Vertical strip scrolls with spring cubic-bezier. Amber digits, analog feel.</p>
+  </div>
+
+  <!-- 7. Segmented Arc -->
+  <div class="demo-card">
+    <h3>Segmented Arc</h3>
+    <div class="arc-timer" id="arcTimer">
+      <svg viewBox="0 0 160 160">
+        <defs>
+          <linearGradient id="seg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
+          <linearGradient id="seg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#818cf8"/></linearGradient>
+          <linearGradient id="seg3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#67e8f9"/></linearGradient>
+          <linearGradient id="seg4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#c4b5fd"/></linearGradient>
+        </defs>
+      </svg>
+      <div class="arc-time">
+        <span class="big" id="arcTime">4:30</span>
+        <span class="small">Broadband Enrichment</span>
+      </div>
+    </div>
+    <p class="desc">Each session phase is a colored arc segment. Spent phases dim, active glows.</p>
+  </div>
+
+</div>
+
+<!-- ===== BLURB STYLES ===== -->
+<p class="section-title">Blurb / Insight Cards</p>
+<div class="grid">
+
+  <!-- 1. Glassmorphism -->
+  <div class="demo-card" style="position:relative; overflow:hidden;">
+    <h3>Glassmorphism</h3>
+    <div style="position:relative;">
+      <div class="glass-bg"></div>
+      <div class="glass-card">
+        <p class="blurb-text">Your ear is surrounded by gentle pink noise. This keeps auditory neurons firing at healthy baseline levels instead of becoming hypersensitive.</p>
+        <p class="cite">— Jastreboff, 2015</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Aurora Border -->
+  <div class="demo-card">
+    <h3>Aurora Border</h3>
+    <div class="aurora-card">
+      <p class="blurb-text">Alpha waves are your brain's "calm but alert" state. A 10 Hz binaural beat increases interhemispheric coherence — both sides of your brain synchronize.</p>
+      <p class="cite">— Garcia-Argibay et al., 2019</p>
+    </div>
+  </div>
+
+  <!-- 3. Spotlight Glow -->
+  <div class="demo-card">
+    <h3>Spotlight Glow</h3>
+    <div class="spotlight-card" id="spotlightCard">
+      <p class="blurb-text">The acoustic reflex has a latency of 25–150ms. When a sudden loud sound hits, your protective muscles literally can't react fast enough.</p>
+      <p class="cite">— Moller, 1984</p>
+    </div>
+  </div>
+
+  <!-- 4. Typewriter -->
+  <div class="demo-card">
+    <h3>Typewriter Reveal</h3>
+    <div class="typewriter-card">
+      <p class="typewriter-text" id="typewriterText"></p>
+    </div>
+    <p class="desc">Text types character by character at 60ms intervals. Cursor blinks then fades.</p>
+  </div>
+
+  <!-- 5. Text Roller -->
+  <div class="demo-card">
+    <h3>Text Roller</h3>
+    <div class="roller-wrap">
+      <div class="roller-strip">
+        <div class="roller-item">Pink noise follows a 1/f power distribution — it mirrors patterns in nature: ocean waves, wind, heartbeats.</div>
+        <div class="roller-item">Silence can be bad for your ears. Your brain turns up its internal volume — literally increasing neural gain.</div>
+        <div class="roller-item">The stapedius muscle — the smallest in your body at 6mm — contracts reflexively to protect your inner ear.</div>
+        <div class="roller-item">ACRN fires four tones in randomized patterns to desynchronize the overactive neural loop behind tinnitus.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Gradient Border -->
+  <div class="demo-card">
+    <h3>Animated Gradient Border</h3>
+    <div class="grad-card">
+      <p class="blurb-text">Mid-range sweeps target the frequencies most vulnerable to daily noise exposure — your acoustic reflex is learning to respond faster.</p>
+      <p class="cite">— Silman & Gelfand, 1981</p>
+    </div>
+  </div>
+
+  <!-- 7. Reveal Bars -->
+  <div class="demo-card">
+    <h3>Staggered Bar Reveal</h3>
+    <div class="reveal-card" id="revealCard">
+      <div class="reveal-bar"></div>
+      <div class="reveal-bar"></div>
+      <div class="reveal-bar"></div>
+      <div class="reveal-content">
+        <p class="blurb-text">Four tones around your tinnitus frequency fire in randomized patterns — desynchronizing the overactive neural loop that creates persistent ringing.</p>
+        <p class="cite">— Tass et al., 2012</p>
+      </div>
+    </div>
+    <p class="desc">Tap to replay</p>
+  </div>
+
+</div>
+
+<script>
+  // ===== Shared countdown state =====
+  let totalSec = 270; // 4:30
+  let remaining = totalSec;
+
+  function fmt(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return m + ':' + String(sec).padStart(2, '0');
+  }
+
+  // ===== 1. Ring timer =====
+  const ringEl = document.getElementById('ringProgress');
+  const ringTime = document.getElementById('ringTime');
+  const circ = 2 * Math.PI * 72; // ~452.4
+  ringEl.style.strokeDasharray = circ;
+
+  // ===== 2. Flip clock =====
+  function setFlipDigit(id, val) {
+    const el = document.getElementById(id);
+    const topSpan = el.querySelector('.top span');
+    const botSpan = el.querySelector('.bottom span');
+    const cur = topSpan.textContent;
+    if (cur !== String(val)) {
+      el.classList.add('flipping');
+      setTimeout(() => {
+        topSpan.textContent = val;
+        botSpan.textContent = val;
+        el.classList.remove('flipping');
+      }, 400);
+    }
+  }
+
+  // ===== 3. Gooey =====
+  const gooeyNum = document.getElementById('gooeyNum');
+  let gooeyPrev = '';
+
+  // ===== 5. Stroke =====
+  const strokeText = document.getElementById('strokeText');
+
+  // ===== 6. Drum =====
+  function setDrum(id, digit) {
+    const strip = document.getElementById(id);
+    strip.style.transform = `translateY(${-digit * 48}px)`;
+  }
+
+  // ===== 7. Segmented Arc =====
+  const arcSvg = document.querySelector('#arcTimer svg');
+  const phases = [
+    { name: 'Broadband', pct: 0.20, grad: 'seg1' },
+    { name: 'Alpha Binaural', pct: 0.15, grad: 'seg2' },
+    { name: 'Rest', pct: 0.10, grad: 'seg3' },
+    { name: 'Sweep', pct: 0.25, grad: 'seg4' },
+    { name: 'Cool Down', pct: 0.30, grad: 'seg1' },
+  ];
+  const arcR = 72, arcCirc = 2 * Math.PI * arcR;
+  const gap = 8;
+  let arcOffset = 0;
+  phases.forEach((p, i) => {
+    const segLen = p.pct * arcCirc - gap;
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', 80); c.setAttribute('cy', 80); c.setAttribute('r', arcR);
+    c.setAttribute('class', 'arc-seg active');
+    c.setAttribute('stroke', `url(#${p.grad})`);
+    c.setAttribute('stroke-dasharray', `${segLen} ${arcCirc - segLen}`);
+    c.setAttribute('stroke-dashoffset', -arcOffset);
+    c.id = `arc-seg-${i}`;
+    arcSvg.appendChild(c);
+    arcOffset += p.pct * arcCirc;
+  });
+  const arcTime = document.getElementById('arcTime');
+
+  // ===== Master tick =====
+  setInterval(() => {
+    remaining--;
+    if (remaining < 0) remaining = totalSec;
+    const str = fmt(remaining);
+    const pct = remaining / totalSec;
+
+    // Ring
+    ringEl.style.strokeDashoffset = (1 - pct) * circ;
+    ringTime.textContent = str;
+
+    // Flip
+    const m1 = Math.floor(remaining / 60 / 10);
+    const m2 = Math.floor(remaining / 60) % 10;
+    const s1 = Math.floor((remaining % 60) / 10);
+    const s2 = remaining % 10;
+    setFlipDigit('flip-m1', m1);
+    setFlipDigit('flip-m2', m2);
+    setFlipDigit('flip-s1', s1);
+    setFlipDigit('flip-s2', s2);
+
+    // Gooey
+    if (gooeyPrev !== str) {
+      gooeyNum.classList.add('morphing');
+      setTimeout(() => { gooeyNum.textContent = str; gooeyNum.classList.remove('morphing'); }, 400);
+      gooeyPrev = str;
+    }
+
+    // Pulse
+    document.getElementById('pulseTimer').textContent = str;
+
+    // Stroke
+    strokeText.textContent = str;
+    strokeText.classList.remove('drawing');
+    void strokeText.offsetWidth;
+    strokeText.classList.add('drawing');
+
+    // Drum
+    setDrum('drum-m1', m1);
+    setDrum('drum-m2', m2);
+    setDrum('drum-s1', s1);
+    setDrum('drum-s2', s2);
+
+    // Arc
+    arcTime.textContent = str;
+    const elapsed = 1 - pct;
+    let cumPct = 0;
+    phases.forEach((p, i) => {
+      const seg = document.getElementById(`arc-seg-${i}`);
+      if (elapsed > cumPct + p.pct) {
+        seg.classList.add('spent');
+        seg.classList.remove('active');
+      } else if (elapsed > cumPct) {
+        seg.classList.remove('spent');
+        seg.classList.add('active');
+      }
+      cumPct += p.pct;
+    });
+  }, 1000);
+
+  // ===== Spotlight card mouse tracking =====
+  const spotCard = document.getElementById('spotlightCard');
+  spotCard.addEventListener('pointermove', (e) => {
+    const r = spotCard.getBoundingClientRect();
+    spotCard.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    spotCard.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
+  spotCard.addEventListener('pointerenter', () => spotCard.classList.add('touched'));
+  spotCard.addEventListener('pointerleave', () => spotCard.classList.remove('touched'));
+  // Mobile tap
+  spotCard.addEventListener('touchstart', (e) => {
+    const r = spotCard.getBoundingClientRect();
+    const t = e.touches[0];
+    spotCard.style.setProperty('--mx', (t.clientX - r.left) + 'px');
+    spotCard.style.setProperty('--my', (t.clientY - r.top) + 'px');
+    spotCard.classList.add('touched');
+    setTimeout(() => spotCard.classList.remove('touched'), 1500);
+  });
+
+  // ===== Typewriter =====
+  const twText = "Binaural beats require stereo separation — each ear must get its own frequency. Headphones deliver a cleaner effect than any speaker setup.";
+  const twEl = document.getElementById('typewriterText');
+  let twIdx = 0;
+  function typeLoop() {
+    if (twIdx <= twText.length) {
+      twEl.innerHTML = twText.slice(0, twIdx) + '<span class="typewriter-cursor"></span>';
+      twIdx++;
+      setTimeout(typeLoop, 60);
+    } else {
+      // Pause then restart
+      setTimeout(() => { twIdx = 0; typeLoop(); }, 4000);
+    }
+  }
+  typeLoop();
+
+  // ===== Reveal bars — tap to replay =====
+  document.getElementById('revealCard').addEventListener('click', function() {
+    const bars = this.querySelectorAll('.reveal-bar');
+    bars.forEach(b => {
+      b.style.animation = 'none';
+      void b.offsetWidth;
+      b.style.animation = '';
+    });
+  });
+</script>
+</body>
+</html>

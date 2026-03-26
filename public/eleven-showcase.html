@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TympanIQ — ElevenLabs Voice Showcase</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0a0a1a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 24px 16px 80px;
+  }
+  h1 { text-align: center; font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .subtitle { text-align: center; font-size: 12px; opacity: 0.4; margin-bottom: 6px; }
+  .api-status { text-align: center; font-size: 11px; margin-bottom: 32px; }
+  .api-status .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+  .dot-ok { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+  .dot-err { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.5); }
+  .dot-load { background: #f59e0b; animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity: 0.4; } }
+
+  .section-title {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+    color: #7c3aed; margin: 36px 0 16px; text-align: center;
+  }
+
+  .messages-grid {
+    display: grid; grid-template-columns: 1fr; gap: 12px;
+    max-width: 500px; margin: 0 auto 32px;
+  }
+  .msg-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px; padding: 14px 16px;
+  }
+  .msg-card p { font-size: 13px; line-height: 1.6; font-weight: 300; opacity: 0.8; font-style: italic; }
+  .msg-card .msg-label { font-size: 10px; opacity: 0.3; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+
+  .voice-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    max-width: 500px; margin: 0 auto 32px;
+  }
+  .voice-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px; padding: 14px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .voice-card:hover, .voice-card.selected {
+    border-color: rgba(124,58,237,0.4);
+    background: rgba(124,58,237,0.06);
+  }
+  .voice-card.selected { box-shadow: 0 0 12px rgba(124,58,237,0.15); }
+  .voice-name { font-size: 14px; font-weight: 500; }
+  .voice-desc { font-size: 11px; opacity: 0.4; margin-top: 4px; line-height: 1.4; }
+  .voice-tag {
+    display: inline-block; font-size: 9px; padding: 2px 6px;
+    border-radius: 4px; margin-top: 6px;
+    background: rgba(124,58,237,0.15); color: #a78bfa;
+  }
+
+  .settings-panel {
+    max-width: 500px; margin: 0 auto 32px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px; padding: 20px;
+  }
+  .setting-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+  }
+  .setting-row:last-child { margin-bottom: 0; }
+  .setting-label { font-size: 12px; width: 110px; flex-shrink: 0; opacity: 0.6; }
+  .setting-row input[type="range"] {
+    flex: 1; height: 4px; -webkit-appearance: none; appearance: none;
+    background: rgba(255,255,255,0.1); border-radius: 2px; outline: none;
+  }
+  .setting-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px;
+    border-radius: 50%; background: #7c3aed; cursor: pointer;
+  }
+  .setting-val { font-size: 12px; width: 36px; text-align: right; opacity: 0.5; font-variant-numeric: tabular-nums; }
+
+  .model-select {
+    max-width: 500px; margin: 0 auto 32px;
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+  }
+  .model-btn {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 8px 14px;
+    color: #e2e8f0; font-size: 11px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .model-btn:hover { border-color: rgba(124,58,237,0.3); }
+  .model-btn.selected {
+    border-color: #7c3aed; background: rgba(124,58,237,0.12);
+    color: #a78bfa;
+  }
+  .model-btn .model-tag { display: block; font-size: 9px; opacity: 0.4; margin-top: 2px; }
+
+  .format-row {
+    max-width: 500px; margin: 0 auto 24px;
+    display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;
+  }
+  .fmt-btn {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px; padding: 5px 10px;
+    color: #e2e8f0; font-size: 10px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .fmt-btn.selected { border-color: #7c3aed; background: rgba(124,58,237,0.1); color: #a78bfa; }
+
+  .generate-section {
+    max-width: 500px; margin: 0 auto 32px; text-align: center;
+  }
+  .gen-btn {
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    border: none; border-radius: 12px; padding: 14px 32px;
+    color: white; font-size: 14px; font-weight: 500; cursor: pointer;
+    transition: all 0.2s; width: 100%;
+  }
+  .gen-btn:hover { transform: scale(1.02); box-shadow: 0 4px 20px rgba(124,58,237,0.3); }
+  .gen-btn:disabled { opacity: 0.4; transform: none; cursor: not-allowed; }
+  .gen-btn.loading { animation: pulse 1s infinite; }
+
+  .msg-selector {
+    max-width: 500px; margin: 0 auto 16px;
+    display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
+  }
+  .msg-btn {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px; padding: 5px 10px;
+    color: #e2e8f0; font-size: 10px; cursor: pointer; transition: all 0.2s;
+  }
+  .msg-btn.selected { border-color: #7c3aed; background: rgba(124,58,237,0.1); color: #a78bfa; }
+
+  .result-area {
+    max-width: 500px; margin: 0 auto 24px;
+    min-height: 80px;
+  }
+  .result-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px; padding: 16px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .play-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; transition: all 0.2s;
+  }
+  .play-btn:hover { background: rgba(124,58,237,0.25); }
+  .play-btn svg { width: 18px; height: 18px; fill: #a78bfa; }
+  .result-meta { flex: 1; }
+  .result-meta .rm-voice { font-size: 13px; font-weight: 500; }
+  .result-meta .rm-model { font-size: 10px; opacity: 0.4; margin-top: 2px; }
+  .result-meta .rm-settings { font-size: 10px; opacity: 0.3; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .result-wave {
+    height: 30px; display: flex; align-items: center; gap: 2px;
+  }
+  .result-wave .bar {
+    width: 3px; border-radius: 2px; background: #7c3aed;
+    animation: waveBar 0.8s ease-in-out infinite;
+  }
+  .result-wave .bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+  .result-wave .bar:nth-child(2) { height: 16px; animation-delay: 0.1s; }
+  .result-wave .bar:nth-child(3) { height: 24px; animation-delay: 0.2s; }
+  .result-wave .bar:nth-child(4) { height: 12px; animation-delay: 0.3s; }
+  .result-wave .bar:nth-child(5) { height: 20px; animation-delay: 0.15s; }
+  @keyframes waveBar {
+    0%, 100% { transform: scaleY(0.4); }
+    50% { transform: scaleY(1); }
+  }
+  .result-wave.paused .bar { animation-play-state: paused; }
+
+  .history { max-width: 500px; margin: 0 auto; }
+  .history-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .history-item .hi-play {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .history-item .hi-play svg { width: 12px; height: 12px; fill: #a78bfa; }
+  .hi-info { flex: 1; }
+  .hi-info .hi-voice { font-size: 12px; }
+  .hi-info .hi-detail { font-size: 10px; opacity: 0.3; margin-top: 2px; }
+
+  .error-msg {
+    text-align: center; color: #ef4444; font-size: 12px;
+    padding: 12px; background: rgba(239,68,68,0.08);
+    border-radius: 8px; margin-top: 12px;
+  }
+
+  .preview-text {
+    max-width: 500px; margin: 0 auto 16px;
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 12px 14px;
+    font-size: 13px; line-height: 1.6; font-style: italic; opacity: 0.6;
+    min-height: 60px;
+  }
+
+  .char-info { text-align: center; font-size: 10px; opacity: 0.3; margin-bottom: 12px; }
+
+  .credits-bar {
+    max-width: 500px; margin: 0 auto 32px;
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 12px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .credits-bar .cb-label { font-size: 11px; opacity: 0.4; }
+  .credits-bar .cb-val { font-size: 13px; font-weight: 500; color: #a78bfa; }
+  .credits-bar .cb-track {
+    flex: 1; height: 4px; background: rgba(255,255,255,0.06);
+    border-radius: 2px; margin: 0 12px;
+  }
+  .credits-bar .cb-fill { height: 100%; background: #7c3aed; border-radius: 2px; transition: width 0.5s; }
+</style>
+</head>
+<body>
+
+<h1>ElevenLabs Voice Showcase</h1>
+<p class="subtitle">Preview voices & settings for TympanIQ session-end messages</p>
+<div class="api-status" id="apiStatus"><span class="dot dot-load"></span> Checking API...</div>
+
+<!-- Credits -->
+<div class="credits-bar" id="creditsBar" style="display:none;">
+  <span class="cb-label">Characters</span>
+  <span class="cb-val" id="creditsUsed">—</span>
+  <div class="cb-track"><div class="cb-fill" id="creditsFill" style="width:0%"></div></div>
+  <span class="cb-val" id="creditsTotal">—</span>
+</div>
+
+<!-- Session-end messages -->
+<p class="section-title">Session-End Messages (Rotate These)</p>
+<div class="messages-grid">
+  <div class="msg-card"><p class="msg-label">Message 1</p><p>Session complete. Pay attention today to the sounds around you that you usually avoid... you should notice decreased sensitivities as you continue your sessions with TympanIQ. Happy hearing.</p></div>
+  <div class="msg-card"><p class="msg-label">Message 2</p><p>Great session. Over the next few hours, notice how everyday sounds feel a little different... a little softer. That's your auditory system recalibrating. See you next time.</p></div>
+  <div class="msg-card"><p class="msg-label">Message 3</p><p>You just gave your ears a real workout. As you go about your day, pay attention to sounds that used to bother you... they may surprise you. Keep it up.</p></div>
+  <div class="msg-card"><p class="msg-label">Message 4</p><p>Session done. Your auditory reflexes just got a little stronger. Try to give your ears a few quiet minutes before jumping back into noise. Happy hearing.</p></div>
+  <div class="msg-card"><p class="msg-label">Message 5</p><p>That's a wrap. Each session builds on the last... consistency is everything. Notice how the world sounds today, and come back tomorrow. Your ears will thank you.</p></div>
+</div>
+
+<!-- Select message to generate -->
+<p class="section-title">Pick a Message to Test</p>
+<div class="msg-selector" id="msgSelector">
+  <button class="msg-btn selected" data-idx="0">Msg 1</button>
+  <button class="msg-btn" data-idx="1">Msg 2</button>
+  <button class="msg-btn" data-idx="2">Msg 3</button>
+  <button class="msg-btn" data-idx="3">Msg 4</button>
+  <button class="msg-btn" data-idx="4">Msg 5</button>
+</div>
+<div class="preview-text" id="previewText"></div>
+<div class="char-info" id="charInfo"></div>
+
+<!-- Voice Selection -->
+<p class="section-title">Voice</p>
+<div class="voice-grid" id="voiceGrid"></div>
+
+<!-- Model Selection -->
+<p class="section-title">Model</p>
+<div class="model-select" id="modelSelect">
+  <button class="model-btn selected" data-model="eleven_multilingual_v2">Multilingual v2<span class="model-tag">Best quality</span></button>
+  <button class="model-btn" data-model="eleven_turbo_v2_5">Turbo v2.5<span class="model-tag">Low latency</span></button>
+  <button class="model-btn" data-model="eleven_flash_v2_5">Flash v2.5<span class="model-tag">Fastest</span></button>
+</div>
+
+<!-- Voice Settings -->
+<p class="section-title">Voice Settings</p>
+<div class="settings-panel">
+  <div class="setting-row">
+    <span class="setting-label">Stability</span>
+    <input type="range" id="s-stability" min="0" max="100" value="70">
+    <span class="setting-val" id="v-stability">0.70</span>
+  </div>
+  <div class="setting-row">
+    <span class="setting-label">Similarity</span>
+    <input type="range" id="s-similarity" min="0" max="100" value="60">
+    <span class="setting-val" id="v-similarity">0.60</span>
+  </div>
+  <div class="setting-row">
+    <span class="setting-label">Style</span>
+    <input type="range" id="s-style" min="0" max="100" value="25">
+    <span class="setting-val" id="v-style">0.25</span>
+  </div>
+  <div class="setting-row">
+    <span class="setting-label">Speed</span>
+    <input type="range" id="s-speed" min="70" max="120" value="90">
+    <span class="setting-val" id="v-speed">0.90</span>
+  </div>
+</div>
+
+<!-- Output Format -->
+<p class="section-title">Output Format</p>
+<div class="format-row" id="formatRow">
+  <button class="fmt-btn" data-fmt="mp3_44100_64">64kbps</button>
+  <button class="fmt-btn selected" data-fmt="mp3_44100_128">128kbps</button>
+  <button class="fmt-btn" data-fmt="mp3_44100_192">192kbps</button>
+</div>
+
+<!-- Generate -->
+<div class="generate-section">
+  <button class="gen-btn" id="genBtn" disabled>Generate Audio</button>
+  <div id="errorArea"></div>
+</div>
+
+<!-- Now Playing -->
+<div class="result-area" id="resultArea"></div>
+
+<!-- History -->
+<p class="section-title" id="historyTitle" style="display:none;">Generation History</p>
+<div class="history" id="historyList"></div>
+
+<script>
+const API_KEY = 'sk_be986a3c705affbfa256bf6a53d339d342da427e04cf5abc';
+const API_BASE = 'https://api.elevenlabs.io/v1';
+
+const messages = [
+  "Session complete... Pay attention today to the sounds around you that you usually avoid. You should notice decreased sensitivities as you continue your sessions with TympanIQ... Happy hearing.",
+  "Great session... Over the next few hours, notice how everyday sounds feel a little different, a little softer. That's your auditory system recalibrating... See you next time.",
+  "You just gave your ears a real workout... As you go about your day, pay attention to sounds that used to bother you. They may surprise you... Keep it up.",
+  "Session done... Your auditory reflexes just got a little stronger. Try to give your ears a few quiet minutes before jumping back into noise... Happy hearing.",
+  "That's a wrap... Each session builds on the last. Consistency is everything. Notice how the world sounds today, and come back tomorrow... Your ears will thank you."
+];
+
+// Recommended voices for wellness
+const voiceOptions = [
+  { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel', desc: 'Calm, warm, mature female', tag: 'Recommended', gender: 'F' },
+  { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte', desc: 'Soft, soothing young female', tag: 'Gentle', gender: 'F' },
+  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Bella', desc: 'Warm, conversational female', tag: 'Natural', gender: 'F' },
+  { id: 'ThT5KcBeYPX3keUQqHPh', name: 'Dorothy', desc: 'Warm, mature, British female', tag: 'Elegant', gender: 'F' },
+  { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily', desc: 'Gentle, British female', tag: 'Soothing', gender: 'F' },
+  { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel', desc: 'Warm, deep British male', tag: 'Calming', gender: 'M' },
+  { id: 'pNInz6obpgDQGcFmaJgB', name: 'Adam', desc: 'Deep, calm, reassuring male', tag: 'Grounding', gender: 'M' },
+  { id: 'ErXwobaYiN019PkySvjV', name: 'Antoni', desc: 'Warm, friendly young male', tag: 'Friendly', gender: 'M' },
+  { id: 'TxGEqnHWrfWFTfGW9XjX', name: 'Josh', desc: 'Deep, warm narrative male', tag: 'Storyteller', gender: 'M' },
+  { id: 'yoZ06aMxZJJ28mfd3POQ', name: 'Sam', desc: 'Warm, conversational male', tag: 'Easy', gender: 'M' },
+];
+
+let selectedVoice = voiceOptions[0].id;
+let selectedMsg = 0;
+let selectedModel = 'eleven_multilingual_v2';
+let selectedFormat = 'mp3_44100_128';
+let currentAudio = null;
+let history = [];
+
+// Build voice grid
+const voiceGrid = document.getElementById('voiceGrid');
+voiceOptions.forEach((v, i) => {
+  const card = document.createElement('div');
+  card.className = 'voice-card' + (i === 0 ? ' selected' : '');
+  card.dataset.id = v.id;
+  card.innerHTML = `
+    <div class="voice-name">${v.name}</div>
+    <div class="voice-desc">${v.desc}</div>
+    <span class="voice-tag">${v.tag}</span>
+  `;
+  card.addEventListener('click', () => {
+    voiceGrid.querySelectorAll('.voice-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedVoice = v.id;
+  });
+  voiceGrid.appendChild(card);
+});
+
+// Message selector
+const msgBtns = document.querySelectorAll('.msg-btn');
+const previewText = document.getElementById('previewText');
+const charInfo = document.getElementById('charInfo');
+
+function updatePreview() {
+  const txt = messages[selectedMsg];
+  previewText.textContent = txt;
+  charInfo.textContent = `${txt.length} characters ~ ${Math.ceil(txt.length / 15)}s audio`;
+}
+msgBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    msgBtns.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedMsg = parseInt(btn.dataset.idx);
+    updatePreview();
+  });
+});
+updatePreview();
+
+// Model selector
+document.querySelectorAll('.model-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedModel = btn.dataset.model;
+  });
+});
+
+// Format selector
+document.querySelectorAll('.fmt-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.fmt-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedFormat = btn.dataset.fmt;
+  });
+});
+
+// Settings sliders
+['stability', 'similarity', 'style'].forEach(key => {
+  const slider = document.getElementById('s-' + key);
+  const val = document.getElementById('v-' + key);
+  slider.addEventListener('input', () => {
+    val.textContent = (slider.value / 100).toFixed(2);
+  });
+});
+const speedSlider = document.getElementById('s-speed');
+const speedVal = document.getElementById('v-speed');
+speedSlider.addEventListener('input', () => {
+  speedVal.textContent = (speedSlider.value / 100).toFixed(2);
+});
+
+// API check
+async function checkAPI() {
+  const statusEl = document.getElementById('apiStatus');
+  try {
+    const res = await fetch(API_BASE + '/user/subscription', {
+      headers: { 'xi-api-key': API_KEY }
+    });
+    if (!res.ok) throw new Error('API returned ' + res.status);
+    const data = await res.json();
+    statusEl.innerHTML = `<span class="dot dot-ok"></span> Connected — ${data.tier || 'Active'} tier`;
+    document.getElementById('genBtn').disabled = false;
+
+    // Show credits
+    const creditsBar = document.getElementById('creditsBar');
+    creditsBar.style.display = 'flex';
+    const used = data.character_count || 0;
+    const limit = data.character_limit || 10000;
+    document.getElementById('creditsUsed').textContent = used.toLocaleString();
+    document.getElementById('creditsTotal').textContent = limit.toLocaleString();
+    document.getElementById('creditsFill').style.width = Math.min(100, (used / limit) * 100) + '%';
+  } catch (e) {
+    statusEl.innerHTML = `<span class="dot dot-err"></span> API error: ${e.message}`;
+  }
+}
+checkAPI();
+
+// Also fetch actual available voices to verify IDs
+async function fetchVoices() {
+  try {
+    const res = await fetch(API_BASE + '/voices', {
+      headers: { 'xi-api-key': API_KEY }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const available = new Set(data.voices.map(v => v.voice_id));
+    // Mark unavailable voices
+    voiceGrid.querySelectorAll('.voice-card').forEach(card => {
+      if (!available.has(card.dataset.id)) {
+        card.style.opacity = '0.3';
+        card.querySelector('.voice-tag').textContent = 'Unavailable';
+      }
+    });
+  } catch(e) {}
+}
+fetchVoices();
+
+// Generate
+const genBtn = document.getElementById('genBtn');
+genBtn.addEventListener('click', generate);
+
+async function generate() {
+  genBtn.disabled = true;
+  genBtn.textContent = 'Generating...';
+  genBtn.classList.add('loading');
+  document.getElementById('errorArea').innerHTML = '';
+
+  const voiceName = voiceOptions.find(v => v.id === selectedVoice)?.name || 'Unknown';
+  const stability = document.getElementById('s-stability').value / 100;
+  const similarity = document.getElementById('s-similarity').value / 100;
+  const style = document.getElementById('s-style').value / 100;
+  const speed = document.getElementById('s-speed').value / 100;
+
+  try {
+    const res = await fetch(
+      `${API_BASE}/text-to-speech/${selectedVoice}?output_format=${selectedFormat}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'xi-api-key': API_KEY,
+        },
+        body: JSON.stringify({
+          text: messages[selectedMsg],
+          model_id: selectedModel,
+          voice_settings: {
+            stability,
+            similarity_boost: similarity,
+            style,
+            use_speaker_boost: true,
+            speed,
+          }
+        })
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail?.message || err.detail || `HTTP ${res.status}`);
+    }
+
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const sizeKB = (blob.size / 1024).toFixed(1);
+
+    // Show result
+    showResult(url, voiceName, sizeKB, stability, similarity, style, speed);
+
+    // Add to history
+    addHistory(url, voiceName, selectedModel, sizeKB, stability, similarity, style, speed);
+
+    // Refresh credits
+    checkAPI();
+  } catch (e) {
+    document.getElementById('errorArea').innerHTML = `<div class="error-msg">${e.message}</div>`;
+  }
+
+  genBtn.disabled = false;
+  genBtn.textContent = 'Generate Audio';
+  genBtn.classList.remove('loading');
+}
+
+function showResult(url, voiceName, sizeKB, stab, sim, sty, spd) {
+  const area = document.getElementById('resultArea');
+  area.innerHTML = `
+    <div class="result-card">
+      <div class="play-btn" id="nowPlayBtn">
+        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+      </div>
+      <div class="result-meta">
+        <div class="rm-voice">${voiceName}</div>
+        <div class="rm-model">${selectedModel} · ${selectedFormat} · ${sizeKB} KB</div>
+        <div class="rm-settings">stab: ${stab.toFixed(2)} · sim: ${sim.toFixed(2)} · style: ${sty.toFixed(2)} · speed: ${spd.toFixed(2)}</div>
+      </div>
+      <div class="result-wave paused" id="nowWave">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
+  `;
+
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  currentAudio = new Audio(url);
+
+  const playBtn = document.getElementById('nowPlayBtn');
+  const wave = document.getElementById('nowWave');
+  let playing = false;
+
+  currentAudio.addEventListener('ended', () => {
+    playing = false;
+    wave.classList.add('paused');
+    playBtn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>';
+  });
+
+  playBtn.addEventListener('click', () => {
+    if (playing) {
+      currentAudio.pause();
+      playing = false;
+      wave.classList.add('paused');
+      playBtn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>';
+    } else {
+      currentAudio.play();
+      playing = true;
+      wave.classList.remove('paused');
+      playBtn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+    }
+  });
+}
+
+function addHistory(url, voiceName, model, sizeKB, stab, sim, sty, spd) {
+  document.getElementById('historyTitle').style.display = '';
+  const list = document.getElementById('historyList');
+  const item = document.createElement('div');
+  item.className = 'history-item';
+  item.innerHTML = `
+    <div class="hi-play">
+      <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+    </div>
+    <div class="hi-info">
+      <div class="hi-voice">${voiceName} · ${model.replace('eleven_', '')}</div>
+      <div class="hi-detail">stab:${stab.toFixed(2)} sim:${sim.toFixed(2)} sty:${sty.toFixed(2)} spd:${spd.toFixed(2)} · ${sizeKB}KB</div>
+    </div>
+  `;
+  const audio = new Audio(url);
+  let isPlaying = false;
+  item.querySelector('.hi-play').addEventListener('click', () => {
+    if (currentAudio) currentAudio.pause();
+    if (isPlaying) { audio.pause(); isPlaying = false; return; }
+    audio.play(); isPlaying = true;
+    audio.onended = () => { isPlaying = false; };
+  });
+  list.prepend(item);
+}
+</script>
+</body>
+</html>
