@@ -48,36 +48,142 @@
         <div class="onboard-blob"></div>
         <div class="onboard-blob"></div>
         <div class="onboard-blob"></div>
+
+        <!-- Step 1: Welcome / What is this -->
         <div class="onboard-step active" data-step="1">
-          <div class="step-icon">&#x1f9bb;</div>
-          <h2>How It Works</h2>
-          <p>TympanIQ uses precisely calibrated sound frequencies to condition your auditory reflex pathways — the muscles that protect your inner ear from damage.</p>
-          <div class="science-card">
-            <h4>The Science</h4>
-            <p>Your tensor tympani and stapedius muscles contract to shield your cochlea from loud sounds. Noise exposure, aging, and stress can fatigue these reflexes. Our protocol gently re-engages them.</p>
+          <div class="ob-visual ob-visual-ear">
+            <svg viewBox="0 0 120 120" class="ob-ear-svg">
+              <circle cx="60" cy="60" r="50" fill="none" stroke="url(#obGrad1)" stroke-width="1" opacity="0.3"/>
+              <circle cx="60" cy="60" r="36" fill="none" stroke="url(#obGrad1)" stroke-width="1.5" opacity="0.5"/>
+              <circle cx="60" cy="60" r="20" fill="none" stroke="url(#obGrad1)" stroke-width="2" class="ob-ring-pulse"/>
+              <circle cx="60" cy="60" r="6" fill="url(#obGrad1)" class="ob-core-dot"/>
+              <defs>
+                <linearGradient id="obGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#7c3aed"/>
+                  <stop offset="100%" stop-color="#06b6d4"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="ob-sound-waves">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+          <h2 class="ob-title">Your Ears Deserve Better</h2>
+          <p class="ob-text">TympanIQ uses calibrated sound frequencies to strengthen your auditory reflexes — the tiny muscles that protect your hearing from damage.</p>
+          <div class="ob-fact-chips">
+            <span class="ob-chip">Tinnitus Relief</span>
+            <span class="ob-chip">Noise Sensitivity</span>
+            <span class="ob-chip">Auditory Wellness</span>
           </div>
         </div>
+
+        <!-- Step 2: The Science -->
         <div class="onboard-step" data-step="2">
-          <div class="step-icon">&#x1f3a7;</div>
-          <h2>Best with Headphones</h2>
-          <p>Binaural beats require stereo separation to work. Any quality headphones or earbuds will deliver the full therapeutic effect.</p>
-          <div class="volume-warning">
-            <span class="warn-icon">&#x26a0;&#xfe0f;</span>
-            <p>Always start at low volume. Therapy is delivered at safe levels (50-75 dB). If you feel discomfort, stop immediately.</p>
+          <div class="ob-visual ob-visual-science">
+            <div class="ob-anatomy">
+              <div class="ob-anatomy-layer ob-layer-outer">
+                <span class="ob-anat-label">Outer Ear</span>
+              </div>
+              <div class="ob-anatomy-layer ob-layer-middle">
+                <span class="ob-anat-label">Middle Ear</span>
+                <span class="ob-muscle-tag">Stapedius &amp; Tensor Tympani</span>
+              </div>
+              <div class="ob-anatomy-layer ob-layer-inner">
+                <span class="ob-anat-label">Cochlea</span>
+              </div>
+            </div>
+          </div>
+          <h2 class="ob-title">Backed by Audiology Research</h2>
+          <p class="ob-text">Noise exposure, aging, and stress fatigue the reflexes that protect your inner ear. Our protocol gently re-engages them through targeted stimulation.</p>
+          <div class="ob-evidence">
+            <div class="ob-ev-item">
+              <span class="ob-ev-num">11</span>
+              <span class="ob-ev-label">Therapeutic Phases</span>
+            </div>
+            <div class="ob-ev-divider"></div>
+            <div class="ob-ev-item">
+              <span class="ob-ev-num">30+</span>
+              <span class="ob-ev-label">Research Papers</span>
+            </div>
+            <div class="ob-ev-divider"></div>
+            <div class="ob-ev-item">
+              <span class="ob-ev-num">Safe</span>
+              <span class="ob-ev-label">50-75 dB Levels</span>
+            </div>
           </div>
         </div>
+
+        <!-- Step 3: How to use -->
         <div class="onboard-step" data-step="3">
-          <div class="step-icon">&#x1f4c8;</div>
-          <h2>Track Your Progress</h2>
-          <p>Consistent daily sessions over 12+ weeks condition your auditory system. Track streaks, session history, and subjective improvements.</p>
-        </div>
-        <div class="onboard-nav">
-          <div class="dots">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+          <div class="ob-visual ob-visual-setup">
+            <div class="ob-device-mockup">
+              <div class="ob-mock-headphones">
+                <svg viewBox="0 0 80 80" class="ob-hp-icon">
+                  <path d="M16 45 C16 28 28 16 40 16 C52 16 64 28 64 45" fill="none" stroke="url(#obGrad1)" stroke-width="3" stroke-linecap="round"/>
+                  <rect x="10" y="42" width="12" height="18" rx="4" fill="rgba(124,58,237,0.3)" stroke="url(#obGrad1)" stroke-width="1.5"/>
+                  <rect x="58" y="42" width="12" height="18" rx="4" fill="rgba(124,58,237,0.3)" stroke="url(#obGrad1)" stroke-width="1.5"/>
+                </svg>
+              </div>
+              <div class="ob-vol-indicator">
+                <div class="ob-vol-bar"></div>
+                <div class="ob-vol-bar"></div>
+                <div class="ob-vol-bar ob-vol-rec"></div>
+                <div class="ob-vol-bar"></div>
+                <div class="ob-vol-bar"></div>
+              </div>
+            </div>
           </div>
-          <button id="btn-onboard-next" class="btn-primary">Next</button>
+          <h2 class="ob-title">Best with Headphones</h2>
+          <p class="ob-text">Binaural beats need stereo separation. Any quality headphones or earbuds work. Start at a comfortable volume — therapy is delivered at safe levels.</p>
+          <div class="ob-tip-row">
+            <div class="ob-tip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 9v4m0 4h.01M12 3a9 9 0 100 18 9 9 0 000-18z"/></svg>
+              <span>Low volume to start</span>
+            </div>
+            <div class="ob-tip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>
+              <span>Daily for 12+ weeks</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Ready -->
+        <div class="onboard-step" data-step="4">
+          <div class="ob-visual ob-visual-ready">
+            <div class="ob-ready-orb">
+              <div class="ob-ready-ring"></div>
+              <div class="ob-ready-ring ob-ring-2"></div>
+              <div class="ob-ready-ring ob-ring-3"></div>
+              <svg viewBox="0 0 48 48" class="ob-ready-check">
+                <circle cx="24" cy="24" r="20" fill="none" stroke="url(#obGrad1)" stroke-width="1.5"/>
+                <path d="M16 24l5 5 11-11" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="ob-check-draw"/>
+              </svg>
+            </div>
+          </div>
+          <h2 class="ob-title">You're All Set</h2>
+          <p class="ob-text">Start with a free trial session. Track your progress and notice the difference in how you hear the world around you.</p>
+          <div class="ob-ready-features">
+            <span class="ob-rf">Free trial sessions</span>
+            <span class="ob-rf">Progress tracking</span>
+            <span class="ob-rf">Research-backed protocols</span>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="onboard-nav">
+          <div class="ob-progress-track">
+            <div class="ob-progress-fill" id="ob-progress-fill"></div>
+          </div>
+          <div class="ob-nav-row">
+            <button id="btn-onboard-skip" class="ob-skip">Skip</button>
+            <div class="dots">
+              <span class="dot active"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+            <button id="btn-onboard-next" class="btn-primary ob-next-btn">Next</button>
+          </div>
         </div>
       </div>
     </div>

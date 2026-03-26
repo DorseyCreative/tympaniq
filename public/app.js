@@ -1392,27 +1392,53 @@
     });
 
     // Onboarding
+    const OB_TOTAL = 4;
     let onboardStep = 1;
-    document.getElementById('btn-onboard-next').addEventListener('click', () => {
+    const obProgressFill = document.getElementById('ob-progress-fill');
+
+    function finishOnboarding() {
+      state.onboarded = true;
+      saveState();
+      showScreen('screen-dashboard');
+      updateDashboard();
+    }
+
+    function goToObStep(next) {
       const steps = document.querySelectorAll('.onboard-step');
       const dots = document.querySelectorAll('.onboard-nav .dot');
       const btn = document.getElementById('btn-onboard-next');
 
-      steps[onboardStep - 1].classList.remove('active');
+      if (next > OB_TOTAL) { finishOnboarding(); return; }
+
+      // Exit current
+      const cur = steps[onboardStep - 1];
+      cur.classList.add('exit-left');
       dots[onboardStep - 1].classList.remove('active');
 
-      onboardStep++;
-      if (onboardStep > 3) {
-        state.onboarded = true;
-        saveState();
-        showScreen('screen-dashboard');
-        updateDashboard();
-        return;
-      }
+      // After exit animation, show next
+      setTimeout(() => {
+        cur.classList.remove('active', 'exit-left');
+        cur.style.display = 'none';
+        onboardStep = next;
 
-      steps[onboardStep - 1].classList.add('active');
-      dots[onboardStep - 1].classList.add('active');
-      if (onboardStep === 3) btn.textContent = 'Get Started';
+        const nxt = steps[onboardStep - 1];
+        nxt.style.display = '';
+        // Force reflow so enter transition fires
+        void nxt.offsetWidth;
+        nxt.classList.add('active');
+        dots[onboardStep - 1].classList.add('active');
+
+        obProgressFill.style.width = (onboardStep / OB_TOTAL * 100) + '%';
+        btn.textContent = onboardStep === OB_TOTAL ? 'Get Started' : 'Next';
+      }, 350);
+    }
+
+    document.getElementById('btn-onboard-next').addEventListener('click', () => {
+      goToObStep(onboardStep + 1);
+    });
+
+    document.getElementById('btn-onboard-skip').addEventListener('click', () => {
+      finishOnboarding();
     });
 
     // Session start buttons — show reminder first, trial for non-pro
