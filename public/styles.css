@@ -869,6 +869,22 @@ html, body {
   height: 120%;
   pointer-events: none;
   z-index: 3;
+  cursor: grab;
+}
+.phase-ring.seeking {
+  cursor: grabbing;
+}
+/* Seek dot on phase ring */
+.seek-dot {
+  pointer-events: all;
+  cursor: grab;
+  transition: r 0.15s ease, filter 0.15s ease;
+}
+.seek-dot:hover, .phase-ring.seeking .seek-dot {
+  cursor: grabbing;
+}
+.phase-ring.seeking .seek-dot {
+  filter: drop-shadow(0 0 8px rgba(99,102,241,0.7));
 }
 .phase-ring .seg-arc {
   transition: opacity 0.5s ease;

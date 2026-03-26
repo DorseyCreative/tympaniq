@@ -952,6 +952,166 @@
     };
   }
 
+  // --- Phase Ring Seek / Scrub Transport ---
+  (function initSeekRing() {
+    const svg = document.getElementById('phase-ring');
+    let seeking = false;
+    let seekDot = null;
+    const cx = 150, cy = 150, r = 130;
+    const startOffset = -Math.PI / 2; // 12 o'clock
+
+    function angleToElapsed(angle) {
+      // Normalize angle to 0..2π from 12 o'clock
+      let a = angle - startOffset;
+      if (a < 0) a += Math.PI * 2;
+      if (a > Math.PI * 2) a -= Math.PI * 2;
+      const fraction = a / (Math.PI * 2);
+      return Math.floor(fraction * (engine.totalDuration || 1));
+    }
+
+    function elapsedToAngle(elapsed) {
+      const fraction = elapsed / (engine.totalDuration || 1);
+      return startOffset + fraction * Math.PI * 2;
+    }
+
+    function ensureSeekDot() {
+      if (!seekDot) {
+        seekDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        seekDot.setAttribute('r', '7');
+        seekDot.setAttribute('fill', '#6366f1');
+        seekDot.setAttribute('stroke', 'white');
+        seekDot.setAttribute('stroke-width', '2');
+        seekDot.classList.add('seek-dot');
+        svg.appendChild(seekDot);
+      }
+      return seekDot;
+    }
+
+    function updateDotPosition(elapsed) {
+      const dot = ensureSeekDot();
+      const angle = elapsedToAngle(elapsed);
+      dot.setAttribute('cx', cx + r * Math.cos(angle));
+      dot.setAttribute('cy', cy + r * Math.sin(angle));
+    }
+
+    // Keep dot synced with playback
+    const origOnTick = null;
+    let _wrappedTick = false;
+
+    function wrapOnTick() {
+      if (_wrappedTick) return;
+      _wrappedTick = true;
+      const intervalId = setInterval(() => {
+        if (!engine.isPlaying && !engine._paused) {
+          clearInterval(intervalId);
+          if (seekDot) { seekDot.remove(); seekDot = null; }
+          _wrappedTick = false;
+          return;
+        }
+        if (!seeking && engine.elapsed != null) {
+          updateDotPosition(engine.elapsed);
+        }
+      }, 250);
+    }
+
+    function getAngleFromEvent(e) {
+      const pt = svg.getBoundingClientRect();
+      const svgW = pt.width;
+      const svgH = pt.height;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      // Convert to SVG viewBox coords (0-300)
+      const x = ((clientX - pt.left) / svgW) * 300;
+      const y = ((clientY - pt.top) / svgH) * 300;
+      return Math.atan2(y - cy, x - cx);
+    }
+
+    function startSeek(e) {
+      if (!engine.isPlaying && !engine._paused) return;
+      e.preventDefault();
+      e.stopPropagation();
+      seeking = true;
+      svg.classList.add('seeking');
+      svg.style.pointerEvents = 'all';
+      const angle = getAngleFromEvent(e);
+      const elapsed = angleToElapsed(angle);
+      updateDotPosition(elapsed);
+    }
+
+    function moveSeek(e) {
+      if (!seeking) return;
+      e.preventDefault();
+      const angle = getAngleFromEvent(e);
+      const elapsed = angleToElapsed(angle);
+      updateDotPosition(elapsed);
+      // Update timer display live while scrubbing
+      const remaining = (engine.totalDuration || 0) - elapsed;
+      const mins = Math.floor(Math.max(0, remaining) / 60);
+      const secs = Math.max(0, remaining) % 60;
+      document.getElementById('timer-minutes').textContent = String(mins).padStart(2, '0');
+      document.getElementById('timer-seconds').textContent = String(secs).padStart(2, '0');
+    }
+
+    function endSeek(e) {
+      if (!seeking) return;
+      seeking = false;
+      svg.classList.remove('seeking');
+      const angle = getAngleFromEvent(e.changedTouches ? e : e);
+      // For touch end, use changedTouches
+      let finalAngle;
+      if (e.changedTouches && e.changedTouches.length) {
+        const pt = svg.getBoundingClientRect();
+        const x = ((e.changedTouches[0].clientX - pt.left) / pt.width) * 300;
+        const y = ((e.changedTouches[0].clientY - pt.top) / pt.height) * 300;
+        finalAngle = Math.atan2(y - cy, x - cx);
+      } else {
+        finalAngle = getAngleFromEvent(e);
+      }
+      const elapsed = angleToElapsed(finalAngle);
+      engine.seekTo(elapsed);
+    }
+
+    // Attach events — use the viz-orb container so the hit area is generous
+    const orbEl = document.querySelector('.viz-orb');
+
+    orbEl.addEventListener('mousedown', (e) => {
+      // Only trigger if click is near the ring edge (not center)
+      const rect = orbEl.getBoundingClientRect();
+      const dx = e.clientX - (rect.left + rect.width / 2);
+      const dy = e.clientY - (rect.top + rect.height / 2);
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const ringRadius = rect.width * 0.5; // outer edge
+      const innerThreshold = ringRadius * 0.55; // ignore clicks in center area
+      if (dist < innerThreshold) return;
+      startSeek(e);
+    });
+
+    orbEl.addEventListener('touchstart', (e) => {
+      const rect = orbEl.getBoundingClientRect();
+      const dx = e.touches[0].clientX - (rect.left + rect.width / 2);
+      const dy = e.touches[0].clientY - (rect.top + rect.height / 2);
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const ringRadius = rect.width * 0.5;
+      const innerThreshold = ringRadius * 0.55;
+      if (dist < innerThreshold) return;
+      startSeek(e);
+    }, { passive: false });
+
+    document.addEventListener('mousemove', moveSeek);
+    document.addEventListener('touchmove', moveSeek, { passive: false });
+    document.addEventListener('mouseup', endSeek);
+    document.addEventListener('touchend', endSeek);
+
+    // Auto-show dot once session starts
+    const origStart = startPlayer;
+    const checkDot = setInterval(() => {
+      if (engine.isPlaying && engine.totalDuration > 0) {
+        ensureSeekDot();
+        wrapOnTick();
+      }
+    }, 1000);
+  })();
+
   // --- Visualizer ---
   function startVisualizer() {
     const canvas = document.getElementById('viz-player');

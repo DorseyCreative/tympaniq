@@ -565,6 +565,50 @@ class TympanIQEngine {
     }
   }
 
+  seekTo(targetElapsed) {
+    if (!this.protocol || !this.ctx) return;
+    targetElapsed = Math.max(0, Math.min(targetElapsed, this.totalDuration - 1));
+
+    // Reset the clock so the tick loop sees the new elapsed time
+    this._pauseOffset = targetElapsed;
+    this._sessionStartTime = this.ctx.currentTime;
+    this._lastTickElapsed = -1; // force next tick to fire
+    this.elapsed = targetElapsed;
+
+    // Determine which phase we land in and start it
+    let accumulated = 0;
+    let targetPhaseIdx = 0;
+    for (let i = 0; i < this.protocol.phases.length; i++) {
+      if (accumulated + this.protocol.phases[i].duration > targetElapsed) {
+        targetPhaseIdx = i;
+        break;
+      }
+      accumulated += this.protocol.phases[i].duration;
+      targetPhaseIdx = i + 1;
+    }
+    if (targetPhaseIdx >= this.protocol.phases.length) {
+      targetPhaseIdx = this.protocol.phases.length - 1;
+    }
+
+    // Stop current audio and start the target phase
+    this.stopAllNodes();
+    this.playPhase(this.protocol.phases[targetPhaseIdx]);
+    this.currentPhase = this.protocol.phases[targetPhaseIdx];
+
+    // Fire callbacks immediately
+    const phaseElapsed = targetElapsed - accumulated;
+    const phaseDuration = this.protocol.phases[targetPhaseIdx].duration;
+    if (this.onPhaseProgress) {
+      this.onPhaseProgress(targetPhaseIdx, phaseElapsed / phaseDuration, this.protocol.phases);
+    }
+    if (this.onTick) {
+      this.onTick(this.totalDuration - targetElapsed, targetElapsed, this.totalDuration);
+    }
+    if (this.onPhaseChange) {
+      this.onPhaseChange(this.protocol.phases[targetPhaseIdx]);
+    }
+  }
+
   stopSession(completed = false) {
     this.isPlaying = false;
     this._paused = false;
