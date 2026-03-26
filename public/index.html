@@ -223,53 +223,103 @@
 
       <!-- Streak Bar -->
       <div class="streak-bar">
-        <div class="streak-flame">&#x1f525;</div>
-        <span id="streak-count">0</span> day streak
-        <div class="streak-dots" id="streak-dots"></div>
+        <div class="streak-flame-wrap">
+          <span class="streak-flame-icon">&#x1f525;</span>
+          <span class="streak-num" id="streak-count">0</span>
+        </div>
+        <div class="streak-info">
+          <span class="streak-label">Day Streak</span>
+          <div class="streak-dots" id="streak-dots"></div>
+        </div>
+      </div>
+
+      <!-- Session section label -->
+      <div class="dash-section-label">
+        <span>Choose Your Session</span>
       </div>
 
       <!-- Session Cards -->
       <div class="session-cards">
-        <div class="session-card" data-mode="quick">
-          <div class="card-glow quick-glow"></div>
-          <div class="card-duration">10 min</div>
-          <h3>Quick Relief</h3>
-          <p>Broadband noise + alpha binaural beats for immediate ear relaxation and stress reduction.</p>
-          <div class="card-tags">
-            <span class="tag">Pink Noise</span>
-            <span class="tag">10 Hz Alpha</span>
+        <div class="session-card sc-quick" data-mode="quick">
+          <div class="sc-left">
+            <div class="sc-orb sc-orb-quick">
+              <svg viewBox="0 0 60 60" class="sc-orb-svg">
+                <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(34,197,94,0.3)" stroke-width="1"/>
+                <circle cx="30" cy="30" r="16" fill="none" stroke="rgba(34,197,94,0.5)" stroke-width="1.5" class="sc-orb-pulse"/>
+                <circle cx="30" cy="30" r="6" fill="rgba(34,197,94,0.6)"/>
+              </svg>
+            </div>
+            <div class="sc-time">10<span>min</span></div>
           </div>
-          <button class="btn-start" data-mode="quick">Start Session</button>
+          <div class="sc-right">
+            <h3>Quick Relief</h3>
+            <p>Pink noise + alpha binaural beats for immediate ear relaxation.</p>
+            <div class="sc-phases">
+              <span class="sc-phase">Pink Noise</span>
+              <span class="sc-phase">10 Hz Alpha</span>
+            </div>
+          </div>
+          <button class="btn-start" data-mode="quick">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Start
+          </button>
         </div>
 
-        <div class="session-card" data-mode="daily">
-          <div class="card-glow daily-glow"></div>
-          <div class="card-duration">20 min</div>
-          <h3>Daily Training</h3>
-          <p>Graduated frequency sweeps with rest intervals to condition your acoustic reflex pathways.</p>
-          <div class="card-tags">
-            <span class="tag">Freq Sweeps</span>
-            <span class="tag">Rest Intervals</span>
-            <span class="tag">Binaural</span>
+        <div class="session-card sc-daily" data-mode="daily">
+          <div class="sc-badge-rec">Recommended</div>
+          <div class="sc-left">
+            <div class="sc-orb sc-orb-daily">
+              <svg viewBox="0 0 60 60" class="sc-orb-svg">
+                <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(99,102,241,0.3)" stroke-width="1"/>
+                <circle cx="30" cy="30" r="16" fill="none" stroke="rgba(99,102,241,0.5)" stroke-width="1.5" class="sc-orb-pulse"/>
+                <circle cx="30" cy="30" r="6" fill="rgba(99,102,241,0.6)"/>
+              </svg>
+            </div>
+            <div class="sc-time">20<span>min</span></div>
           </div>
-          <button class="btn-start" data-mode="daily">Start Session</button>
+          <div class="sc-right">
+            <h3>Daily Training</h3>
+            <p>Frequency sweeps with rest intervals to condition your acoustic reflexes.</p>
+            <div class="sc-phases">
+              <span class="sc-phase">Sweeps</span>
+              <span class="sc-phase">Rest Sets</span>
+              <span class="sc-phase">Binaural</span>
+            </div>
+          </div>
+          <button class="btn-start" data-mode="daily">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Start
+          </button>
         </div>
 
-        <div class="session-card locked" data-mode="deep">
-          <div class="card-glow deep-glow"></div>
-          <div class="card-duration">30 min</div>
+        <div class="session-card sc-deep locked" data-mode="deep">
           <div class="lock-badge" id="lock-badge-deep">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             PRO
           </div>
-          <h3>Deep Conditioning</h3>
-          <p>Full protocol: broadband enrichment, graduated sweeps, binaural beats, personalized notched audio, and structured rest.</p>
-          <div class="card-tags">
-            <span class="tag">Full Protocol</span>
-            <span class="tag">Notched Audio</span>
-            <span class="tag">ACRN</span>
+          <div class="sc-left">
+            <div class="sc-orb sc-orb-deep">
+              <svg viewBox="0 0 60 60" class="sc-orb-svg">
+                <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(6,182,212,0.3)" stroke-width="1"/>
+                <circle cx="30" cy="30" r="16" fill="none" stroke="rgba(6,182,212,0.5)" stroke-width="1.5" class="sc-orb-pulse"/>
+                <circle cx="30" cy="30" r="6" fill="rgba(6,182,212,0.6)"/>
+              </svg>
+            </div>
+            <div class="sc-time">30<span>min</span></div>
           </div>
-          <button class="btn-start btn-pro" data-mode="deep">Unlock Pro</button>
+          <div class="sc-right">
+            <h3>Deep Conditioning</h3>
+            <p>Full protocol with notched audio, ACRN neuromodulation, and structured recovery.</p>
+            <div class="sc-phases">
+              <span class="sc-phase">Full Protocol</span>
+              <span class="sc-phase">Notched</span>
+              <span class="sc-phase">ACRN</span>
+            </div>
+          </div>
+          <button class="btn-start btn-pro" data-mode="deep">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 15v-3m0 0V9m0 3h3m-3 0H9"/><circle cx="12" cy="12" r="10"/></svg>
+            Unlock Pro
+          </button>
         </div>
       </div>
 
