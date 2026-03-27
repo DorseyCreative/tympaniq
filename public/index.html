@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=23">
+  <link rel="stylesheet" href="styles.css?v=24">
 </head>
 <body>
   <div id="app">
@@ -853,12 +853,8 @@
             <h3 class="lab-section-title">Music</h3>
             <select id="lab-interval" class="lab-interval-select">
               <option value="none">No Tuning</option>
-              <option value="unison" selected>Unison</option>
-              <option value="minor3rd">Minor 3rd</option>
-              <option value="major3rd">Major 3rd</option>
-              <option value="perfect4th">Perfect 4th</option>
-              <option value="perfect5th">Perfect 5th</option>
-              <option value="octave">Octave</option>
+              <option value="minor" selected>Auto-Tune (Minor)</option>
+              <option value="major">Auto-Tune (Major)</option>
             </select>
           </div>
           <div class="lab-tracks" id="lab-tracks"></div>
@@ -933,8 +929,8 @@
   </div>
 
   <script src="https://js.stripe.com/v3/" async></script>
-  <script src="audio-engine.js?v=23"></script>
-  <script src="app.js?v=23"></script>
+  <script src="audio-engine.js?v=24"></script>
+  <script src="app.js?v=24"></script>
   <script>
     if ('serviceWorker' in navigator) {
       if (!localStorage.getItem('tiq_sw_v12')) {

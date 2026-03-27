@@ -648,23 +648,56 @@ const TRACK_CATALOG = [
   { id: 'theta-binaural',       file: 'music/theta-binaural.mp3',       title: 'Theta Binaural',       key: 'Dm', rootFreq: 293.66 },
 ];
 
-const HARMONIC_INTERVALS = {
-  none:        { ratio: null, label: 'No Tuning' },
-  unison:      { ratio: 1,    label: 'Unison' },
-  minor3rd:    { ratio: 6/5,  label: 'Minor 3rd' },
-  major3rd:    { ratio: 5/4,  label: 'Major 3rd' },
-  perfect4th:  { ratio: 4/3,  label: 'Perfect 4th' },
-  perfect5th:  { ratio: 3/2,  label: 'Perfect 5th' },
-  octave:      { ratio: 2,    label: 'Octave' },
+// All 12 chromatic note frequencies in octave 4 (used to find nearest scale degree)
+const NOTE_FREQS = [
+  { note: 'C',  hz: 261.63 }, { note: 'C#', hz: 277.18 }, { note: 'D',  hz: 293.66 },
+  { note: 'D#', hz: 311.13 }, { note: 'E',  hz: 329.63 }, { note: 'F',  hz: 349.23 },
+  { note: 'F#', hz: 369.99 }, { note: 'G',  hz: 392.00 }, { note: 'G#', hz: 415.30 },
+  { note: 'A',  hz: 440.00 }, { note: 'A#', hz: 466.16 }, { note: 'B',  hz: 493.88 },
+];
+
+// Scale intervals in semitones from root
+const SCALES = {
+  major: [0, 2, 4, 5, 7, 9, 11],
+  minor: [0, 2, 3, 5, 7, 8, 10],
 };
 
-function calcPlaybackRate(rootFreq, carrierHz, intervalRatio) {
-  if (!intervalRatio || !carrierHz) return 1.0;
-  let targetFreq = carrierHz * intervalRatio;
-  // Bring target into the octave nearest to rootFreq
-  while (targetFreq > rootFreq * 1.5) targetFreq /= 2;
-  while (targetFreq < rootFreq / 1.5) targetFreq *= 2;
-  return targetFreq / rootFreq;
+/**
+ * Find the nearest note in the carrier's scale to the track's root.
+ * Returns a playbackRate ratio (always close to 1.0 — max ±6 semitones).
+ * @param {number} rootFreq - The track's root frequency (e.g. 261.63 for C)
+ * @param {number} carrierHz - The active binaural carrier (e.g. 293.66 for D)
+ * @param {string} scaleType - 'major' or 'minor'
+ */
+function calcPlaybackRate(rootFreq, carrierHz, scaleType) {
+  if (!carrierHz || !scaleType || scaleType === 'none') return 1.0;
+
+  // Find carrier's note index
+  const carrierIdx = NOTE_FREQS.reduce((best, n, i) =>
+    Math.abs(Math.log2(n.hz / carrierHz)) < Math.abs(Math.log2(NOTE_FREQS[best].hz / carrierHz)) ? i : best, 0);
+
+  // Build scale notes from carrier root
+  const scale = SCALES[scaleType] || SCALES.minor;
+  const scaleFreqs = scale.map(s => {
+    const idx = (carrierIdx + s) % 12;
+    return NOTE_FREQS[idx].hz;
+  });
+
+  // Normalize rootFreq into octave 4 range for comparison
+  let normRoot = rootFreq;
+  while (normRoot < 261) normRoot *= 2;
+  while (normRoot > 522) normRoot /= 2;
+
+  // Find nearest scale degree to the track's root
+  let nearest = scaleFreqs[0];
+  let minDist = Infinity;
+  for (const f of scaleFreqs) {
+    const dist = Math.abs(Math.log2(f / normRoot));
+    if (dist < minDist) { minDist = dist; nearest = f; }
+  }
+
+  // Ratio: how much to shift the track so its root lands on that scale degree
+  return nearest / normRoot;
 }
 
 class MusicPlayer {

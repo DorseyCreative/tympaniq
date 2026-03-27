@@ -747,7 +747,7 @@
   const labState = {
     activeSounds: {},      // { soundId: { nodes[], gainNode } }
     activeCarrierHz: null,
-    selectedInterval: 'unison',
+    scaleType: 'minor',    // scale type for auto-tuning (minor/major)
     musicSources: {},      // { trackId: { source, gainNode } }
     buffers: {},           // { trackId: AudioBuffer }
     masterGain: null,
@@ -777,7 +777,7 @@
     }},
   };
 
-  function initSoundLab() {
+  async function initSoundLab() {
     engine.init();
     if (engine.ctx.state === 'suspended') engine.ctx.resume();
 
@@ -790,6 +790,17 @@
       labState.musicGain = engine.ctx.createGain();
       labState.musicGain.gain.value = 0.3;
       labState.musicGain.connect(engine.masterGain);
+    }
+
+    // Load pitch-shifter worklet for tempo-locked pitch changes
+    if (!labState.workletReady) {
+      try {
+        await engine.ctx.audioWorklet.addModule('pitch-shifter-worklet.js');
+        labState.workletReady = true;
+      } catch (e) {
+        console.warn('Pitch shifter worklet failed to load:', e);
+        labState.workletReady = false;
+      }
     }
 
     engine._startKeepAlive();
@@ -842,8 +853,7 @@
   function getPlaybackRateForTrack(trackId) {
     const track = TRACK_CATALOG.find(t => t.id === trackId);
     if (!track) return 1.0;
-    const interval = HARMONIC_INTERVALS[labState.selectedInterval];
-    return calcPlaybackRate(track.rootFreq, labState.activeCarrierHz, interval ? interval.ratio : null);
+    return calcPlaybackRate(track.rootFreq, labState.activeCarrierHz, labState.scaleType);
   }
 
   function updateAllTrackRates() {
@@ -855,10 +865,10 @@
         const pct = Math.round((rate - 1) * 100);
         rateEl.textContent = pct === 0 ? '1.00x' : `${pct > 0 ? '+' : ''}${pct}%`;
       }
-      // Update live playing source
+      // Update live pitch shifter node (tempo stays locked)
       const src = labState.musicSources[t.id];
-      if (src && src.source) {
-        src.source.playbackRate.linearRampToValueAtTime(rate, engine.ctx.currentTime + 0.3);
+      if (src && src.pitchNode) {
+        src.pitchNode.port.postMessage({ pitchRatio: rate });
       }
     });
   }
@@ -906,25 +916,40 @@
       info.gainNode.gain.linearRampToValueAtTime(0, engine.ctx.currentTime + 0.5);
       setTimeout(() => {
         try { info.source.stop(); } catch(e) {}
+        if (info.pitchNode) try { info.pitchNode.disconnect(); } catch(e) {}
         try { info.gainNode.disconnect(); } catch(e) {}
       }, 600);
       delete labState.musicSources[trackId];
     } else {
-      // Play
+      // Play — route through pitch shifter worklet (pitch change, tempo locked)
       const buffer = labState.buffers[trackId];
       if (!buffer) return;
       const source = engine.ctx.createBufferSource();
       source.buffer = buffer;
       source.loop = true;
+      source.playbackRate.value = 1.0; // tempo stays at 1x always
+
       const rate = getPlaybackRateForTrack(trackId);
-      source.playbackRate.value = rate;
       const gain = engine.ctx.createGain();
       gain.gain.value = 0;
       gain.gain.linearRampToValueAtTime(1, engine.ctx.currentTime + 1);
-      source.connect(gain);
+
+      let pitchNode = null;
+      if (labState.workletReady) {
+        pitchNode = new AudioWorkletNode(engine.ctx, 'pitch-shifter', {
+          processorOptions: { pitchRatio: rate },
+          outputChannelCount: [2],
+        });
+        source.connect(pitchNode);
+        pitchNode.connect(gain);
+      } else {
+        // Fallback if worklet didn't load
+        source.connect(gain);
+      }
+
       gain.connect(labState.musicGain);
       source.start();
-      labState.musicSources[trackId] = { source, gainNode: gain };
+      labState.musicSources[trackId] = { source, gainNode: gain, pitchNode };
     }
 
     // Update button UI
@@ -1974,7 +1999,7 @@
       }
     });
     document.getElementById('lab-interval').addEventListener('change', (e) => {
-      labState.selectedInterval = e.target.value;
+      labState.scaleType = e.target.value;
       updateAllTrackRates();
     });
 
