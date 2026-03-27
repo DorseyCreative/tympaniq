@@ -1208,7 +1208,7 @@
       this.ctx = engine.ctx;
       if (!this.masterGain) {
         this.masterGain = this.ctx.createGain();
-        this.masterGain.gain.value = 0.5;
+        this.masterGain.gain.value = 0.6;
         this.masterGain.connect(this.ctx.destination);
       }
     },
