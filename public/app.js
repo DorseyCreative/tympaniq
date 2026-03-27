@@ -712,6 +712,7 @@
         }
         previewEngine.init();
         if (previewEngine.ctx.state === 'suspended') previewEngine.ctx.resume();
+        previewEngine._startKeepAlive();
         previewEngine.playPhase(allPhases[idx]);
 
         // Auto-stop after 15 seconds
@@ -724,6 +725,7 @@
     if (previewEngine) {
       clearTimeout(previewEngine._previewTimeout);
       previewEngine.stopAllNodes();
+      previewEngine._stopKeepAlive();
       previewEngine._currentFadeGain = null;
     }
     document.querySelectorAll('.phase-preview-btn').forEach(b => {
