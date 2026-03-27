@@ -745,13 +745,15 @@
 
   // --- Sound Lab ---
   const labState = {
-    activeSounds: {},      // { soundId: { nodes[], gainNode } }
+    activeSounds: {},      // { soundId: { nodes[], gainNode, oscR?, baseFreq? } }
     activeCarrierHz: null,
     scaleType: 'minor',    // scale type for auto-tuning (minor/major)
-    musicSources: {},      // { trackId: { source, gainNode } }
+    musicSources: {},      // { trackId: { source, gainNode, pitchNode } }
     buffers: {},           // { trackId: AudioBuffer }
+    trackTuning: {},       // { trackId: { semitones: 0, cents: 0 } }
     masterGain: null,
     musicGain: null,
+    savedMixes: JSON.parse(localStorage.getItem('tympaniq-lab-mixes') || '[]'),
   };
 
   const LAB_SOUNDS = {
@@ -811,23 +813,67 @@
   function buildLabTracks() {
     const container = document.getElementById('lab-tracks');
     if (!container) return;
-    container.innerHTML = TRACK_CATALOG.map(t => `
+    // Init tuning state for each track
+    TRACK_CATALOG.forEach(t => {
+      if (!labState.trackTuning[t.id]) labState.trackTuning[t.id] = { semitones: 0, cents: 0 };
+    });
+
+    container.innerHTML = TRACK_CATALOG.map(t => {
+      const tune = labState.trackTuning[t.id] || { semitones: 0, cents: 0 };
+      return `
       <div class="lab-track" data-track-id="${t.id}">
-        <div class="lab-track-info">
-          <div class="lab-track-title">${t.title}</div>
-          <div class="lab-track-meta">
-            <span class="lab-track-key">${t.key}${t.bpm ? ' · ' + t.bpm + 'bpm' : ''}</span>
-            <span class="lab-track-rate" id="lab-rate-${t.id}">1.00x</span>
+        <div class="lab-track-top">
+          <div class="lab-track-info">
+            <div class="lab-track-title">${t.title}</div>
+            <div class="lab-track-meta">
+              <span class="lab-track-key">${t.key}${t.bpm ? ' · ' + t.bpm + 'bpm' : ''}</span>
+              <span class="lab-track-rate" id="lab-rate-${t.id}">0</span>
+            </div>
           </div>
+          <button class="lab-track-btn" data-track-id="${t.id}" title="Play ${t.title}">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+          </button>
         </div>
-        <button class="lab-track-btn" data-track-id="${t.id}" title="Play ${t.title}">
-          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-        </button>
-      </div>
-    `).join('');
+        <div class="lab-tuner-row">
+          <label class="lab-tuner-label">
+            <span class="lab-tuner-name">Semi</span>
+            <input type="range" class="lab-tuner-slider" data-track="${t.id}" data-type="semitones" min="-12" max="12" value="${tune.semitones}" step="1">
+            <span class="lab-tuner-val" id="lab-semi-${t.id}">${tune.semitones > 0 ? '+' : ''}${tune.semitones}</span>
+          </label>
+          <label class="lab-tuner-label">
+            <span class="lab-tuner-name">Fine</span>
+            <input type="range" class="lab-tuner-slider" data-track="${t.id}" data-type="cents" min="-50" max="50" value="${tune.cents}" step="1">
+            <span class="lab-tuner-val" id="lab-cents-${t.id}">${tune.cents > 0 ? '+' : ''}${tune.cents}¢</span>
+          </label>
+        </div>
+      </div>`;
+    }).join('');
 
     container.querySelectorAll('.lab-track-btn').forEach(btn => {
       btn.addEventListener('click', () => toggleLabTrack(btn.dataset.trackId));
+    });
+
+    container.querySelectorAll('.lab-tuner-slider').forEach(slider => {
+      slider.addEventListener('input', (e) => {
+        const trackId = e.target.dataset.track;
+        const type = e.target.dataset.type;
+        const val = parseInt(e.target.value);
+        if (!labState.trackTuning[trackId]) labState.trackTuning[trackId] = { semitones: 0, cents: 0 };
+        labState.trackTuning[trackId][type] = val;
+
+        // Update display
+        if (type === 'semitones') {
+          const el = document.getElementById(`lab-semi-${trackId}`);
+          if (el) el.textContent = (val > 0 ? '+' : '') + val;
+        } else {
+          const el = document.getElementById(`lab-cents-${trackId}`);
+          if (el) el.textContent = (val > 0 ? '+' : '') + val + '¢';
+        }
+
+        // Update pitch + binaural in real-time
+        updateTrackPitch(trackId);
+        syncBinauralToTempo();
+      });
     });
   }
 
@@ -853,24 +899,34 @@
   function getPlaybackRateForTrack(trackId) {
     const track = TRACK_CATALOG.find(t => t.id === trackId);
     if (!track) return 1.0;
-    return calcPlaybackRate(track.rootFreq, labState.activeCarrierHz, labState.scaleType);
+    // Auto-tune base from analysis
+    let rate = calcPlaybackRate(track.rootFreq, labState.activeCarrierHz, labState.scaleType);
+    // Apply manual tuning offsets (semitones + cents)
+    const tune = labState.trackTuning[trackId];
+    if (tune) {
+      rate *= Math.pow(2, tune.semitones / 12 + tune.cents / 1200);
+    }
+    return rate;
+  }
+
+  function updateTrackPitch(trackId) {
+    const rate = getPlaybackRateForTrack(trackId);
+    // Update rate display
+    const rateEl = document.getElementById(`lab-rate-${trackId}`);
+    if (rateEl) {
+      const pct = Math.round((rate - 1) * 100);
+      rateEl.textContent = pct === 0 ? '0' : `${pct > 0 ? '+' : ''}${pct}%`;
+    }
+    // Update live pitch shifter
+    const src = labState.musicSources[trackId];
+    if (src && src.pitchNode) {
+      src.pitchNode.port.postMessage({ pitchRatio: rate });
+    }
   }
 
   function updateAllTrackRates() {
     labState.activeCarrierHz = getActiveCarrierHz();
-    TRACK_CATALOG.forEach(t => {
-      const rate = getPlaybackRateForTrack(t.id);
-      const rateEl = document.getElementById(`lab-rate-${t.id}`);
-      if (rateEl) {
-        const pct = Math.round((rate - 1) * 100);
-        rateEl.textContent = pct === 0 ? '1.00x' : `${pct > 0 ? '+' : ''}${pct}%`;
-      }
-      // Update live pitch shifter node (tempo stays locked)
-      const src = labState.musicSources[t.id];
-      if (src && src.pitchNode) {
-        src.pitchNode.port.postMessage({ pitchRatio: rate });
-      }
-    });
+    TRACK_CATALOG.forEach(t => updateTrackPitch(t.id));
   }
 
   /**
@@ -1008,6 +1064,124 @@
     Object.keys(labState.activeSounds).forEach(id => toggleLabSound(id));
     Object.keys(labState.musicSources).forEach(id => toggleLabTrack(id));
     engine._stopKeepAlive();
+  }
+
+  // --- Mix Save / Load ---
+
+  function saveMix() {
+    const name = prompt('Name this mix:');
+    if (!name || !name.trim()) return;
+
+    const mix = {
+      name: name.trim(),
+      sounds: Object.keys(labState.activeSounds),
+      tracks: Object.keys(labState.musicSources),
+      tuning: JSON.parse(JSON.stringify(labState.trackTuning)),
+      scaleType: labState.scaleType,
+      masterVol: parseInt(document.getElementById('lab-master-vol')?.value || 40),
+      musicVol: parseInt(document.getElementById('lab-music-vol')?.value || 30),
+      ts: Date.now(),
+    };
+
+    labState.savedMixes.push(mix);
+    localStorage.setItem('tympaniq-lab-mixes', JSON.stringify(labState.savedMixes));
+    renderMixes();
+  }
+
+  function deleteMix(index) {
+    labState.savedMixes.splice(index, 1);
+    localStorage.setItem('tympaniq-lab-mixes', JSON.stringify(labState.savedMixes));
+    renderMixes();
+  }
+
+  function loadMix(index) {
+    const mix = labState.savedMixes[index];
+    if (!mix) return;
+
+    // Stop everything first
+    stopAllLabSounds();
+
+    // Restore tuning
+    labState.trackTuning = JSON.parse(JSON.stringify(mix.tuning || {}));
+    labState.scaleType = mix.scaleType || 'minor';
+
+    // Restore volume sliders
+    const masterSlider = document.getElementById('lab-master-vol');
+    const musicSlider = document.getElementById('lab-music-vol');
+    const intervalSelect = document.getElementById('lab-interval');
+    if (masterSlider) {
+      masterSlider.value = mix.masterVol;
+      if (labState.masterGain) labState.masterGain.gain.setTargetAtTime(mix.masterVol / 100, engine.ctx.currentTime, 0.05);
+    }
+    if (musicSlider) {
+      musicSlider.value = mix.musicVol;
+      if (labState.musicGain) labState.musicGain.gain.setTargetAtTime(mix.musicVol / 100, engine.ctx.currentTime, 0.05);
+    }
+    if (intervalSelect) intervalSelect.value = labState.scaleType;
+
+    // Rebuild tracks to reflect tuning slider positions
+    buildLabTracks();
+
+    // Activate sounds
+    (mix.sounds || []).forEach(id => toggleLabSound(id));
+
+    // Activate tracks (needs small delay for buffers)
+    setTimeout(() => {
+      (mix.tracks || []).forEach(id => {
+        if (labState.buffers[id]) toggleLabTrack(id);
+      });
+    }, 100);
+  }
+
+  function renderMixes() {
+    const section = document.getElementById('lab-mixes-section');
+    const container = document.getElementById('lab-mixes');
+    if (!container || !section) return;
+
+    if (labState.savedMixes.length === 0) {
+      section.style.display = 'none';
+      return;
+    }
+    section.style.display = '';
+
+    container.innerHTML = labState.savedMixes.map((mix, i) => {
+      const tags = [
+        ...mix.sounds.map(s => LAB_SOUNDS[s]?.label || s),
+        ...mix.tracks.map(id => {
+          const t = TRACK_CATALOG.find(c => c.id === id);
+          return t ? t.title : id;
+        }),
+      ];
+      const tuneInfo = mix.tracks.map(id => {
+        const tune = (mix.tuning || {})[id];
+        if (!tune || (tune.semitones === 0 && tune.cents === 0)) return null;
+        const t = TRACK_CATALOG.find(c => c.id === id);
+        return `${t ? t.title.split(' ')[0] : id}: ${tune.semitones > 0 ? '+' : ''}${tune.semitones}st ${tune.cents > 0 ? '+' : ''}${tune.cents}¢`;
+      }).filter(Boolean);
+
+      return `
+        <div class="lab-mix-card" data-mix-index="${i}">
+          <div class="lab-mix-info">
+            <div class="lab-mix-name">${mix.name}</div>
+            <div class="lab-mix-tags">${tags.join(' · ')}</div>
+            ${tuneInfo.length ? `<div class="lab-mix-tune">${tuneInfo.join(' | ')}</div>` : ''}
+          </div>
+          <button class="lab-mix-del" data-mix-del="${i}" title="Delete">×</button>
+        </div>`;
+    }).join('');
+
+    container.querySelectorAll('.lab-mix-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.lab-mix-del')) return;
+        loadMix(parseInt(card.dataset.mixIndex));
+      });
+    });
+    container.querySelectorAll('.lab-mix-del').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteMix(parseInt(btn.dataset.mixDel));
+      });
+    });
   }
 
   // --- Pre-Session Reminder ---
@@ -2019,8 +2193,10 @@
     // Sound Lab
     document.getElementById('btn-lab').addEventListener('click', () => {
       initSoundLab();
+      renderMixes();
       showScreen('screen-lab');
     });
+    document.getElementById('btn-save-mix').addEventListener('click', saveMix);
     document.getElementById('btn-back-lab').addEventListener('click', () => {
       stopAllLabSounds();
       showScreen('screen-dashboard');

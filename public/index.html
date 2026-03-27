@@ -826,8 +826,17 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </button>
         <h2>Sound Lab</h2>
+        <button id="btn-save-mix" class="lab-save-btn" title="Save Mix">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        </button>
       </header>
       <div class="lab-scroll">
+        <!-- Saved Mixes -->
+        <section class="lab-section" id="lab-mixes-section" style="display:none">
+          <h3 class="lab-section-title">Saved Mixes</h3>
+          <div class="lab-mixes" id="lab-mixes"></div>
+        </section>
+
         <!-- Soundboard -->
         <section class="lab-section">
           <h3 class="lab-section-title">Therapy Sounds</h3>
