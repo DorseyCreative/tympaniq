@@ -1298,7 +1298,7 @@
       a.loop = true;
       const src = this.ctx.createMediaElementSource(a);
       const g = this.ctx.createGain();
-      g.gain.value = 0.25;
+      g.gain.value = 0.2;
       src.connect(g); g.connect(this.ctx.destination);
       a.play().catch(() => {});
       this.splashAudio = a; this.splashGain = g;
