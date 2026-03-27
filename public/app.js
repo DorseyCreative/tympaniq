@@ -667,30 +667,43 @@
     const container = document.getElementById('phase-preview-list');
     if (!container) return;
 
-    // Get all unique phase types from all protocols
+    const sessions = [
+      { mode: 'quick', label: 'Quick Relief', duration: '10 min' },
+      { mode: 'daily', label: 'Daily Training', duration: '20 min' },
+      { mode: 'deep', label: 'Deep Conditioning', duration: '30 min' },
+    ];
+
+    // Collect all phases across all sessions (with session grouping)
     const allPhases = [];
-    const seen = new Set();
-    ['quick', 'daily', 'deep'].forEach(mode => {
-      const protocol = engine.getProtocol(mode, state.settings);
-      protocol.phases.forEach(p => {
-        if (!seen.has(p.name) && p.type !== 'silence') {
-          seen.add(p.name);
-          allPhases.push(p);
-        }
+    let html = '';
+
+    sessions.forEach(session => {
+      const protocol = engine.getProtocol(session.mode, state.settings);
+      const nonSilent = protocol.phases.filter(p => p.type !== 'silence');
+
+      html += `<div class="phase-preview-session">
+        <div class="phase-preview-session-header">
+          <span class="phase-preview-session-name">${session.label}</span>
+          <span class="phase-preview-session-dur">${session.duration} · ${nonSilent.length} phases</span>
+        </div>`;
+
+      nonSilent.forEach(p => {
+        const globalIdx = allPhases.length;
+        allPhases.push(p);
+        html += `
+        <div class="phase-preview-row">
+          <span class="phase-name">${p.name}</span>
+          <span class="phase-type">${p.type.replace(/_/g, ' ')}</span>
+          <button class="phase-preview-btn" data-idx="${globalIdx}" title="Preview ${p.name}">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+          </button>
+        </div>`;
       });
+
+      html += '</div>';
     });
 
-    container.innerHTML = allPhases.map((p, i) => `
-      <div class="phase-preview-row">
-        <span class="phase-name">${p.name}</span>
-        <span class="phase-type">${p.type.replace('_', ' ')}</span>
-        <button class="phase-preview-btn" data-idx="${i}" title="Preview">
-          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-        </button>
-      </div>
-    `).join('');
-
-    // Store phases for playback
+    container.innerHTML = html;
     container._phases = allPhases;
 
     container.querySelectorAll('.phase-preview-btn').forEach(btn => {
@@ -698,12 +711,9 @@
         const idx = parseInt(btn.dataset.idx);
         const isPlaying = btn.classList.contains('playing');
 
-        // Stop any existing preview
         stopPhasePreview();
-
         if (isPlaying) return;
 
-        // Play this phase
         btn.classList.add('playing');
         btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
 
@@ -715,7 +725,6 @@
         previewEngine._startKeepAlive();
         previewEngine.playPhase(allPhases[idx]);
 
-        // Auto-stop after 15 seconds
         previewEngine._previewTimeout = setTimeout(() => stopPhasePreview(), 15000);
       });
     });
