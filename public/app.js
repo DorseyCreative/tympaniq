@@ -1290,7 +1290,28 @@
       this.instrumentNodes.oscs.forEach(o => { try{o.stop();}catch(e){} });
       try{this.instrumentNodes.env.disconnect();}catch(e){} this.instrumentNodes = null;
     },
-    stopAll() { this.stopBinaural(); this.stopInstrument(); },
+    splashAudio: null, splashGain: null,
+    startSplash() {
+      this.init();
+      if (this.splashAudio) return;
+      const a = new Audio('music/splash.mp3');
+      a.loop = true;
+      const src = this.ctx.createMediaElementSource(a);
+      const g = this.ctx.createGain();
+      g.gain.value = 0.25;
+      src.connect(g); g.connect(this.ctx.destination);
+      a.play().catch(() => {});
+      this.splashAudio = a; this.splashGain = g;
+    },
+    fadeSplash(dur) {
+      if (!this.splashGain || !this.splashAudio) return;
+      const now = this.ctx.currentTime;
+      this.splashGain.gain.setValueAtTime(this.splashGain.gain.value, now);
+      this.splashGain.gain.linearRampToValueAtTime(0, now + dur);
+      const a = this.splashAudio; this.splashAudio = null;
+      setTimeout(() => { a.pause(); a.currentTime = 0; }, dur * 1000 + 200);
+    },
+    stopAll() { this.stopBinaural(); this.stopInstrument(); this.fadeSplash(0.3); },
   };
 
   function tmGetGrade(c) {
@@ -1342,9 +1363,11 @@
     let d = Math.round(Math.random()*range*2-range);
     if (Math.abs(d)<15) d += d>=0?20:-20;
     tmState.initialDetune = d;
+    tmState.sliderOffset = Math.round(Math.random() * 80 - 40);
+    if (Math.abs(tmState.sliderOffset) < 15) tmState.sliderOffset += tmState.sliderOffset >= 0 ? 20 : -20;
     tmState.playerDetune = d;
     const slider = document.getElementById('tm-pitch-slider');
-    slider.value = d;
+    slider.value = d - tmState.sliderOffset;
     tmAudio.init();
     tmAudio.startBinaural(s.baseFreq, s.beatFreq);
     tmAudio.startInstrument(s.instrumentType, s.instrumentFreq, d);
@@ -2446,6 +2469,7 @@
     document.getElementById('btn-tunematch').addEventListener('click', () => {
       tmShowPhase('tm-pregame');
       showScreen('screen-tunematch');
+      tmAudio.startSplash();
     });
     document.getElementById('btn-back-tunematch').addEventListener('click', () => {
       tmAudio.stopAll();
@@ -2453,11 +2477,12 @@
       showScreen('screen-progress');
     });
     document.getElementById('btn-tm-start').addEventListener('click', () => {
+      tmAudio.fadeSplash(1.5);
       tmState.scores = [];
       tmStartRound(0);
     });
     document.getElementById('tm-pitch-slider').addEventListener('input', (e) => {
-      tmState.playerDetune = parseInt(e.target.value);
+      tmState.playerDetune = parseInt(e.target.value) + (tmState.sliderOffset || 0);
       tmAudio.setDetune(tmState.playerDetune);
     });
     document.getElementById('btn-tm-lockin').addEventListener('click', tmLockIn);
