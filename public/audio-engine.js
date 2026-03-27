@@ -642,10 +642,10 @@ class TympanIQEngine {
  */
 // --- Sound Lab: Track Catalog & Harmonic Tuning ---
 const TRACK_CATALOG = [
-  { id: 'broadband-enrichment', file: 'music/broadband-enrichment.mp3', title: 'Broadband Enrichment', key: 'C', rootFreq: 261.63 },
-  { id: 'alpha-binaural',       file: 'music/alpha-binaural.mp3',       title: 'Alpha Binaural',       key: 'A', rootFreq: 440.00 },
-  { id: 'mixed-enrichment',     file: 'music/mixed-enrichment.mp3',     title: 'Mixed Enrichment',     key: 'G', rootFreq: 392.00 },
-  { id: 'theta-binaural',       file: 'music/theta-binaural.mp3',       title: 'Theta Binaural',       key: 'Dm', rootFreq: 293.66 },
+  { id: 'broadband-enrichment', file: 'music/broadband-enrichment.mp3', title: 'Broadband Enrichment', key: 'C', rootFreq: 261.63, bpm: null },
+  { id: 'alpha-binaural',       file: 'music/alpha-binaural.mp3',       title: 'Alpha Binaural',       key: 'A', rootFreq: 440.00, bpm: 70 },
+  { id: 'mixed-enrichment',     file: 'music/mixed-enrichment.mp3',     title: 'Mixed Enrichment',     key: 'G', rootFreq: 392.00, bpm: 75 },
+  { id: 'theta-binaural',       file: 'music/theta-binaural.mp3',       title: 'Theta Binaural',       key: 'Dm', rootFreq: 293.66, bpm: 68 },
 ];
 
 // All 12 chromatic note frequencies in octave 4 (used to find nearest scale degree)

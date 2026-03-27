@@ -756,18 +756,18 @@
 
   const LAB_SOUNDS = {
     pink_noise:      { label: 'Pink Noise', carrierHz: null, create: (e) => { const n = e.createPinkNoise(); n.start(); return { nodes: [n], output: n }; }},
-    alpha_binaural:  { label: 'Alpha 10Hz', carrierHz: 440, create: (e) => { const bb = e.createBinauralBeat(440, 10); bb.oscL.start(); bb.oscR.start(); return { nodes: [bb.oscL, bb.oscR], output: bb.merger }; }},
-    theta_binaural:  { label: 'Theta 6Hz', carrierHz: 293.66, create: (e) => { const bb = e.createBinauralBeat(293.66, 6); bb.oscL.start(); bb.oscR.start(); return { nodes: [bb.oscL, bb.oscR], output: bb.merger }; }},
+    alpha_binaural:  { label: 'Alpha 10Hz', carrierHz: 440, baseFreq: 440, defaultBeat: 10, create: (e) => { const bb = e.createBinauralBeat(440, 10); bb.oscL.start(); bb.oscR.start(); return { nodes: [bb.oscL, bb.oscR], output: bb.merger, oscR: bb.oscR, baseFreq: 440 }; }},
+    theta_binaural:  { label: 'Theta 6Hz', carrierHz: 293.66, baseFreq: 293.66, defaultBeat: 6, create: (e) => { const bb = e.createBinauralBeat(293.66, 6); bb.oscL.start(); bb.oscR.start(); return { nodes: [bb.oscL, bb.oscR], output: bb.merger, oscR: bb.oscR, baseFreq: 293.66 }; }},
     sweep_low:       { label: 'Lo Sweep', carrierHz: null, create: (e) => { const s = e.createFrequencySweep(250, 1000, 10); s.start(); return { nodes: [s], output: s }; }},
     sweep_mid:       { label: 'Mid Sweep', carrierHz: null, create: (e) => { const s = e.createFrequencySweep(500, 4000, 10); s.start(); return { nodes: [s], output: s }; }},
     sweep_high:      { label: 'Hi Sweep', carrierHz: null, create: (e) => { const s = e.createFrequencySweep(1000, 4000, 10); s.start(); return { nodes: [s], output: s }; }},
-    mixed:           { label: 'Mixed', carrierHz: 440, create: (e) => {
+    mixed:           { label: 'Mixed', carrierHz: 440, baseFreq: 440, defaultBeat: 10, create: (e) => {
       const n = e.createPinkNoise(); n.start();
       const nGain = e.ctx.createGain(); nGain.gain.value = 0.5; n.connect(nGain);
       const bb = e.createBinauralBeat(440, 10); bb.oscL.start(); bb.oscR.start();
       const bbGain = e.ctx.createGain(); bbGain.gain.value = 0.5; bb.merger.connect(bbGain);
       const mix = e.ctx.createGain(); nGain.connect(mix); bbGain.connect(mix);
-      return { nodes: [n, bb.oscL, bb.oscR], output: mix };
+      return { nodes: [n, bb.oscL, bb.oscR], output: mix, oscR: bb.oscR, baseFreq: 440 };
     }},
     acrn:            { label: 'ACRN', carrierHz: null, create: (e) => {
       const acrn = e.createACRNTones(6000);
@@ -816,7 +816,7 @@
         <div class="lab-track-info">
           <div class="lab-track-title">${t.title}</div>
           <div class="lab-track-meta">
-            <span class="lab-track-key">${t.key}</span>
+            <span class="lab-track-key">${t.key}${t.bpm ? ' · ' + t.bpm + 'bpm' : ''}</span>
             <span class="lab-track-rate" id="lab-rate-${t.id}">1.00x</span>
           </div>
         </div>
@@ -873,6 +873,38 @@
     });
   }
 
+  /**
+   * Sync active binaural beat frequencies to 1/8th note of the active track's BPM.
+   * If no track is playing (or track has no BPM), revert to default beat frequency.
+   */
+  function syncBinauralToTempo() {
+    // Find the first playing track with a BPM
+    let activeBpm = null;
+    for (const [trackId] of Object.entries(labState.musicSources)) {
+      const track = TRACK_CATALOG.find(t => t.id === trackId);
+      if (track && track.bpm) { activeBpm = track.bpm; break; }
+    }
+
+    // 1/8th note frequency = BPM * 2 / 60
+    const eighthNoteHz = activeBpm ? (activeBpm * 2) / 60 : null;
+
+    // Update every active binaural sound
+    for (const [soundId, info] of Object.entries(labState.activeSounds)) {
+      if (!info.oscR || !info.baseFreq) continue;
+      const def = LAB_SOUNDS[soundId];
+      const beatHz = eighthNoteHz || def.defaultBeat;
+      const now = engine.ctx.currentTime;
+      info.oscR.frequency.setTargetAtTime(info.baseFreq + beatHz, now, 0.3);
+
+      // Update pad label to show current beat freq
+      const pad = document.querySelector(`.lab-pad[data-sound="${soundId}"]`);
+      if (pad) {
+        const label = pad.querySelector('.lab-pad-label');
+        if (label) label.textContent = `${def.label.split(' ')[0]} ${beatHz.toFixed(1)}Hz`;
+      }
+    }
+  }
+
   function toggleLabSound(soundId) {
     if (labState.activeSounds[soundId]) {
       // Turn off
@@ -893,7 +925,11 @@
       gain.gain.linearRampToValueAtTime(0.35, engine.ctx.currentTime + 1);
       result.output.connect(gain);
       gain.connect(labState.masterGain);
-      labState.activeSounds[soundId] = { nodes: result.nodes, gainNode: gain };
+      labState.activeSounds[soundId] = {
+        nodes: result.nodes, gainNode: gain,
+        oscR: result.oscR || null,
+        baseFreq: result.baseFreq || null,
+      };
     }
 
     // Update pad UI
@@ -902,6 +938,8 @@
 
     // Recalculate carrier and music pitch
     updateAllTrackRates();
+    // Sync binaural beat to active track tempo
+    syncBinauralToTempo();
 
     // Keep-alive management
     const anyActive = Object.keys(labState.activeSounds).length > 0 || Object.keys(labState.musicSources).length > 0;
@@ -961,6 +999,9 @@
         ? '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
         : '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
     }
+
+    // Sync binaural beat to the track's tempo
+    syncBinauralToTempo();
   }
 
   function stopAllLabSounds() {
