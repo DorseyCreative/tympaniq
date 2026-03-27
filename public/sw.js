@@ -1,14 +1,15 @@
-const CACHE_NAME = 'tympaniq-v20';
+const CACHE_NAME = 'tympaniq-v21';
 const ASSETS = [
   '/',
   '/index.html',
-  '/styles.css?v=20',
-  '/audio-engine.js?v=20',
-  '/app.js?v=20',
+  '/styles.css?v=21',
+  '/audio-engine.js?v=21',
+  '/app.js?v=21',
   '/manifest.json',
   '/music/broadband-enrichment.mp3',
   '/music/alpha-binaural.mp3',
   '/music/mixed-enrichment.mp3',
+  '/music/theta-binaural.mp3',
   '/audio/voice/session-end-1.mp3',
   '/audio/voice/session-end-2.mp3',
   '/audio/voice/session-end-3.mp3',

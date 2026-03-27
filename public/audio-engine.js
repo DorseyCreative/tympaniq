@@ -244,7 +244,7 @@ class TympanIQEngine {
           { name: 'Low Frequency Sweep', type: 'sweep', duration: 120, startFreq: 250, endFreq: 1000, level: 0.25 },
           { name: 'Rest Interval', type: 'silence', duration: 60 },
           { name: 'Mid Frequency Sweep', type: 'sweep', duration: 150, startFreq: 500, endFreq: 4000, level: 0.25 },
-          { name: 'Theta Binaural', type: 'binaural', duration: 180, baseFreq, beatFreq: 6, level: 0.35 },
+          { name: 'Theta Binaural', type: 'binaural', duration: 180, baseFreq: 293.66, beatFreq: 6, level: 0.35 },
           { name: 'Rest Interval', type: 'silence', duration: 60 },
           { name: 'Alpha Binaural', type: 'binaural', duration: 180, baseFreq, beatFreq: 10, level: 0.35 },
           { name: 'High Frequency Sweep', type: 'sweep', duration: 120, startFreq: 1000, endFreq: 4000, level: 0.2 },
@@ -659,7 +659,7 @@ class MusicPlayer {
     'Alpha Binaural': 'music/alpha-binaural.mp3',
     'Mixed Enrichment': 'music/mixed-enrichment.mp3',
     // Add more as clips are provided:
-    // 'Theta Binaural': 'music/theta-binaural.mp3',
+    'Theta Binaural': 'music/theta-binaural.mp3',
     // 'Low Frequency Sweep': 'music/lo-sweep.mp3',
     // 'Mid Frequency Sweep': 'music/mid-sweep.mp3',
     // 'High Frequency Sweep': 'music/hi-sweep.mp3',
