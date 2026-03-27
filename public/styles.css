@@ -1801,6 +1801,164 @@ select.setting-input { text-align: left; }
 .about-text { font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 8px; }
 .disclaimer-sm { font-size: 11px; opacity: 0.6; }
 
+/* ========== Sound Lab ========== */
+.lab-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 20px calc(20px + var(--safe-bottom));
+}
+.lab-section {
+  margin-bottom: 24px;
+}
+.lab-section-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.4);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* Soundboard Grid */
+.lab-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.lab-pad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 18px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.lab-pad-icon {
+  font-size: 22px;
+  line-height: 1;
+  opacity: 0.7;
+}
+.lab-pad-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.lab-pad:active { transform: scale(0.96); }
+.lab-pad.active {
+  background: rgba(99,102,241,0.12);
+  border-color: rgba(99,102,241,0.4);
+  color: rgba(255,255,255,0.9);
+  box-shadow: 0 0 20px rgba(99,102,241,0.15), inset 0 0 20px rgba(99,102,241,0.05);
+}
+.lab-pad.active .lab-pad-icon { opacity: 1; }
+
+/* Master volume row */
+.lab-master-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 0 4px;
+}
+.lab-vol-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.35);
+  font-weight: 600;
+  flex-shrink: 0;
+  width: 50px;
+}
+.lab-slider { flex: 1; }
+
+/* Music header + interval selector */
+.lab-music-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.lab-interval-select {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 5px 10px;
+  cursor: pointer;
+  outline: none;
+}
+.lab-interval-select:focus {
+  border-color: var(--accent);
+}
+
+/* Track rows */
+.lab-tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lab-track {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.lab-track-info {
+  flex: 1;
+  min-width: 0;
+}
+.lab-track-title {
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lab-track-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+.lab-track-key {
+  font-size: 10px;
+  color: var(--accent);
+  font-weight: 600;
+  opacity: 0.7;
+}
+.lab-track-rate {
+  font-size: 10px;
+  color: var(--text2);
+  opacity: 0.5;
+}
+.lab-track-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--surface);
+  color: var(--accent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+}
+.lab-track-btn:hover { border-color: var(--accent); }
+.lab-track-btn.playing { background: var(--accent); color: white; border-color: var(--accent); }
+.lab-track-btn svg { width: 14px; height: 14px; }
+
 /* Paywall Modal */
 .modal {
   position: fixed;

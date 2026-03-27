@@ -743,6 +743,207 @@
     });
   }
 
+  // --- Sound Lab ---
+  const labState = {
+    activeSounds: {},      // { soundId: { nodes[], gainNode } }
+    activeCarrierHz: null,
+    selectedInterval: 'unison',
+    musicSources: {},      // { trackId: { source, gainNode } }
+    buffers: {},           // { trackId: AudioBuffer }
+    masterGain: null,
+    musicGain: null,
+  };
+
+  const LAB_SOUNDS = {
+    pink_noise:      { label: 'Pink Noise', carrierHz: null, create: (e) => { const n = e.createPinkNoise(); n.start(); return { nodes: [n], output: n }; }},
+    alpha_binaural:  { label: 'Alpha 10Hz', carrierHz: 440, create: (e) => { const bb = e.createBinauralBeat(440, 10); bb.oscL.start(); bb.oscR.start(); return { nodes: [bb.oscL, bb.oscR], output: bb.merger }; }},
+    theta_binaural:  { label: 'Theta 6Hz', carrierHz: 293.66, create: (e) => { const bb = e.createBinauralBeat(293.66, 6); bb.oscL.start(); bb.oscR.start(); return { nodes: [bb.oscL, bb.oscR], output: bb.merger }; }},
+    sweep_low:       { label: 'Lo Sweep', carrierHz: null, create: (e) => { const s = e.createFrequencySweep(250, 1000, 10); s.start(); return { nodes: [s], output: s }; }},
+    sweep_mid:       { label: 'Mid Sweep', carrierHz: null, create: (e) => { const s = e.createFrequencySweep(500, 4000, 10); s.start(); return { nodes: [s], output: s }; }},
+    sweep_high:      { label: 'Hi Sweep', carrierHz: null, create: (e) => { const s = e.createFrequencySweep(1000, 4000, 10); s.start(); return { nodes: [s], output: s }; }},
+    mixed:           { label: 'Mixed', carrierHz: 440, create: (e) => {
+      const n = e.createPinkNoise(); n.start();
+      const nGain = e.ctx.createGain(); nGain.gain.value = 0.5; n.connect(nGain);
+      const bb = e.createBinauralBeat(440, 10); bb.oscL.start(); bb.oscR.start();
+      const bbGain = e.ctx.createGain(); bbGain.gain.value = 0.5; bb.merger.connect(bbGain);
+      const mix = e.ctx.createGain(); nGain.connect(mix); bbGain.connect(mix);
+      return { nodes: [n, bb.oscL, bb.oscR], output: mix };
+    }},
+    acrn:            { label: 'ACRN', carrierHz: null, create: (e) => {
+      const acrn = e.createACRNTones(6000);
+      const mix = e.ctx.createGain();
+      acrn.oscs.forEach(o => { o.connect(mix); o.start(); });
+      return { nodes: acrn.oscs, output: mix };
+    }},
+  };
+
+  function initSoundLab() {
+    engine.init();
+    if (engine.ctx.state === 'suspended') engine.ctx.resume();
+
+    if (!labState.masterGain) {
+      labState.masterGain = engine.ctx.createGain();
+      labState.masterGain.gain.value = 0.4;
+      labState.masterGain.connect(engine.masterGain);
+    }
+    if (!labState.musicGain) {
+      labState.musicGain = engine.ctx.createGain();
+      labState.musicGain.gain.value = 0.3;
+      labState.musicGain.connect(engine.masterGain);
+    }
+
+    engine._startKeepAlive();
+    buildLabTracks();
+    preloadLabBuffers();
+  }
+
+  function buildLabTracks() {
+    const container = document.getElementById('lab-tracks');
+    if (!container) return;
+    container.innerHTML = TRACK_CATALOG.map(t => `
+      <div class="lab-track" data-track-id="${t.id}">
+        <div class="lab-track-info">
+          <div class="lab-track-title">${t.title}</div>
+          <div class="lab-track-meta">
+            <span class="lab-track-key">${t.key}</span>
+            <span class="lab-track-rate" id="lab-rate-${t.id}">1.00x</span>
+          </div>
+        </div>
+        <button class="lab-track-btn" data-track-id="${t.id}" title="Play ${t.title}">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+        </button>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.lab-track-btn').forEach(btn => {
+      btn.addEventListener('click', () => toggleLabTrack(btn.dataset.trackId));
+    });
+  }
+
+  function preloadLabBuffers() {
+    TRACK_CATALOG.forEach(t => {
+      if (labState.buffers[t.id]) return;
+      fetch(t.file)
+        .then(r => r.arrayBuffer())
+        .then(buf => engine.ctx.decodeAudioData(buf))
+        .then(decoded => { labState.buffers[t.id] = decoded; })
+        .catch(() => {});
+    });
+  }
+
+  function getActiveCarrierHz() {
+    for (const [id, info] of Object.entries(labState.activeSounds)) {
+      const def = LAB_SOUNDS[id];
+      if (def && def.carrierHz) return def.carrierHz;
+    }
+    return null;
+  }
+
+  function getPlaybackRateForTrack(trackId) {
+    const track = TRACK_CATALOG.find(t => t.id === trackId);
+    if (!track) return 1.0;
+    const interval = HARMONIC_INTERVALS[labState.selectedInterval];
+    return calcPlaybackRate(track.rootFreq, labState.activeCarrierHz, interval ? interval.ratio : null);
+  }
+
+  function updateAllTrackRates() {
+    labState.activeCarrierHz = getActiveCarrierHz();
+    TRACK_CATALOG.forEach(t => {
+      const rate = getPlaybackRateForTrack(t.id);
+      const rateEl = document.getElementById(`lab-rate-${t.id}`);
+      if (rateEl) {
+        const pct = Math.round((rate - 1) * 100);
+        rateEl.textContent = pct === 0 ? '1.00x' : `${pct > 0 ? '+' : ''}${pct}%`;
+      }
+      // Update live playing source
+      const src = labState.musicSources[t.id];
+      if (src && src.source) {
+        src.source.playbackRate.linearRampToValueAtTime(rate, engine.ctx.currentTime + 0.3);
+      }
+    });
+  }
+
+  function toggleLabSound(soundId) {
+    if (labState.activeSounds[soundId]) {
+      // Turn off
+      const info = labState.activeSounds[soundId];
+      info.gainNode.gain.linearRampToValueAtTime(0, engine.ctx.currentTime + 0.5);
+      setTimeout(() => {
+        info.nodes.forEach(n => { try { n.stop(); } catch(e) {} try { n.disconnect(); } catch(e) {} });
+        try { info.gainNode.disconnect(); } catch(e) {}
+      }, 600);
+      delete labState.activeSounds[soundId];
+    } else {
+      // Turn on
+      const def = LAB_SOUNDS[soundId];
+      if (!def) return;
+      const result = def.create(engine);
+      const gain = engine.ctx.createGain();
+      gain.gain.value = 0;
+      gain.gain.linearRampToValueAtTime(0.35, engine.ctx.currentTime + 1);
+      result.output.connect(gain);
+      gain.connect(labState.masterGain);
+      labState.activeSounds[soundId] = { nodes: result.nodes, gainNode: gain };
+    }
+
+    // Update pad UI
+    const pad = document.querySelector(`.lab-pad[data-sound="${soundId}"]`);
+    if (pad) pad.classList.toggle('active', !!labState.activeSounds[soundId]);
+
+    // Recalculate carrier and music pitch
+    updateAllTrackRates();
+
+    // Keep-alive management
+    const anyActive = Object.keys(labState.activeSounds).length > 0 || Object.keys(labState.musicSources).length > 0;
+    if (!anyActive) engine._stopKeepAlive();
+    else engine._startKeepAlive();
+  }
+
+  function toggleLabTrack(trackId) {
+    if (labState.musicSources[trackId]) {
+      // Stop
+      const info = labState.musicSources[trackId];
+      info.gainNode.gain.linearRampToValueAtTime(0, engine.ctx.currentTime + 0.5);
+      setTimeout(() => {
+        try { info.source.stop(); } catch(e) {}
+        try { info.gainNode.disconnect(); } catch(e) {}
+      }, 600);
+      delete labState.musicSources[trackId];
+    } else {
+      // Play
+      const buffer = labState.buffers[trackId];
+      if (!buffer) return;
+      const source = engine.ctx.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      const rate = getPlaybackRateForTrack(trackId);
+      source.playbackRate.value = rate;
+      const gain = engine.ctx.createGain();
+      gain.gain.value = 0;
+      gain.gain.linearRampToValueAtTime(1, engine.ctx.currentTime + 1);
+      source.connect(gain);
+      gain.connect(labState.musicGain);
+      source.start();
+      labState.musicSources[trackId] = { source, gainNode: gain };
+    }
+
+    // Update button UI
+    const btn = document.querySelector(`.lab-track-btn[data-track-id="${trackId}"]`);
+    if (btn) {
+      const playing = !!labState.musicSources[trackId];
+      btn.classList.toggle('playing', playing);
+      btn.innerHTML = playing
+        ? '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
+    }
+  }
+
+  function stopAllLabSounds() {
+    Object.keys(labState.activeSounds).forEach(id => toggleLabSound(id));
+    Object.keys(labState.musicSources).forEach(id => toggleLabTrack(id));
+    engine._stopKeepAlive();
+  }
+
   // --- Pre-Session Reminder ---
   let pendingMode = null;
 
@@ -1747,6 +1948,34 @@
       saveSettings();
       showScreen('screen-dashboard');
       updateDashboard();
+    });
+
+    // Sound Lab
+    document.getElementById('btn-lab').addEventListener('click', () => {
+      initSoundLab();
+      showScreen('screen-lab');
+    });
+    document.getElementById('btn-back-lab').addEventListener('click', () => {
+      stopAllLabSounds();
+      showScreen('screen-dashboard');
+    });
+    document.getElementById('lab-grid').addEventListener('click', (e) => {
+      const pad = e.target.closest('.lab-pad');
+      if (pad) toggleLabSound(pad.dataset.sound);
+    });
+    document.getElementById('lab-master-vol').addEventListener('input', (e) => {
+      if (labState.masterGain) {
+        labState.masterGain.gain.setTargetAtTime(e.target.value / 100, engine.ctx.currentTime, 0.05);
+      }
+    });
+    document.getElementById('lab-music-vol').addEventListener('input', (e) => {
+      if (labState.musicGain) {
+        labState.musicGain.gain.setTargetAtTime(e.target.value / 100, engine.ctx.currentTime, 0.05);
+      }
+    });
+    document.getElementById('lab-interval').addEventListener('change', (e) => {
+      labState.selectedInterval = e.target.value;
+      updateAllTrackRates();
     });
 
     // Paywall

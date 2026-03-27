@@ -640,6 +640,33 @@ class TympanIQEngine {
  * Handles looping (crossfade when clip is shorter than phase),
  * fade-in/out on phase transitions, and a separate volume control.
  */
+// --- Sound Lab: Track Catalog & Harmonic Tuning ---
+const TRACK_CATALOG = [
+  { id: 'broadband-enrichment', file: 'music/broadband-enrichment.mp3', title: 'Broadband Enrichment', key: 'C', rootFreq: 261.63 },
+  { id: 'alpha-binaural',       file: 'music/alpha-binaural.mp3',       title: 'Alpha Binaural',       key: 'A', rootFreq: 440.00 },
+  { id: 'mixed-enrichment',     file: 'music/mixed-enrichment.mp3',     title: 'Mixed Enrichment',     key: 'G', rootFreq: 392.00 },
+  { id: 'theta-binaural',       file: 'music/theta-binaural.mp3',       title: 'Theta Binaural',       key: 'Dm', rootFreq: 293.66 },
+];
+
+const HARMONIC_INTERVALS = {
+  none:        { ratio: null, label: 'No Tuning' },
+  unison:      { ratio: 1,    label: 'Unison' },
+  minor3rd:    { ratio: 6/5,  label: 'Minor 3rd' },
+  major3rd:    { ratio: 5/4,  label: 'Major 3rd' },
+  perfect4th:  { ratio: 4/3,  label: 'Perfect 4th' },
+  perfect5th:  { ratio: 3/2,  label: 'Perfect 5th' },
+  octave:      { ratio: 2,    label: 'Octave' },
+};
+
+function calcPlaybackRate(rootFreq, carrierHz, intervalRatio) {
+  if (!intervalRatio || !carrierHz) return 1.0;
+  let targetFreq = carrierHz * intervalRatio;
+  // Bring target into the octave nearest to rootFreq
+  while (targetFreq > rootFreq * 1.5) targetFreq /= 2;
+  while (targetFreq < rootFreq / 1.5) targetFreq *= 2;
+  return targetFreq / rootFreq;
+}
+
 class MusicPlayer {
   constructor() {
     this.ctx = null;
