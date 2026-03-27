@@ -1184,6 +1184,268 @@
     });
   }
 
+  // --- TuneMatch Game ---
+  const TM_STAGES = [
+    { name: 'Alpha Tuning', baseFreq: 440, beatFreq: 10, instrumentType: 'pad', instrumentFreq: 440, difficulty: 'easy' },
+    { name: 'Theta Feel', baseFreq: 293.66, beatFreq: 6, instrumentType: 'bell', instrumentFreq: 293.66, difficulty: 'easy' },
+    { name: 'Harmonic Drift', baseFreq: 440, beatFreq: 10, instrumentType: 'pad', instrumentFreq: 329.63, difficulty: 'medium' },
+    { name: 'Deep Theta', baseFreq: 220, beatFreq: 4, instrumentType: 'organ', instrumentFreq: 220, difficulty: 'medium' },
+    { name: 'Final Round', baseFreq: 350, beatFreq: 7, instrumentType: 'bell', instrumentFreq: 350, difficulty: 'hard' },
+  ];
+
+  const tmState = {
+    stage: 0, scores: [], playerDetune: 0, initialDetune: 0,
+    timerInterval: null, startTime: 0,
+    history: JSON.parse(localStorage.getItem('tympaniq-tm-history') || '[]'),
+  };
+
+  // TuneMatch audio (reuses engine's AudioContext)
+  const tmAudio = {
+    ctx: null, masterGain: null, binauralNodes: null, instrumentNodes: null,
+    init() {
+      engine.init();
+      if (engine.ctx.state === 'suspended') engine.ctx.resume();
+      this.ctx = engine.ctx;
+      if (!this.masterGain) {
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.value = 0.5;
+        this.masterGain.connect(this.ctx.destination);
+      }
+    },
+    startBinaural(base, beat) {
+      this.stopBinaural();
+      const merger = this.ctx.createChannelMerger(2);
+      const oL = this.ctx.createOscillator(); const oR = this.ctx.createOscillator();
+      const gL = this.ctx.createGain(); const gR = this.ctx.createGain();
+      const env = this.ctx.createGain();
+      oL.type = 'sine'; oR.type = 'sine';
+      oL.frequency.value = base; oR.frequency.value = base + beat;
+      gL.gain.value = 0.4; gR.gain.value = 0.4;
+      oL.connect(gL); gL.connect(merger, 0, 0);
+      oR.connect(gR); gR.connect(merger, 0, 1);
+      const now = this.ctx.currentTime;
+      env.gain.setValueAtTime(0, now);
+      env.gain.linearRampToValueAtTime(1, now + 2);
+      merger.connect(env); env.connect(this.masterGain);
+      oL.start(); oR.start();
+      this.binauralNodes = { oL, oR, merger, env };
+    },
+    fadeBinaural(dur) {
+      if (!this.binauralNodes) return;
+      const { env, oL, oR, merger } = this.binauralNodes;
+      const now = this.ctx.currentTime;
+      env.gain.cancelScheduledValues(now);
+      env.gain.setValueAtTime(env.gain.value, now);
+      env.gain.linearRampToValueAtTime(0, now + dur);
+      const n = this.binauralNodes; this.binauralNodes = null;
+      setTimeout(() => { try{n.oL.stop();}catch(e){} try{n.oR.stop();}catch(e){} try{n.env.disconnect();}catch(e){} }, (dur+0.5)*1000);
+    },
+    stopBinaural() {
+      if (!this.binauralNodes) return;
+      try{this.binauralNodes.oL.stop();}catch(e){} try{this.binauralNodes.oR.stop();}catch(e){}
+      try{this.binauralNodes.env.disconnect();}catch(e){} this.binauralNodes = null;
+    },
+    startInstrument(type, freq, detuneCents) {
+      this.stopInstrument();
+      const env = this.ctx.createGain();
+      const now = this.ctx.currentTime;
+      env.gain.setValueAtTime(0, now);
+      env.gain.linearRampToValueAtTime(1, now + 1.5);
+      env.connect(this.masterGain);
+      const oscs = []; const offsets = [];
+      const configs = type === 'pad' ? [
+        { t:'sine', d:0, g:0.3 }, { t:'triangle', d:3, g:0.15 }, { t:'triangle', d:-3, g:0.15 }, { t:'sine', d:0, g:0.1, m:2 }
+      ] : type === 'bell' ? [
+        { t:'sine', d:0, g:0.3, m:1 }, { t:'sine', d:0, g:0.12, m:2.76 }, { t:'sine', d:0, g:0.06, m:4.07 }, { t:'sine', d:0, g:0.03, m:5.2 }
+      ] : [
+        { t:'sine', d:0, g:0.25, m:1 }, { t:'sine', d:0, g:0.15, m:2 }, { t:'sine', d:0, g:0.1, m:3 }, { t:'sine', d:0, g:0.08, m:4 }
+      ];
+      configs.forEach(c => {
+        const o = this.ctx.createOscillator(); const g = this.ctx.createGain();
+        o.type = c.t; o.frequency.value = freq * (c.m || 1);
+        o.detune.value = (c.d || 0) + detuneCents;
+        g.gain.value = c.g; o.connect(g); g.connect(env); o.start();
+        oscs.push(o); offsets.push(c.d || 0);
+      });
+      this.instrumentNodes = { oscs, env, offsets };
+    },
+    setDetune(cents) {
+      if (!this.instrumentNodes) return;
+      this.instrumentNodes.oscs.forEach((o, i) => {
+        o.detune.setTargetAtTime(cents + (this.instrumentNodes.offsets[i]||0), this.ctx.currentTime, 0.05);
+      });
+    },
+    fadeInstrument(dur) {
+      if (!this.instrumentNodes) return;
+      const { env, oscs } = this.instrumentNodes;
+      const now = this.ctx.currentTime;
+      env.gain.cancelScheduledValues(now);
+      env.gain.setValueAtTime(env.gain.value, now);
+      env.gain.linearRampToValueAtTime(0, now + dur);
+      const n = this.instrumentNodes; this.instrumentNodes = null;
+      setTimeout(() => { n.oscs.forEach(o => { try{o.stop();}catch(e){} }); try{n.env.disconnect();}catch(e){} }, (dur+0.5)*1000);
+    },
+    stopInstrument() {
+      if (!this.instrumentNodes) return;
+      this.instrumentNodes.oscs.forEach(o => { try{o.stop();}catch(e){} });
+      try{this.instrumentNodes.env.disconnect();}catch(e){} this.instrumentNodes = null;
+    },
+    stopAll() { this.stopBinaural(); this.stopInstrument(); },
+  };
+
+  function tmGetGrade(c) {
+    if (c<=5) return { grade:'Perfect', cls:'perfect', pts:100 };
+    if (c<=15) return { grade:'Excellent', cls:'excellent', pts:80 };
+    if (c<=30) return { grade:'Good', cls:'good', pts:50 };
+    if (c<=50) return { grade:'Close', cls:'close', pts:25 };
+    return { grade:'Off', cls:'off', pts:5 };
+  }
+  function tmGetStars(c) { return c<=10?3:c<=30?2:c<=60?1:0; }
+
+  function tmShowPhase(id) {
+    document.querySelectorAll('.tm-phase').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function tmSetNeedle(cents) {
+    const a = Math.max(-80, Math.min(80, (cents/100)*80));
+    const el = document.getElementById('tm-reveal-needle');
+    if (el) el.setAttribute('transform', `rotate(${a}, 120, 130)`);
+  }
+
+  function tmAnimateStars(containerId, count) {
+    const stars = document.getElementById(containerId).querySelectorAll('.tm-star');
+    stars.forEach(s => { s.classList.remove('earned','pop'); s.style.animationDelay=''; });
+    void document.getElementById(containerId).offsetWidth;
+    stars.forEach((s,i) => {
+      if (i<count) s.classList.add('earned');
+      s.style.animationDelay = `${0.3+i*0.25}s`;
+      s.classList.add('pop');
+    });
+  }
+
+  function tmStartTimer() {
+    tmState.startTime = Date.now();
+    clearInterval(tmState.timerInterval);
+    tmState.timerInterval = setInterval(() => {
+      const e = Math.floor((Date.now()-tmState.startTime)/1000);
+      document.getElementById('tm-timer').textContent = `${Math.floor(e/60)}:${String(e%60).padStart(2,'0')}`;
+    }, 250);
+  }
+
+  function tmStartRound(idx) {
+    tmState.stage = idx;
+    const s = TM_STAGES[idx];
+    document.getElementById('tm-round-num').textContent = idx+1;
+    document.getElementById('tm-round-name').textContent = s.name;
+    const range = s.difficulty==='easy'?60:s.difficulty==='medium'?80:100;
+    let d = Math.round(Math.random()*range*2-range);
+    if (Math.abs(d)<15) d += d>=0?20:-20;
+    tmState.initialDetune = d;
+    tmState.playerDetune = d;
+    const slider = document.getElementById('tm-pitch-slider');
+    slider.value = d;
+    tmAudio.init();
+    tmAudio.startBinaural(s.baseFreq, s.beatFreq);
+    tmAudio.startInstrument(s.instrumentType, s.instrumentFreq, d);
+    tmShowPhase('tm-round');
+    tmStartTimer();
+  }
+
+  function tmLockIn() {
+    clearInterval(tmState.timerInterval);
+    const elapsed = Math.floor((Date.now()-tmState.startTime)/1000);
+    const s = TM_STAGES[tmState.stage];
+    const off = Math.abs(Math.round(tmState.playerDetune));
+    const { grade, cls, pts } = tmGetGrade(off);
+    const bonus = Math.max(0, Math.round(20-elapsed));
+    const stars = tmGetStars(off);
+    tmState.scores.push({ stage:s.name, grade, cents:off, points:pts+bonus, stars, time:elapsed });
+    tmAudio.fadeBinaural(1.5);
+    setTimeout(() => tmAudio.setDetune(0), 800);
+
+    // Setup reveal
+    const needle = document.getElementById('tm-reveal-needle');
+    needle.style.transition = 'none';
+    needle.setAttribute('transform','rotate(0,120,130)');
+    document.getElementById('tm-reveal-cents').textContent = '';
+    document.getElementById('tm-result-label').textContent = s.name;
+    document.getElementById('tm-grade').textContent = '';
+    document.getElementById('tm-off').textContent = '';
+    const isLast = tmState.stage >= TM_STAGES.length-1;
+    document.getElementById('btn-tm-next').textContent = isLast ? 'See Results' : 'Next Round';
+    tmShowPhase('tm-result');
+    setTimeout(() => {
+      needle.style.transition = 'transform 1s cubic-bezier(0.34,1.56,0.64,1)';
+      tmSetNeedle(tmState.playerDetune);
+      document.getElementById('tm-reveal-cents').textContent = `${tmState.playerDetune>0?'+':''}${Math.round(tmState.playerDetune)}¢`;
+    }, 400);
+    setTimeout(() => {
+      document.getElementById('tm-grade').textContent = grade;
+      document.getElementById('tm-grade').className = 'tm-grade '+cls;
+      document.getElementById('tm-off').textContent = off===0?'Dead on!':`${off}¢ off`;
+      tmAnimateStars('tm-round-stars', stars);
+    }, 1400);
+  }
+
+  function tmNextRound() {
+    tmAudio.fadeInstrument(1.5);
+    if (tmState.stage >= TM_STAGES.length-1) {
+      setTimeout(tmShowFinal, 400);
+    } else {
+      setTimeout(() => tmStartRound(tmState.stage+1), 400);
+    }
+  }
+
+  function tmShowFinal() {
+    const total = tmState.scores.reduce((s,r) => s+r.points, 0);
+    const totalStars = tmState.scores.reduce((s,r) => s+r.stars, 0);
+    const pct = totalStars / (TM_STAGES.length*3);
+    const finalStars = pct>=0.8?3:pct>=0.5?2:pct>=0.2?1:0;
+    document.getElementById('tm-total-score').textContent = total;
+    document.getElementById('tm-breakdown').innerHTML = tmState.scores.map(s => {
+      const si = '★'.repeat(s.stars)+'☆'.repeat(3-s.stars);
+      return `<div class="tm-brow"><span class="tm-brow-name">${s.stage}</span><span><span class="tm-brow-stars">${si}</span><span class="tm-brow-cents">${s.cents}¢</span></span></div>`;
+    }).join('');
+    tmShowPhase('tm-final');
+    tmAnimateStars('tm-final-stars', finalStars);
+
+    // Save to history
+    const avgCents = Math.round(tmState.scores.reduce((s,r)=>s+r.cents,0)/tmState.scores.length);
+    tmState.history.push({ date: new Date().toISOString(), score: total, avgCents, stars: finalStars });
+    if (tmState.history.length > 50) tmState.history = tmState.history.slice(-50);
+    localStorage.setItem('tympaniq-tm-history', JSON.stringify(tmState.history));
+    updateTMMetrics();
+  }
+
+  function tmDone() {
+    tmAudio.stopAll();
+    tmState.scores = [];
+    tmState.stage = 0;
+    showScreen('screen-progress');
+  }
+
+  function updateTMMetrics() {
+    const h = tmState.history;
+    const bestEl = document.getElementById('tm-best-score');
+    const playedEl = document.getElementById('tm-games-played');
+    if (bestEl) bestEl.textContent = h.length ? Math.max(...h.map(r=>r.score)) : '—';
+    if (playedEl) playedEl.textContent = h.length;
+    // Trend chart
+    const section = document.getElementById('tm-history-section');
+    const trend = document.getElementById('tm-trend');
+    if (section && trend && h.length > 0) {
+      section.style.display = '';
+      const last = h.slice(-20);
+      const maxC = Math.max(...last.map(r=>r.avgCents), 1);
+      trend.innerHTML = last.map(r => {
+        const pct = Math.max(5, Math.round((1 - r.avgCents/maxC)*100));
+        const color = r.avgCents<=10?'#22c55e':r.avgCents<=30?'#eab308':'#ef4444';
+        return `<div class="tm-trend-bar" style="height:${pct}%;background:${color}" title="${r.avgCents}¢ avg"></div>`;
+      }).join('');
+    }
+  }
+
   // --- Pre-Session Reminder ---
   let pendingMode = null;
 
@@ -2173,11 +2435,34 @@
     // Nav
     document.getElementById('btn-progress').addEventListener('click', () => {
       updateProgress();
+      updateTMMetrics();
       showScreen('screen-progress');
     });
     document.getElementById('btn-back-progress').addEventListener('click', () => {
       showScreen('screen-dashboard');
     });
+
+    // TuneMatch
+    document.getElementById('btn-tunematch').addEventListener('click', () => {
+      tmShowPhase('tm-pregame');
+      showScreen('screen-tunematch');
+    });
+    document.getElementById('btn-back-tunematch').addEventListener('click', () => {
+      tmAudio.stopAll();
+      clearInterval(tmState.timerInterval);
+      showScreen('screen-progress');
+    });
+    document.getElementById('btn-tm-start').addEventListener('click', () => {
+      tmState.scores = [];
+      tmStartRound(0);
+    });
+    document.getElementById('tm-pitch-slider').addEventListener('input', (e) => {
+      tmState.playerDetune = parseInt(e.target.value);
+      tmAudio.setDetune(tmState.playerDetune);
+    });
+    document.getElementById('btn-tm-lockin').addEventListener('click', tmLockIn);
+    document.getElementById('btn-tm-next').addEventListener('click', tmNextRound);
+    document.getElementById('btn-tm-done').addEventListener('click', tmDone);
 
     document.getElementById('btn-settings').addEventListener('click', () => {
       loadSettings();

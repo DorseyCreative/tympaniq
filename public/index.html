@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=24">
+  <link rel="stylesheet" href="styles.css?v=25">
 </head>
 <body>
   <div id="app">
@@ -208,8 +208,13 @@
           <button id="btn-lab" class="icon-btn" title="Sound Lab">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v6l-4 8h14l-4-8V3"/><path d="M8 3h8"/><circle cx="13" cy="14" r="1.5" fill="currentColor" stroke="none"/><circle cx="10" cy="16" r="1" fill="currentColor" stroke="none"/></svg>
           </button>
-          <button id="btn-progress" class="icon-btn" title="Progress">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+          <button id="btn-progress" class="icon-btn" title="Metrics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <!-- tuning fork + chart -->
+              <path d="M6 3v8M10 3v8M8 11v8M8 19v2"/>
+              <circle cx="8" cy="11" r="2"/>
+              <path d="M14 20l3-5 2 3 3-7"/>
+            </svg>
           </button>
           <button id="btn-settings" class="icon-btn" title="Settings">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -504,25 +509,48 @@
       </div>
     </div>
 
-    <!-- Progress Screen -->
+    <!-- Metrics Screen -->
     <div id="screen-progress" class="screen">
       <header class="sub-header">
         <button id="btn-back-progress" class="back-btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </button>
-        <h2>Progress</h2>
+        <h2>Metrics</h2>
         <div></div>
       </header>
       <div class="progress-content">
+        <!-- TuneMatch Card -->
+        <div class="metrics-card tunematch-card" id="btn-tunematch">
+          <div class="tm-card-icon">
+            <svg viewBox="0 0 50 50">
+              <circle cx="25" cy="25" r="22" fill="none" stroke="rgba(99,102,241,0.2)" stroke-width="2"/>
+              <circle cx="25" cy="25" r="22" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="138" stroke-dashoffset="50" stroke-linecap="round" class="tm-arc"/>
+              <line x1="25" y1="25" x2="25" y2="8" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" class="tm-needle"/>
+            </svg>
+          </div>
+          <div class="tm-card-info">
+            <h3>TuneMatch</h3>
+            <p>Test your pitch perception</p>
+            <div class="tm-card-stats">
+              <span id="tm-best-score">—</span>
+              <span class="tm-card-sep">best</span>
+              <span id="tm-games-played">0</span>
+              <span class="tm-card-sep">played</span>
+            </div>
+          </div>
+          <svg class="tm-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+
+        <!-- Session Stats -->
         <div class="calendar-grid" id="calendar-grid"></div>
         <div class="progress-stats">
           <div class="p-stat">
             <span class="p-stat-value" id="p-total-sessions">0</span>
-            <span class="p-stat-label">Total Sessions</span>
+            <span class="p-stat-label">Sessions</span>
           </div>
           <div class="p-stat">
             <span class="p-stat-value" id="p-total-minutes">0</span>
-            <span class="p-stat-label">Total Minutes</span>
+            <span class="p-stat-label">Minutes</span>
           </div>
           <div class="p-stat">
             <span class="p-stat-value" id="p-best-streak">0</span>
@@ -530,11 +558,114 @@
           </div>
           <div class="p-stat">
             <span class="p-stat-value" id="p-current-streak">0</span>
-            <span class="p-stat-label">Current Streak</span>
+            <span class="p-stat-label">Streak</span>
           </div>
         </div>
+
+        <!-- TuneMatch History -->
+        <div id="tm-history-section" style="display:none">
+          <h3 class="history-title">Pitch Accuracy Trend</h3>
+          <div class="tm-trend" id="tm-trend"></div>
+        </div>
+
         <h3 class="history-title">Recent Sessions</h3>
         <div id="session-history" class="session-history"></div>
+      </div>
+    </div>
+
+    <!-- TuneMatch Game Screen -->
+    <div id="screen-tunematch" class="screen">
+      <header class="sub-header">
+        <button id="btn-back-tunematch" class="back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <h2>TuneMatch</h2>
+        <div></div>
+      </header>
+      <div class="tm-game-area">
+        <!-- Pre-game -->
+        <div id="tm-pregame" class="tm-phase active">
+          <div class="tm-pregame-content">
+            <div class="tm-rings">
+              <div class="tm-ring r1"></div>
+              <div class="tm-ring r2"></div>
+              <div class="tm-ring r3"></div>
+              <div class="tm-dot"></div>
+            </div>
+            <h3>Pitch Perception Test</h3>
+            <p>5 rounds. Tune by ear. No visual hints.</p>
+            <button id="btn-tm-start" class="btn-primary">Begin</button>
+          </div>
+        </div>
+
+        <!-- Active round -->
+        <div id="tm-round" class="tm-phase">
+          <div class="tm-round-header">
+            <span class="tm-round-badge">Round <span id="tm-round-num">1</span>/5</span>
+            <span class="tm-round-name" id="tm-round-name">Alpha Tuning</span>
+            <span class="tm-timer" id="tm-timer">0:00</span>
+          </div>
+          <div class="tm-listen">
+            <div class="tm-rings">
+              <div class="tm-ring r1"></div>
+              <div class="tm-ring r2"></div>
+              <div class="tm-ring r3"></div>
+              <div class="tm-dot"></div>
+            </div>
+            <p class="tm-listen-text">Listen &amp; tune</p>
+          </div>
+          <div class="tm-slider-area">
+            <input type="range" id="tm-pitch-slider" min="-100" max="100" value="0" step="1" class="tm-pitch-slider">
+          </div>
+          <button id="btn-tm-lockin" class="btn-lockin">That's It!</button>
+        </div>
+
+        <!-- Round result -->
+        <div id="tm-result" class="tm-phase">
+          <div class="tm-result-content">
+            <div class="tm-result-label" id="tm-result-label">Alpha Tuning</div>
+            <div class="tm-tuner-reveal">
+              <svg viewBox="0 0 240 140" class="tm-tuner-svg">
+                <path d="M 30 130 A 100 100 0 0 1 210 130" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8" stroke-linecap="round"/>
+                <path d="M 30 130 A 100 100 0 0 1 70 45" fill="none" stroke="#f44" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+                <path d="M 70 45 A 100 100 0 0 1 100 30" fill="none" stroke="#fa0" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+                <path d="M 100 30 A 100 100 0 0 1 140 30" fill="none" stroke="#4f4" stroke-width="6" stroke-linecap="round" opacity="0.6"/>
+                <path d="M 140 30 A 100 100 0 0 1 170 45" fill="none" stroke="#fa0" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+                <path d="M 170 45 A 100 100 0 0 1 210 130" fill="none" stroke="#f44" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+                <line x1="120" y1="26" x2="120" y2="40" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+                <g id="tm-reveal-needle" transform="rotate(0, 120, 130)">
+                  <line x1="120" y1="130" x2="120" y2="35" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="120" cy="130" r="7" fill="var(--accent)"/>
+                  <circle cx="120" cy="130" r="3" fill="var(--bg)"/>
+                </g>
+                <text x="120" y="115" text-anchor="middle" fill="var(--text)" font-size="22" font-family="monospace" font-weight="600" id="tm-reveal-cents">0¢</text>
+              </svg>
+            </div>
+            <div class="tm-stars" id="tm-round-stars">
+              <svg class="tm-star s1" viewBox="0 0 50 50"><polygon points="25,2 31,18 49,18 34,29 39,46 25,36 11,46 16,29 1,18 19,18" fill="currentColor"/></svg>
+              <svg class="tm-star s2" viewBox="0 0 50 50"><polygon points="25,2 31,18 49,18 34,29 39,46 25,36 11,46 16,29 1,18 19,18" fill="currentColor"/></svg>
+              <svg class="tm-star s3" viewBox="0 0 50 50"><polygon points="25,2 31,18 49,18 34,29 39,46 25,36 11,46 16,29 1,18 19,18" fill="currentColor"/></svg>
+            </div>
+            <div class="tm-grade" id="tm-grade">Perfect</div>
+            <div class="tm-off" id="tm-off">2¢ off</div>
+            <button id="btn-tm-next" class="btn-primary">Next Round</button>
+          </div>
+        </div>
+
+        <!-- Final results -->
+        <div id="tm-final" class="tm-phase">
+          <div class="tm-final-content">
+            <div class="tm-stars" id="tm-final-stars">
+              <svg class="tm-star s1" viewBox="0 0 50 50"><polygon points="25,2 31,18 49,18 34,29 39,46 25,36 11,46 16,29 1,18 19,18" fill="currentColor"/></svg>
+              <svg class="tm-star s2" viewBox="0 0 50 50"><polygon points="25,2 31,18 49,18 34,29 39,46 25,36 11,46 16,29 1,18 19,18" fill="currentColor"/></svg>
+              <svg class="tm-star s3" viewBox="0 0 50 50"><polygon points="25,2 31,18 49,18 34,29 39,46 25,36 11,46 16,29 1,18 19,18" fill="currentColor"/></svg>
+            </div>
+            <div class="tm-total-score" id="tm-total-score">0</div>
+            <div class="tm-total-label">Total Score</div>
+            <div class="tm-breakdown" id="tm-breakdown"></div>
+            <button id="btn-tm-done" class="btn-primary">Done</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -938,8 +1069,8 @@
   </div>
 
   <script src="https://js.stripe.com/v3/" async></script>
-  <script src="audio-engine.js?v=24"></script>
-  <script src="app.js?v=24"></script>
+  <script src="audio-engine.js?v=25"></script>
+  <script src="app.js?v=25"></script>
   <script>
     if ('serviceWorker' in navigator) {
       if (!localStorage.getItem('tiq_sw_v12')) {
