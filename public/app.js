@@ -1412,6 +1412,8 @@
   }
 
   function tmNextRound() {
+    // resume context in tap handler for iOS
+    if (tmAudio.ctx && tmAudio.ctx.state === 'suspended') tmAudio.ctx.resume();
     tmAudio.fadeInstrument(1.5);
     if (tmState.stage >= TM_STAGES.length-1) {
       setTimeout(tmShowFinal, 400);
@@ -2477,6 +2479,9 @@
       showScreen('screen-progress');
     });
     document.getElementById('btn-tm-start').addEventListener('click', () => {
+      // init + resume must happen synchronously in tap handler for iOS
+      tmAudio.init();
+      if (tmAudio.ctx && tmAudio.ctx.state === 'suspended') tmAudio.ctx.resume();
       tmAudio.fadeSplash(1.5);
       tmState.scores = [];
       tmStartRound(0);
